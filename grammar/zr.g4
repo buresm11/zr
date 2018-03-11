@@ -5,7 +5,7 @@ parse
 ;
 
 top_block
- : (function_decl | global_statement)*
+ : (function_decl | global_statement )*
  ;
 
 block
@@ -13,8 +13,7 @@ block
  ;
 
  global_statement
- : variable_def ';'
- | assignment ';'
+ : global_variable_def ';'
  ;
 
 statement
@@ -37,6 +36,11 @@ assignment
  variable_def
  : Type_identifier Identifier ('=' expression)?
  ;
+
+ global_variable_def
+ : Type_identifier Identifier ('=' literal)?
+ ;
+
 
 function_call
  : Identifier '(' (expression (',' expression)*)? ')'
@@ -86,12 +90,16 @@ expression
  | expression '!=' expression               #notEqExpression
  | expression '&&' expression               #andExpression
  | expression '||' expression               #orExpression
- | Number                                   #numberExpression
- | Bool                                     #boolExpression
  | Identifier '(' (expression (',' expression)*)? ')'                     #functionCallExpression
  | Identifier                               #identifierExpression
- | String                                   #stringExpression
+ | literal                                  #literalExpression
  ;
+
+literal
+: Number
+| Bool
+| String
+;
 
 Def       : 'def';
 If        : 'if';

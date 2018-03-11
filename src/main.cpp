@@ -34,7 +34,14 @@ int main(int argc, char const * argv[])
 	}
 
 	Visitor visitor;
-	visitor.visit(tree);
 
+	llvm::Module * m = visitor.visit(tree);
+
+	std::error_code error;
+    llvm::raw_fd_ostream o("text", error, llvm::sys::fs::OpenFlags::F_None);
+    llvm::WriteBitcodeToFile(m, o);
+
+    m->dump();
+    
 	return 1;
 }

@@ -47,6 +47,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitGlobal_variable_def(zrParser::Global_variable_defContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitFunction_call(zrParser::Function_callContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -87,15 +91,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitBoolExpression(zrParser::BoolExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitNumberExpression(zrParser::NumberExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -139,10 +135,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStringExpression(zrParser::StringExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -155,7 +147,15 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitLiteralExpression(zrParser::LiteralExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitLtEqExpression(zrParser::LtEqExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitLiteral(zrParser::LiteralContext *ctx) override {
     return visitChildren(ctx);
   }
 

@@ -38,6 +38,9 @@ public:
   virtual void enterVariable_def(zrParser::Variable_defContext *ctx) = 0;
   virtual void exitVariable_def(zrParser::Variable_defContext *ctx) = 0;
 
+  virtual void enterGlobal_variable_def(zrParser::Global_variable_defContext *ctx) = 0;
+  virtual void exitGlobal_variable_def(zrParser::Global_variable_defContext *ctx) = 0;
+
   virtual void enterFunction_call(zrParser::Function_callContext *ctx) = 0;
   virtual void exitFunction_call(zrParser::Function_callContext *ctx) = 0;
 
@@ -68,14 +71,8 @@ public:
   virtual void enterGtExpression(zrParser::GtExpressionContext *ctx) = 0;
   virtual void exitGtExpression(zrParser::GtExpressionContext *ctx) = 0;
 
-  virtual void enterBoolExpression(zrParser::BoolExpressionContext *ctx) = 0;
-  virtual void exitBoolExpression(zrParser::BoolExpressionContext *ctx) = 0;
-
   virtual void enterNotEqExpression(zrParser::NotEqExpressionContext *ctx) = 0;
   virtual void exitNotEqExpression(zrParser::NotEqExpressionContext *ctx) = 0;
-
-  virtual void enterNumberExpression(zrParser::NumberExpressionContext *ctx) = 0;
-  virtual void exitNumberExpression(zrParser::NumberExpressionContext *ctx) = 0;
 
   virtual void enterIdentifierExpression(zrParser::IdentifierExpressionContext *ctx) = 0;
   virtual void exitIdentifierExpression(zrParser::IdentifierExpressionContext *ctx) = 0;
@@ -107,9 +104,6 @@ public:
   virtual void enterAndExpression(zrParser::AndExpressionContext *ctx) = 0;
   virtual void exitAndExpression(zrParser::AndExpressionContext *ctx) = 0;
 
-  virtual void enterStringExpression(zrParser::StringExpressionContext *ctx) = 0;
-  virtual void exitStringExpression(zrParser::StringExpressionContext *ctx) = 0;
-
   virtual void enterAddExpression(zrParser::AddExpressionContext *ctx) = 0;
   virtual void exitAddExpression(zrParser::AddExpressionContext *ctx) = 0;
 
@@ -119,8 +113,14 @@ public:
   virtual void enterFunctionCallExpression(zrParser::FunctionCallExpressionContext *ctx) = 0;
   virtual void exitFunctionCallExpression(zrParser::FunctionCallExpressionContext *ctx) = 0;
 
+  virtual void enterLiteralExpression(zrParser::LiteralExpressionContext *ctx) = 0;
+  virtual void exitLiteralExpression(zrParser::LiteralExpressionContext *ctx) = 0;
+
   virtual void enterLtEqExpression(zrParser::LtEqExpressionContext *ctx) = 0;
   virtual void exitLtEqExpression(zrParser::LtEqExpressionContext *ctx) = 0;
+
+  virtual void enterLiteral(zrParser::LiteralContext *ctx) = 0;
+  virtual void exitLiteral(zrParser::LiteralContext *ctx) = 0;
 
 
 };

@@ -8,9 +8,13 @@
 
 class Visitor : public zrVisitor
 {
-
 	llvm::LLVMContext llvm_context;
 	llvm::Module * m;
+
+	static llvm::Type * t_int;
+	static llvm::Type * t_string;
+    static llvm::Type * t_bool;
+    static llvm::Type * t_void;
 
 public:
 
@@ -19,6 +23,10 @@ public:
 		std::cout << "Compilation started" << std::endl;
 
 		m = new llvm::Module("zr", llvm_context);
+
+		llvm::GlobalVariable * gv = new llvm::GlobalVariable(*m, t_int, false, llvm::GlobalValue::CommonLinkage, nullptr, "xxxx");
+        gv->setAlignment(4);
+        gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 5)));
 
 		return m;
 	}
@@ -33,7 +41,12 @@ public:
 
     }
 
-    antlrcpp::Any visitGlobal_statement(zrParser::Global_statementContext *context)
+   	antlrcpp::Any visitGlobal_statement(zrParser::Global_statementContext *context)
+   	{
+
+   	}
+
+    antlrcpp::Any visitGlobal_variable_def(zrParser::Global_variable_defContext *context)
     {
 
     }
@@ -108,17 +121,17 @@ public:
 
     }
 
-    antlrcpp::Any visitBoolExpression(zrParser::BoolExpressionContext *context)
+    antlrcpp::Any visitLiteralExpression(zrParser::LiteralExpressionContext *context)
+    {
+
+    }
+
+    antlrcpp::Any visitLiteral(zrParser::LiteralContext *context)
     {
 
     }
 
     antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *context)
-    {
-
-    }
-
-    antlrcpp::Any visitNumberExpression(zrParser::NumberExpressionContext *context)
     {
 
     }
@@ -169,11 +182,6 @@ public:
     }
 
     antlrcpp::Any visitAndExpression(zrParser::AndExpressionContext *context)
-    {
-
-    }
-
-    antlrcpp::Any visitStringExpression(zrParser::StringExpressionContext *context)
     {
 
     }

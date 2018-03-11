@@ -35,6 +35,8 @@ public:
 
     virtual antlrcpp::Any visitVariable_def(zrParser::Variable_defContext *context) = 0;
 
+    virtual antlrcpp::Any visitGlobal_variable_def(zrParser::Global_variable_defContext *context) = 0;
+
     virtual antlrcpp::Any visitFunction_call(zrParser::Function_callContext *context) = 0;
 
     virtual antlrcpp::Any visitIf_statement(zrParser::If_statementContext *context) = 0;
@@ -55,11 +57,7 @@ public:
 
     virtual antlrcpp::Any visitGtExpression(zrParser::GtExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitBoolExpression(zrParser::BoolExpressionContext *context) = 0;
-
     virtual antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitNumberExpression(zrParser::NumberExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *context) = 0;
 
@@ -81,15 +79,17 @@ public:
 
     virtual antlrcpp::Any visitAndExpression(zrParser::AndExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitStringExpression(zrParser::StringExpressionContext *context) = 0;
-
     virtual antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitSubtractExpression(zrParser::SubtractExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionCallExpression(zrParser::FunctionCallExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitLiteralExpression(zrParser::LiteralExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitLtEqExpression(zrParser::LtEqExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitLiteral(zrParser::LiteralContext *context) = 0;
 
 
 };
