@@ -1,1 +1,12 @@
 int x = 5;
+int z;
+bool del;
+bool zx = true;
+int d = 25;
+
+
+def int main(int a, bool b)
+
+	return 5;
+	
+end
