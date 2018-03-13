@@ -26,11 +26,11 @@ class Visitor : public zrVisitor
 {
 	llvm::LLVMContext llvm_context;
 	llvm::Module * m;
+	llvm::Function * f;
+	llvm::BasicBlock * bb;
 	Scope * scope;
 
 	static llvm::Type * t_int;
-    static llvm::Type * t_bool;
-    static llvm::Type * t_void;
 
 public:
 
@@ -69,11 +69,6 @@ public:
     	return cv;
     }
 
-    antlrcpp::Any visitBlock(zrParser::BlockContext *context)
-    {
-    	 Debug(": block" << std::endl);
-    }
-
    	antlrcpp::Any visitGlobal_statement(zrParser::Global_statementContext *context)
    	{
    		Debug(": global_statement" << std::endl);
@@ -85,167 +80,222 @@ public:
     {
     	Debug(": global_variable_def" << std::endl);
 
-    	std::string type = context->Type_identifier()->getText();
     	std::string name = context->Identifier()->getText();
-
-    	std::cout << type << "xx" << name << std::endl;
 
     	if(scope->has_variable(name))
     	{
     		//TODO already exists
 
-    		ContextValue cv;
-    		return cv;
+    		return NULL;
     	}
 
-    	if(context->literal() == NULL)
+    	if(context->number() == NULL)
     	{
-    		Type t = get_type_from_string(type);
+    		llvm::GlobalVariable * gv = new llvm::GlobalVariable(*m, t_int, false, llvm::GlobalValue::CommonLinkage, NULL, name);
+		    gv->setAlignment(4);
+		    gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)));
 
-    		if(t == IntType)
-    		{
-    			llvm::GlobalVariable * gv = new llvm::GlobalVariable(*m, t_int, false, llvm::GlobalValue::CommonLinkage, NULL, name);
-		        gv->setAlignment(4);
-		        gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)));
-
-		        Variable * variable = new Variable(gv, true);
-		        scope->add_variable(name, variable);
-    		}
-    		else if(t == BoolType)
-    		{
-    			llvm::GlobalVariable * gv = new llvm::GlobalVariable(*m, t_bool, false, llvm::GlobalValue::CommonLinkage, NULL, name);
-		        gv->setAlignment(4);
-		        gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(8, 0)));
-
-		        Variable * variable = new Variable(gv, true);
-		        scope->add_variable(name, variable);
-    		}
+		    Variable * variable = new Variable(gv, true);
+		    scope->add_variable(name, variable);
     	}
     	else
     	{
-    		Literal * literal = visit(context->literal());
-    		
-    		Type t = get_type_from_string(type);
+    		llvm::ConstantInt * number = visit(context->number());
 
-    		if(t == IntType)
-    		{
-    			llvm::GlobalVariable * gv = new llvm::GlobalVariable(*m, t_int, false, llvm::GlobalValue::CommonLinkage, NULL, name);
-		        gv->setAlignment(4);
-		        gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(32, ((IntLiteral*)literal)->get_value())));
+    		llvm::GlobalVariable * gv = new llvm::GlobalVariable(*m, t_int, false, llvm::GlobalValue::CommonLinkage, NULL, name);
+		    gv->setAlignment(4);
+		    gv->setInitializer(number);
 
-		        Variable * variable = new Variable(gv, true);
-		        scope->add_variable(name, variable);
-    		}
-    		else if(t == BoolType)
-    		{
-    			llvm::GlobalVariable * gv = new llvm::GlobalVariable(*m, t_bool, false, llvm::GlobalValue::CommonLinkage, NULL, name);
-		        gv->setAlignment(4);
-
-		        bool val = ((IntLiteral*)literal)->get_value();
-
-		        if(val) gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(8, 1)));
-		        else gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(8, 0)));
-
-		        Variable * variable = new Variable(gv, true);
-		        scope->add_variable(name, variable);
-    		}
+		    Variable * variable = new Variable(gv, true);
+		    scope->add_variable(name, variable);
     	}
 
-    	ContextValue cv;
-    	return cv;
+    	return NULL;
     }
 
     antlrcpp::Any visitFunction_decl(zrParser::Function_declContext *context)
     {
     	Debug(": function decl" << std::endl);
 
-    	std::string func_name = context->Identifier();
-    	Type func_ret_type = get_type_from_string(context->Type_identifier());
+    	std::string func_name = context->Identifier()->getText();
 
-    	
+    	std::vector<std::string> args = visit(context->func_decl_arg_list());
 
-    	ContextValue cv;
-    	return cv;
+    	std::vector<llvm::Type * > at;
+        for (int i = 0; i < args.size(); i++)
+            at.push_back(t_int);
+
+        llvm::FunctionType * ft = llvm::FunctionType::get(t_int, at, false);
+
+        f = llvm::Function::Create(ft, llvm::GlobalValue::ExternalLinkage, func_name, m);
+        f->setCallingConv(llvm::CallingConv::C);
+
+		scope = new Scope(scope);
+        bb = llvm::BasicBlock::Create(llvm_context, "", this->f);
+
+        llvm::Function::arg_iterator f_args = f->arg_begin();
+
+        for(int i=0;i < args.size(); i++)
+        {
+        	std::string name = args.at(i);
+        	llvm::Value* arg = f_args++;
+
+        	if(scope->has_variable(name))
+        	{
+        		std::cout << "Redefinition" << std::endl;
+        	}
+
+        	llvm::AllocaInst * loc = new llvm::AllocaInst(t_int, name, bb);
+
+        	Variable * variable = new Variable(loc, true);
+		    scope->add_variable(name, variable);
+
+		    new llvm::StoreInst(arg, loc, false, bb);
+
+		    arg->setName(name);
+		    loc->setName(name);
+        }
+
+        visit(context->block());
+
+    	return NULL;
     }
-
-    /*virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *Def();
-    antlr4::tree::TerminalNode *Type_identifier();
-    antlr4::tree::TerminalNode *Identifier();
-    BlockContext *block();
-    antlr4::tree::TerminalNode *End();
-    Func_decl_arg_listContext *func_decl_arg_list();*/
 
     antlrcpp::Any visitFunc_decl_arg_list(zrParser::Func_decl_arg_listContext *context)
     {
-    	Debug(": func decl arg list" << std::endl);
+    	std::vector<std::string> args;
 
-    	ContextValue cv;
-    	return cv;
+    	for(int i=0;i<context->func_decl_arg().size();i++)
+    	{
+    		args.push_back(visit(context->func_decl_arg().at(i)));
+    	}
+
+    	return args;
     }
 
-    Type get_type_from_string(std::string type)
+    antlrcpp::Any visitFunc_decl_arg(zrParser::Func_decl_argContext *context)
     {
-        if(type.compare("int") == 0)
+    	return context->Identifier()->getText();
+    }
+
+    antlrcpp::Any visitBlock(zrParser::BlockContext *context)
+    {
+    	Debug(": block" << std::endl);
+
+    	for(int i=0;i<context->statement().size();i++)
+    	{
+    		visit(context->statement().at(i));
+    	}
+
+    	return NULL;
+    }
+
+    antlrcpp::Any visitNumber(zrParser::NumberContext *context)
+    {
+    	Debug(": visit number" << std::endl);
+
+		std::string text = context->Integer()->getText();
+    	
+		return llvm::ConstantInt::get(llvm_context, llvm::APInt(32, parse_int(text)));
+    }	
+
+    antlrcpp::Any visitNumberExpression(zrParser::NumberExpressionContext *context)
+    {
+    	Debug(": visit number" << std::endl);
+
+    	std::string text = context->number()->getText();
+    	
+    	llvm::Value * val = llvm::ConstantInt::get(llvm_context, llvm::APInt(32, parse_int(text)));
+
+    	return val;
+    }
+
+    int parse_int(std::string text)
+    {
+    	int number;
+
+        try
         {
-            return IntType;
+            number = std::stoi(text);
         }
-        else if(type.compare("bool") == 0)
+        catch(std::invalid_argument & e)
         {
-            return BoolType;
-        } 
-    }
+        	//TODO 
+        }
+        catch(std::out_of_range & e)
+        {
+        	//TODO
+        }
 
-    antlrcpp::Any visitLiteral(zrParser::LiteralContext *context)
-    {
-    	Debug(": literal" << std::endl);
-
-    	if(context->Number() != NULL)
-    	{
-    		Debug(": number literal" << std::endl);
-
-    		std::string val = context->Number()->getText();
-    		int number;
-
-	        try
-	        {
-	            number = std::stoi(context->Number()->getText());
-	        }
-	        catch(std::invalid_argument & e)
-	        { 
-	        	//TODO
-	        }
-	        catch(std::out_of_range & e)
-	        {
-	        	//TODO
-	        }
-
-    		Literal * literal = new IntLiteral(number);
-    		return literal;
-    	}
-    	else if(context->Bool() != NULL)
-    	{
-    		Debug(": bool literal" << std::endl);
-
-    		std::string val = context->Bool()->getText();
-    		bool value;
-
-	        if(context->Bool()->getText().compare("true") == 0) 
-	        {
-	            value = true;
-	        }
-	        else
-	        {
-	            value = false;
-	        }
-
-    		Literal * literal = new BoolLiteral(value);
-    		return literal;
-    	}
+        return number;
     }
 
     antlrcpp::Any visitStatement(zrParser::StatementContext *context)
     {
+    	Debug(": statement" << std::endl);
+
+    	if(context->variable_def() != NULL)
+    	{
+    		visit(context->variable_def());
+    	}
+    	else if(context->assignment() != NULL)
+    	{
+
+    	}
+    	else if(context->if_statement() != NULL)
+    	{
+
+    	}
+    	else if(context->while_statement() != NULL)
+    	{
+
+    	}
+    	else if(context->return_statement() != NULL)
+    	{
+
+    	}
+
+    	return NULL;
+    }
+
+    /*antlr4::tree::TerminalNode *Type_identifier();
+    antlr4::tree::TerminalNode *Identifier();
+    ExpressionContext *expression();*/
+
+    antlrcpp::Any visitVariable_def(zrParser::Variable_defContext *context)
+    {
+    	Debug(": variable def" << std::endl);
+
+    	std::string name = context->Identifier()->getText();
+
+    	if(scope->has_variable(name))
+    	{
+    		std::cout << "Redefinitioxn" << std::endl;
+    	}
+
+    	if(context->expression())
+    	{
+    		visit(context->expression());
+    	}
+    	else
+    	{
+    		Variable * variable = new Variable(new llvm::AllocaInst(t_int, name, bb), false);
+    		scope->add_variable(name, variable);
+    	}
+
+    	return NULL;
+    }
+
+    antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *context)
+    {
+    	Debug(": add expr" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Add, lv , rv, "", bb);
+
+    	return val;
 
     }
 
@@ -255,11 +305,6 @@ public:
     }
 
     antlrcpp::Any visitAssignment(zrParser::AssignmentContext *context)
-    {
-
-    }
-
-    antlrcpp::Any visitVariable_def(zrParser::Variable_defContext *context)
     {
 
     }
@@ -304,23 +349,12 @@ public:
 
     }
 
-    antlrcpp::Any visitLiteralExpression(zrParser::LiteralExpressionContext *context)
-    {
-
-    }
-
-
     antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *context)
     {
 
     }
 
     antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *context)
-    {
-
-    }
-
-    antlrcpp::Any visitModulusExpression(zrParser::ModulusExpressionContext *context)
     {
 
     }
@@ -332,7 +366,14 @@ public:
 
     antlrcpp::Any visitMultiplyExpression(zrParser::MultiplyExpressionContext *context)
     {
+    	Debug(": add expr" << std::endl);
 
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Mul, lv , rv, "", bb);
+
+    	return val;
     }
 
     antlrcpp::Any visitGtEqExpression(zrParser::GtEqExpressionContext *context)
@@ -342,17 +383,26 @@ public:
 
     antlrcpp::Any visitDivideExpression(zrParser::DivideExpressionContext *context)
     {
+    	Debug(": add expr" << std::endl);
 
-    }
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
 
-    antlrcpp::Any visitOrExpression(zrParser::OrExpressionContext *context)
-    {
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::UDiv, lv , rv, "", bb);
 
+    	return val;
     }
 
     antlrcpp::Any visitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *context)
     {
 
+    	Debug(": add expr" << std::endl);
+
+    	llvm::Value * v = visit(context->expression());
+
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)) , v, "", bb);
+
+    	return val;
     }
 
     antlrcpp::Any visitEqExpression(zrParser::EqExpressionContext *context)
@@ -360,19 +410,16 @@ public:
 
     }
 
-    antlrcpp::Any visitAndExpression(zrParser::AndExpressionContext *context)
-    {
-
-    }
-
-    antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *context)
-    {
-
-    }
-
     antlrcpp::Any visitSubtractExpression(zrParser::SubtractExpressionContext *context)
     {
+    	Debug(": add expr" << std::endl);
 
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, lv , rv, "", bb);
+
+    	return val;
     }
 
     antlrcpp::Any visitFunctionCallExpression(zrParser::FunctionCallExpressionContext *context)

@@ -1,12 +1,14 @@
 int x = 5;
 int z;
-bool del;
-bool zx = true;
 int d = 25;
 
 
-def int main(int a, bool b)
+def int main(int a, int c)
+
+	int ab = 5 + 6 + 7;
+	int b = 5 - 6;
+	int c = 10 / 5;
+	int d = 5 * 8;
 
 	return 5;
-	
 end

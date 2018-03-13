@@ -38,9 +38,8 @@ assignment
  ;
 
  global_variable_def
- : Type_identifier Identifier ('=' literal)?
+ : Type_identifier Identifier ('=' number)?
  ;
-
 
 function_call
  : Identifier '(' (expression (',' expression)*)? ')'
@@ -71,7 +70,11 @@ function_decl
  ;
 
 func_decl_arg_list
- : Type_identifier Identifier (',' func_decl_arg_list)*
+ : func_decl_arg  (',' func_decl_arg)*
+ ;
+
+ func_decl_arg
+ : Type_identifier Identifier
  ;
 
 expression
@@ -79,7 +82,6 @@ expression
  | '!' expression                           #notExpression
  | expression '*' expression                #multiplyExpression
  | expression '/' expression                #divideExpression
- | expression '%' expression                #modulusExpression
  | expression '+' expression                #addExpression
  | expression '-' expression                #subtractExpression
  | expression '>=' expression               #gtEqExpression
@@ -88,18 +90,18 @@ expression
  | expression '<' expression                #ltExpression
  | expression '==' expression               #eqExpression
  | expression '!=' expression               #notEqExpression
- | expression '&&' expression               #andExpression
- | expression '||' expression               #orExpression
  | Identifier '(' (expression (',' expression)*)? ')'                     #functionCallExpression
  | Identifier                               #identifierExpression
- | literal                                  #literalExpression
+ | number                                   #numberExpression
  ;
 
-literal
-: Number
-| Bool
-| String
+number
+: Integer
 ;
+
+Integer
+ : Int
+ ;
 
 Def       : 'def';
 If        : 'if';
@@ -109,9 +111,6 @@ While     : 'while';
 To        : 'to';
 Do        : 'do';
 End       : 'end';
-Print     : 'print';
-Scan      : 'scan';
-PrintLn   : 'println';
 
 Or       : '||';
 And      : '&&';
@@ -142,16 +141,6 @@ Colon    : ':';
 
 Type_identifier
  : 'int'
- | 'bool'
- ;
-
-Bool
- : 'true' 
- | 'false'
- ;
-
-Number
- : Int
  ;
 
 Identifier

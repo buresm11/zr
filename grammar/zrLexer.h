@@ -12,14 +12,13 @@
 class  zrLexer : public antlr4::Lexer {
 public:
   enum {
-    Def = 1, If = 2, Else = 3, Return = 4, While = 5, To = 6, Do = 7, End = 8, 
-    Print = 9, Scan = 10, PrintLn = 11, Or = 12, And = 13, Equals = 14, 
-    NEquals = 15, GTEquals = 16, LTEquals = 17, Pow = 18, Excl = 19, GT = 20, 
-    LT = 21, Add = 22, Subtract = 23, Multiply = 24, Divide = 25, Modulus = 26, 
-    OBrace = 27, CBrace = 28, OBracket = 29, CBracket = 30, OParen = 31, 
-    CParen = 32, SColon = 33, Assign = 34, Comma = 35, QMark = 36, Colon = 37, 
-    Type_identifier = 38, Bool = 39, Number = 40, Identifier = 41, String = 42, 
-    Comment = 43, Space = 44
+    Integer = 1, Def = 2, If = 3, Else = 4, Return = 5, While = 6, To = 7, 
+    Do = 8, End = 9, Or = 10, And = 11, Equals = 12, NEquals = 13, GTEquals = 14, 
+    LTEquals = 15, Pow = 16, Excl = 17, GT = 18, LT = 19, Add = 20, Subtract = 21, 
+    Multiply = 22, Divide = 23, Modulus = 24, OBrace = 25, CBrace = 26, 
+    OBracket = 27, CBracket = 28, OParen = 29, CParen = 30, SColon = 31, 
+    Assign = 32, Comma = 33, QMark = 34, Colon = 35, Type_identifier = 36, 
+    Identifier = 37, String = 38, Comment = 39, Space = 40
   };
 
   zrLexer(antlr4::CharStream *input);

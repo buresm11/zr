@@ -11,6 +11,7 @@ class Scope
 public:
 
 	Scope() : parent(NULL) { }
+	Scope(Scope * scope) : parent(scope) { }
 
 	bool has_variable(std::string name)
 	{
