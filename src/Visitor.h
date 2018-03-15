@@ -66,8 +66,7 @@ public:
     		visit(context->function_decl().at(i));
     	}
 
-    	ContextValue cv;
-    	return cv;
+    	return NULL;
     }
 
    	antlrcpp::Any visitGlobal_statement(zrParser::Global_statementContext *context)
@@ -208,6 +207,8 @@ public:
     	
     	llvm::Value * val = llvm::ConstantInt::get(llvm_context, llvm::APInt(32, parse_int(text)));
 
+    	new ContextValue(val, true);
+
     	return val;
     }
 
@@ -253,7 +254,7 @@ public:
     	}
     	else if(context->return_statement() != NULL)
     	{
-    		//visit(context->return_statement());
+    		visit(context->return_statement());
     	}
 
     	return NULL;
@@ -304,8 +305,16 @@ public:
 
     antlrcpp::Any visitReturn_statement(zrParser::Return_statementContext *context)
     {
+    	llvm::Value * val = visit(context->expression());
 
-    }
+    	llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, val, bb);
+
+    	llvm::BasicBlock * next = llvm::BasicBlock::Create(llvm_context, "next", f);
+
+    	bb = next;
+
+    	return NULL;
+    }	
 
     antlrcpp::Any visitAssignment(zrParser::AssignmentContext *context)
     {
@@ -376,10 +385,13 @@ public:
 		    bb = elif_f_cases[else_if_context.size()-1];
 
 		    if(else_context != NULL)
+		    {
 		    	compile_if_case(else_if_context.at(else_if_context.size()-1)->cond_expression(), else_if_context.at(else_if_context.size()-1)->block(), elif_t_cases[else_if_context.size()-1], else_case, next);
+    			compile_else_case(else_context->block(), else_case,next);
+    		}
     		else
     			compile_if_case(else_if_context.at(else_if_context.size()-1)->cond_expression(), else_if_context.at(else_if_context.size()-1)->block(), elif_t_cases[else_if_context.size()-1], next, next);
-    	}
+    	}	
     	else
     	{
     		if(else_context != NULL)
@@ -392,6 +404,8 @@ public:
 	        	compile_if_case(if_context->cond_expression(), if_context->block(), if_case, next, next);
 	        }
     	}
+
+    	bb = next;
     }
 
     void compile_if_case(zrParser::Cond_expressionContext * cond, zrParser::BlockContext * true_block, llvm::BasicBlock * true_case, llvm::BasicBlock * false_case, llvm::BasicBlock * next)
@@ -437,18 +451,29 @@ public:
 
     antlrcpp::Any visitWhile_statement(zrParser::While_statementContext *context)
     {
-    	/*llvm::BasicBlock * loop = llvm::BasicBlock::Create(llvm_context, "preface", f);
-    	llvm::BasicBlock * loop = llvm::BasicBlock::Create(llvm_context, "loop", f);
-    	llvm::BasicBlock * next = llvm::BasicBlock::Create(llvm_context, "next", f);
+    	llvm::BasicBlock * preface = llvm::BasicBlock::Create(llvm_context, "preface", f);
 
-    	llvm::ICmpInst * cmp = visit(cond);
+    	llvm::BasicBlock * loop = llvm::BasicBlock::Create(llvm_context, "loop", f);
+
+    	llvm::BasicBlock * next = llvm::BasicBlock::Create(llvm_context, "empty", f);
+
+    	llvm::BranchInst::Create(preface, bb);
+
+    	bb = preface;
+
+    	llvm::ICmpInst * cmp = visit(context->cond_expression());
     	llvm::BranchInst::Create(loop, next, cmp, bb);
 
     	scope = new Scope(scope);
 
     	bb = loop;
-    	visit(context->block());*/
+    	visit(context->block());
 
+    	bb = next;
+
+    	Scope * tmp = scope;
+    	scope = scope->get_parent();
+    	delete tmp;
 
     	return NULL;
     }
@@ -481,6 +506,8 @@ public:
 
     	llvm::Value * address = scope->get_variable(name)->get_value();
     	llvm::Value * value = new llvm::LoadInst(address, name, bb);
+
+    	//new ContextValue(value, false);
 
     	return value;
     }
@@ -568,7 +595,28 @@ public:
 
     antlrcpp::Any visitFunctionCallExpression(zrParser::FunctionCallExpressionContext *context)
     {
+    	std::string f_name = context->Identifier()->getText();
+    	std::vector<llvm::Value * > args;
 
+    	for(int i=0;i<context->expression().size();i++)
+    	{
+    		llvm::Value * val = visit(context->expression().at(i));
+    		args.push_back(val);
+    	}
+
+    	llvm::Function * f = m->getFunction(f_name);
+        if (f == NULL)
+        {
+
+        }
+        if (f->arg_size() != args.size())
+        {
+
+        }
+
+        llvm::Value * value = llvm::CallInst::Create(f, args, f_name, bb);
+
+        return value;
     }
 
     antlrcpp::Any visitLtEqExpression(zrParser::LtEqExpressionContext *context)

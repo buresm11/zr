@@ -1,15 +1,10 @@
-int x = 5;
-int z;
-int d = 25;
-
 def int main(int d, int c)
 
-	int q = 5;
-	int w = 10;
+	int ax = 5; 
+	int a = 5 + ax;
 
-	while q < w do
-		int a;
-	end
+	//if a < 5 do
+	//	return 5;
+	//end
 
-	return 5;
 end
