@@ -40,4 +40,9 @@ public:
 	{
 		variables[name] = variable;
 	}
+
+	Scope * get_parent()
+	{
+		return parent;
+	}
 };

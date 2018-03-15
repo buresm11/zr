@@ -2,13 +2,14 @@ int x = 5;
 int z;
 int d = 25;
 
+def int main(int d, int c)
 
-def int main(int a, int c)
+	int q = 5;
+	int w = 10;
 
-	int ab = 5 + 6 + 7;
-	int b = 5 - 6;
-	int c = 10 / 5;
-	int d = 5 * 8;
+	while q < w do
+		int a;
+	end
 
 	return 5;
 end

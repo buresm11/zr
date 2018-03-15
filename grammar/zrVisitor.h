@@ -55,35 +55,33 @@ public:
 
     virtual antlrcpp::Any visitFunc_decl_arg(zrParser::Func_decl_argContext *context) = 0;
 
-    virtual antlrcpp::Any visitLtExpression(zrParser::LtExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitGtEqExpression(zrParser::GtEqExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitLtEqExpression(zrParser::LtEqExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitGtExpression(zrParser::GtExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitNumberExpression(zrParser::NumberExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitNotExpression(zrParser::NotExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitMultiplyExpression(zrParser::MultiplyExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitGtEqExpression(zrParser::GtEqExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitDivideExpression(zrParser::DivideExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitLtExpression(zrParser::LtExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitEqExpression(zrParser::EqExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitSubtractExpression(zrParser::SubtractExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitNumberExpression(zrParser::NumberExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitFunctionCallExpression(zrParser::FunctionCallExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitLtEqExpression(zrParser::LtEqExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitMultiplyExpression(zrParser::MultiplyExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitDivideExpression(zrParser::DivideExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitNumber(zrParser::NumberContext *context) = 0;
 

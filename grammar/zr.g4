@@ -50,11 +50,11 @@ if_statement
  ;
 
 if_stat
- : If expression Do block
+ : If cond_expression Do block
  ;
 
 else_if_stat
- : Else If expression Do block
+ : Else If cond_expression Do block
  ;
 
 else_stat
@@ -62,7 +62,7 @@ else_stat
  ;
 
  while_statement
- : While expression Do block End
+ : While cond_expression Do block End
  ;
 
 function_decl
@@ -77,19 +77,21 @@ func_decl_arg_list
  : Type_identifier Identifier
  ;
 
-expression
- : '-' expression                           #unaryMinusExpression
- | '!' expression                           #notExpression
- | expression '*' expression                #multiplyExpression
- | expression '/' expression                #divideExpression
- | expression '+' expression                #addExpression
- | expression '-' expression                #subtractExpression
- | expression '>=' expression               #gtEqExpression
+cond_expression
+: expression '>=' expression               #gtEqExpression
  | expression '<=' expression               #ltEqExpression
  | expression '>' expression                #gtExpression
  | expression '<' expression                #ltExpression
  | expression '==' expression               #eqExpression
  | expression '!=' expression               #notEqExpression
+;
+
+expression
+ : '-' expression                           #unaryMinusExpression
+ | expression '*' expression                #multiplyExpression
+ | expression '/' expression                #divideExpression
+ | expression '+' expression                #addExpression
+ | expression '-' expression                #subtractExpression
  | Identifier '(' (expression (',' expression)*)? ')'                     #functionCallExpression
  | Identifier                               #identifierExpression
  | number                                   #numberExpression
