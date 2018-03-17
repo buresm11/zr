@@ -1,5 +1,5 @@
-#ifndef LLVM_H
-#define LLVM_H
+
+#pragma once
 
 #include <llvm/IR/Verifier.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -24,6 +24,4 @@
 #include <llvm/Transforms/Scalar.h> 
 #include <llvm/Pass.h>
 #include <llvm/Bitcode/ReaderWriter.h>
-
 #include <llvm/Support/raw_os_ostream.h>
-#endif

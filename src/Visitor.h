@@ -8,11 +8,8 @@
 #include "llvm.h"
 #include "zrVisitor.h"
 #include "ContextValue.h"
-#include "Type.h"
-#include "Literal.h"
-#include "IntLiteral.h"
-#include "BoolLiteral.h"
 #include "Scope.h"
+#include "CompileException.h"
 
 #define DEBUG_ENABLED
 
@@ -24,14 +21,17 @@
 
 class Visitor : public zrVisitor
 {
-	llvm::LLVMContext llvm_context;
+	static llvm::LLVMContext & llvm_context;
+	static llvm::Type * t_int;
+	static llvm::Type * t_void;
+	static llvm::FunctionType * t_print;
+    static llvm::FunctionType * t_scan;
+
 	llvm::Module * m;
 	llvm::Function * f;
 	llvm::BasicBlock * bb;
 	llvm::BasicBlock * next;
 	Scope * scope;
-
-	static llvm::Type * t_int;
 
 public:
 
@@ -40,7 +40,16 @@ public:
 		m = new llvm::Module("zr", llvm_context);
 		scope = new Scope();
 
+		llvm::Function::Create(t_scan, llvm::GlobalValue::ExternalLinkage, "scan_", m)->setCallingConv(llvm::CallingConv::C);
+        llvm::Function::Create(t_print, llvm::GlobalValue::ExternalLinkage, "print_", m)->setCallingConv(llvm::CallingConv::C);
+
 		visit(tree);
+
+		llvm::raw_os_ostream err(std::cerr);
+		if (llvm::verifyModule(*m, & err)) {
+            m->dump();
+            throw CompileException("bad llvm ir");
+        }
 
 		return m;
 	}
@@ -49,7 +58,9 @@ public:
 	{
 		Debug(": parse" << std::endl);
 
-		return visit(context->top_block());		
+		visit(context->top_block());
+
+		return NULL;		
 	}
 
     antlrcpp::Any visitTop_block(zrParser::Top_blockContext *context)
@@ -73,7 +84,9 @@ public:
    	{
    		Debug(": global_statement" << std::endl);
 
-   		return visit(context->global_variable_def());
+   		visit(context->global_variable_def());
+
+   		return NULL;
    	}
 
     antlrcpp::Any visitGlobal_variable_def(zrParser::Global_variable_defContext *context)
@@ -84,9 +97,7 @@ public:
 
     	if(scope->has_variable(name))
     	{
-    		//TODO already exists
-
-    		return NULL;
+    		throw CompileException("Redefinition of global variable " + name);
     	}
 
     	if(context->number() == NULL)
@@ -95,7 +106,7 @@ public:
 		    gv->setAlignment(4);
 		    gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)));
 
-		    Variable * variable = new Variable(gv, true);
+		    Variable * variable = new Variable(gv, true, false);
 		    scope->add_variable(name, variable);
     	}
     	else
@@ -106,7 +117,7 @@ public:
 		    gv->setAlignment(4);
 		    gv->setInitializer(number);
 
-		    Variable * variable = new Variable(gv, true);
+		    Variable * variable = new Variable(gv, true, false);
 		    scope->add_variable(name, variable);
     	}
 
@@ -119,8 +130,14 @@ public:
 
     	std::string func_name = context->Identifier()->getText();
 
-    	std::vector<std::string> args = visit(context->func_decl_arg_list());
+    	std::vector<std::string> args;
 
+    	if(context->func_decl_arg_list() != NULL)
+    	{
+    		std::vector<std::string> argst = visit(context->func_decl_arg_list());
+    		args = argst;
+    	}
+    	 
     	std::vector<llvm::Type * > at;
         for (int i = 0; i < args.size(); i++)
             at.push_back(t_int);
@@ -147,7 +164,7 @@ public:
 
         	llvm::AllocaInst * loc = new llvm::AllocaInst(t_int, name, bb);
 
-        	Variable * variable = new Variable(loc, true);
+        	Variable * variable = new Variable(loc, true, false);
 		    scope->add_variable(name, variable);
 
 		    new llvm::StoreInst(arg, loc, false, bb);
@@ -163,6 +180,8 @@ public:
 
     antlrcpp::Any visitFunc_decl_arg_list(zrParser::Func_decl_arg_listContext *context)
     {
+    	Debug(": func decl arg list" << std::endl);
+
     	std::vector<std::string> args;
 
     	for(int i=0;i<context->func_decl_arg().size();i++)
@@ -182,54 +201,15 @@ public:
     {
     	Debug(": block" << std::endl);
 
+    	bool ret = false;
+
     	for(int i=0;i<context->statement().size();i++)
     	{
-    		visit(context->statement().at(i));
+    		ret = visit(context->statement().at(i));
+    		if(ret) break;
     	}
 
-    	return NULL;
-    }
-
-    antlrcpp::Any visitNumber(zrParser::NumberContext *context)
-    {
-    	Debug(": visit number" << std::endl);
-
-		std::string text = context->Integer()->getText();
-    	
-		return llvm::ConstantInt::get(llvm_context, llvm::APInt(32, parse_int(text)));
-    }	
-
-    antlrcpp::Any visitNumberExpression(zrParser::NumberExpressionContext *context)
-    {
-    	Debug(": visit number" << std::endl);
-
-    	std::string text = context->number()->getText();
-    	
-    	llvm::Value * val = llvm::ConstantInt::get(llvm_context, llvm::APInt(32, parse_int(text)));
-
-    	new ContextValue(val, true);
-
-    	return val;
-    }
-
-    int parse_int(std::string text)
-    {
-    	int number;
-
-        try
-        {
-            number = std::stoi(text);
-        }
-        catch(std::invalid_argument & e)
-        {
-        	//TODO 
-        }
-        catch(std::out_of_range & e)
-        {
-        	//TODO
-        }
-
-        return number;
+    	return ret;
     }
 
     antlrcpp::Any visitStatement(zrParser::StatementContext *context)
@@ -252,12 +232,17 @@ public:
     	{
     		visit(context->while_statement());
     	}
+    	else if(context->function_call() != NULL)
+    	{
+    		visit(context->function_call());
+    	}
     	else if(context->return_statement() != NULL)
     	{
     		visit(context->return_statement());
+    		return true;
     	}
 
-    	return NULL;
+    	return false;
     }
 
     antlrcpp::Any visitVariable_def(zrParser::Variable_defContext *context)
@@ -268,7 +253,7 @@ public:
 
     	if(scope->has_variable(name))
     	{
-    		std::cout << "Redefinitioxn" << std::endl;
+    		throw CompileException("Redefinition of variable " + name);
     	}
 
     	if(context->expression())
@@ -276,7 +261,7 @@ public:
     		llvm::Value * val = visit(context->expression());
     		llvm::AllocaInst * loc = new llvm::AllocaInst(t_int, name, bb);
 
-    		Variable * variable = new Variable(loc, false);
+    		Variable * variable = new Variable(loc, false, false);
 
     		new llvm::StoreInst(val, loc, false, bb);
 
@@ -284,34 +269,21 @@ public:
     	}
     	else
     	{
-    		Variable * variable = new Variable(new llvm::AllocaInst(t_int, name, bb), false);
+    		Variable * variable = new Variable(new llvm::AllocaInst(t_int, name, bb), false, false);
     		scope->add_variable(name, variable);
     	}
 
     	return NULL;
     }
 
-    antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *context)
-    {
-    	Debug(": add expr" << std::endl);
-
-    	llvm::Value * lv = visit(context->expression().at(0));
-    	llvm::Value * rv = visit(context->expression().at(1));
-
-    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Add, lv , rv, "", bb);
-
-    	return val;
-    }
-
+    
     antlrcpp::Any visitReturn_statement(zrParser::Return_statementContext *context)
     {
+    	Debug(": return" << std::endl);
+
     	llvm::Value * val = visit(context->expression());
 
     	llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, val, bb);
-
-    	llvm::BasicBlock * next = llvm::BasicBlock::Create(llvm_context, "next", f);
-
-    	bb = next;
 
     	return NULL;
     }	
@@ -335,9 +307,33 @@ public:
     	return NULL;
     }
 
-    antlrcpp::Any visitFunction_call(zrParser::Function_callContext *context)
+    antlrcpp::Any visitIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext *context)
     {
+    	Debug(": Identifier f call" << std::endl);
 
+
+    	return NULL;	
+    }
+
+    antlrcpp::Any visitPrintFunctionCall(zrParser::PrintFunctionCallContext *context)
+    {
+    	Debug(": Print f call" << std::endl);
+
+    	llvm::Value * val = visit(context->expression());
+
+    	llvm::CallInst::Create(m->getFunction("print_"), val, "", bb);
+
+    	return NULL;	
+    }
+
+    antlrcpp::Any visitScanFunctionCall(zrParser::ScanFunctionCallContext *context)
+    {
+    	Debug(": Scan f call" << std::endl);
+
+    	std::vector<llvm::Value * > args;
+    	llvm::CallInst::Create(m->getFunction("scan_"), args, "", bb);
+
+    	return NULL;	
     }
 
     antlrcpp::Any visitIf_statement(zrParser::If_statementContext *context)
@@ -416,9 +412,9 @@ public:
     	scope = new Scope(scope);
 
     	bb = true_case;
-    	visit(true_block);
+    	bool x = visit(true_block);
 
-    	llvm::BranchInst::Create(next, bb);
+    	if(!x) llvm::BranchInst::Create(next, bb);
 
     	Scope * tmp = scope;
     	scope = scope->get_parent();
@@ -430,9 +426,9 @@ public:
     	scope = new Scope(scope);
 
     	bb = else_case;
-    	visit(else_block);
+    	bool x = visit(else_block);
 
-    	llvm::BranchInst::Create(next, bb);
+    	if(!x) llvm::BranchInst::Create(next, bb);
 
     	Scope * tmp = scope;
     	scope = scope->get_parent();
@@ -478,117 +474,26 @@ public:
     	return NULL;
     }
 
-    antlrcpp::Any visitLtExpression(zrParser::LtExpressionContext *context)
+    //expressions
+    //expressions
+    //expressions
+
+    antlrcpp::Any visitNumber(zrParser::NumberContext *context)
     {
-    	llvm::Value * lv = visit(context->expression().at(0));
-    	llvm::Value * rv = visit(context->expression().at(1));
+    	Debug(": visit number" << std::endl);
 
-    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLT, lv, rv, "");
-
-    	return cmp;
+		std::string text = context->Integer()->getText();
+    	
+		return llvm::ConstantInt::get(llvm_context, llvm::APInt(32, parse_int(text)));
     }
 
-    antlrcpp::Any visitGtExpression(zrParser::GtExpressionContext *context)
+    antlrcpp::Any visitNumberExpression(zrParser::NumberExpressionContext *context)
     {
-    	llvm::Value * lv = visit(context->expression().at(0));
-    	llvm::Value * rv = visit(context->expression().at(1));
+    	Debug(": visit number" << std::endl);
 
-    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGT, lv, rv, "");
-
-    	return cmp;
-    }
-
-    antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *context)
-    {
-    	Debug(": Identifier" << std::endl);
-
-    	std::string name = context->Identifier()->getText();
-
-    	llvm::Value * address = scope->get_variable(name)->get_value();
-    	llvm::Value * value = new llvm::LoadInst(address, name, bb);
-
-    	//new ContextValue(value, false);
-
-    	return value;
-    }
-
-    antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *context)
-    {
-    	llvm::Value * lv = visit(context->expression().at(0));
-    	llvm::Value * rv = visit(context->expression().at(1));
-
-    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_NE, lv, rv, "");
-
-    	return cmp;
-    }
-
-    antlrcpp::Any visitMultiplyExpression(zrParser::MultiplyExpressionContext *context)
-    {
-    	Debug(": add expr" << std::endl);
-
-    	llvm::Value * lv = visit(context->expression().at(0));
-    	llvm::Value * rv = visit(context->expression().at(1));
-
-    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Mul, lv , rv, "", bb);
-
-    	return val;
-    }
-
-    antlrcpp::Any visitGtEqExpression(zrParser::GtEqExpressionContext *context)
-    {
-    	Debug(": eq expression" << std::endl);
-
-    	llvm::Value * lv = visit(context->expression().at(0));
-    	llvm::Value * rv = visit(context->expression().at(1));
-
-    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGE, lv, rv, "");
-
-    	return cmp;
-    }
-
-    antlrcpp::Any visitDivideExpression(zrParser::DivideExpressionContext *context)
-    {
-    	Debug(": add expr" << std::endl);
-
-    	llvm::Value * lv = visit(context->expression().at(0));
-    	llvm::Value * rv = visit(context->expression().at(1));
-
-    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::UDiv, lv , rv, "", bb);
-
-    	return val;
-    }
-
-    antlrcpp::Any visitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *context)
-    {
-    	Debug(": add expr" << std::endl);
-
-    	llvm::Value * v = visit(context->expression());
-
-    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)) , v, "", bb);
-
-    	return val;
-    }
-
-    antlrcpp::Any visitEqExpression(zrParser::EqExpressionContext *context)
-    {
-    	Debug(": eq expression" << std::endl);
-
-    	llvm::Value * lv = visit(context->expression().at(0));
-    	llvm::Value * rv = visit(context->expression().at(1));
-
-    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_EQ, lv, rv, "");
-
-    	return cmp;
-    }
-
-    antlrcpp::Any visitSubtractExpression(zrParser::SubtractExpressionContext *context)
-    {
-    	Debug(": add expr" << std::endl);
-
-    	llvm::Value * lv = visit(context->expression().at(0));
-    	llvm::Value * rv = visit(context->expression().at(1));
-
-    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, lv , rv, "", bb);
+    	std::string text = context->number()->getText();
+    	
+    	llvm::Value * val = llvm::ConstantInt::get(llvm_context, llvm::APInt(32, parse_int(text)));
 
     	return val;
     }
@@ -619,6 +524,147 @@ public:
         return value;
     }
 
+    antlrcpp::Any visitScanCallExpression(zrParser::ScanCallExpressionContext *context)
+    {
+    	Debug(": scan exp" << std::endl);
+
+    	std::vector<llvm::Value * > args;
+    	llvm::Value * value = llvm::CallInst::Create(m->getFunction("scan_"), args, "", bb);
+
+    	return value;
+    }
+
+    antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *context)
+    {
+    	Debug(": add expr" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Add, lv , rv, "", bb);
+
+    	return val;
+    }
+
+    antlrcpp::Any visitLtExpression(zrParser::LtExpressionContext *context)
+    {
+    	Debug(": lt expression" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLT, lv, rv, "");
+
+    	return cmp;
+    }
+
+    antlrcpp::Any visitGtExpression(zrParser::GtExpressionContext *context)
+    {
+    	Debug(": gt expression" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGT, lv, rv, "");
+
+    	return cmp;
+    }
+
+    antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *context)
+    {
+    	Debug(": Identifier" << std::endl);
+
+    	std::string name = context->Identifier()->getText();
+
+    	llvm::Value * address = scope->get_variable(name)->get_value();
+    	llvm::Value * value = new llvm::LoadInst(address, name, bb);
+
+    	return value;
+    }
+
+    antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *context)
+    {
+    	Debug(": not eq expr" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_NE, lv, rv, "");
+
+    	return cmp;
+    }
+
+    antlrcpp::Any visitMultiplyExpression(zrParser::MultiplyExpressionContext *context)
+    {
+    	Debug(": mul expression" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Mul, lv , rv, "", bb);
+
+    	return val;
+    }
+
+    antlrcpp::Any visitGtEqExpression(zrParser::GtEqExpressionContext *context)
+    {
+    	Debug(": gte expression" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGE, lv, rv, "");
+
+    	return cmp;
+    }
+
+    antlrcpp::Any visitDivideExpression(zrParser::DivideExpressionContext *context)
+    {
+    	Debug(": div expr" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::UDiv, lv , rv, "", bb);
+
+    	return val;
+    }
+
+    antlrcpp::Any visitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *context)
+    {
+    	Debug(": add expr" << std::endl);
+
+    	llvm::Value * v = visit(context->expression());
+
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)), v, "", bb);
+
+    	return val;
+    }
+
+    antlrcpp::Any visitEqExpression(zrParser::EqExpressionContext *context)
+    {
+    	Debug(": eq expression" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_EQ, lv, rv, "");
+
+    	return cmp;
+    }
+
+    antlrcpp::Any visitSubtractExpression(zrParser::SubtractExpressionContext *context)
+    {
+    	Debug(": add expr" << std::endl);
+
+    	llvm::Value * lv = visit(context->expression().at(0));
+    	llvm::Value * rv = visit(context->expression().at(1));
+
+    	llvm::Value * val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, lv , rv, "", bb);
+
+    	return val;
+    }
+
     antlrcpp::Any visitLtEqExpression(zrParser::LtEqExpressionContext *context)
     {
     	Debug(": eq expression" << std::endl);
@@ -629,5 +675,25 @@ public:
     	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLE, lv, rv, "");
 
     	return cmp;
+    }
+
+    int parse_int(std::string text)
+    {
+    	int number;
+
+        try
+        {
+            number = std::stoi(text);
+        }
+        catch(std::invalid_argument & e)
+        {
+        	throw CompileException("Unknown number");
+        }
+        catch(std::out_of_range & e)
+        {
+        	throw CompileException("Integer out of range");
+        }
+
+        return number;
     }
 };

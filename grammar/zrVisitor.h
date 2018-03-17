@@ -37,7 +37,11 @@ public:
 
     virtual antlrcpp::Any visitGlobal_variable_def(zrParser::Global_variable_defContext *context) = 0;
 
-    virtual antlrcpp::Any visitFunction_call(zrParser::Function_callContext *context) = 0;
+    virtual antlrcpp::Any visitIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext *context) = 0;
+
+    virtual antlrcpp::Any visitPrintFunctionCall(zrParser::PrintFunctionCallContext *context) = 0;
+
+    virtual antlrcpp::Any visitScanFunctionCall(zrParser::ScanFunctionCallContext *context) = 0;
 
     virtual antlrcpp::Any visitIf_statement(zrParser::If_statementContext *context) = 0;
 
@@ -68,6 +72,8 @@ public:
     virtual antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitScanCallExpression(zrParser::ScanCallExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *context) = 0;
 

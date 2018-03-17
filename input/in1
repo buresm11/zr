@@ -1,10 +1,6 @@
-def int main(int d, int c)
+def int main()
+	int z = 64 + 5;
+	int z;
 
-	int ax = 5; 
-	int a = 5 + ax;
-
-	//if a < 5 do
-	//	return 5;
-	//end
-
+	return 56;
 end

@@ -41,8 +41,14 @@ public:
   virtual void enterGlobal_variable_def(zrParser::Global_variable_defContext *ctx) = 0;
   virtual void exitGlobal_variable_def(zrParser::Global_variable_defContext *ctx) = 0;
 
-  virtual void enterFunction_call(zrParser::Function_callContext *ctx) = 0;
-  virtual void exitFunction_call(zrParser::Function_callContext *ctx) = 0;
+  virtual void enterIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext *ctx) = 0;
+  virtual void exitIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext *ctx) = 0;
+
+  virtual void enterPrintFunctionCall(zrParser::PrintFunctionCallContext *ctx) = 0;
+  virtual void exitPrintFunctionCall(zrParser::PrintFunctionCallContext *ctx) = 0;
+
+  virtual void enterScanFunctionCall(zrParser::ScanFunctionCallContext *ctx) = 0;
+  virtual void exitScanFunctionCall(zrParser::ScanFunctionCallContext *ctx) = 0;
 
   virtual void enterIf_statement(zrParser::If_statementContext *ctx) = 0;
   virtual void exitIf_statement(zrParser::If_statementContext *ctx) = 0;
@@ -88,6 +94,9 @@ public:
 
   virtual void enterUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *ctx) = 0;
   virtual void exitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *ctx) = 0;
+
+  virtual void enterScanCallExpression(zrParser::ScanCallExpressionContext *ctx) = 0;
+  virtual void exitScanCallExpression(zrParser::ScanCallExpressionContext *ctx) = 0;
 
   virtual void enterAddExpression(zrParser::AddExpressionContext *ctx) = 0;
   virtual void exitAddExpression(zrParser::AddExpressionContext *ctx) = 0;

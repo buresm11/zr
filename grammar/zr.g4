@@ -42,7 +42,9 @@ assignment
  ;
 
 function_call
- : Identifier '(' (expression (',' expression)*)? ')'
+ : Identifier '(' (expression (',' expression)*)? ')'  #identifierFunctionCall
+ | Print '(' expression ')'                            #printFunctionCall
+ | Scan '(' ')'                             		   #scanFunctionCall
  ;
 
 if_statement
@@ -93,6 +95,7 @@ expression
  | expression '+' expression                #addExpression
  | expression '-' expression                #subtractExpression
  | Identifier '(' (expression (',' expression)*)? ')'                     #functionCallExpression
+ | Scan '(' ')' 							#scanCallExpression
  | Identifier                               #identifierExpression
  | number                                   #numberExpression
  ;
@@ -113,6 +116,8 @@ While     : 'while';
 To        : 'to';
 Do        : 'do';
 End       : 'end';
+Print     : 'print';
+Scan      : 'scan';
 
 Or       : '||';
 And      : '&&';

@@ -51,7 +51,15 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunction_call(zrParser::Function_callContext *ctx) override {
+  virtual antlrcpp::Any visitIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitPrintFunctionCall(zrParser::PrintFunctionCallContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitScanFunctionCall(zrParser::ScanFunctionCallContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -112,6 +120,10 @@ public:
   }
 
   virtual antlrcpp::Any visitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitScanCallExpression(zrParser::ScanCallExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 

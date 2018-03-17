@@ -11,7 +11,7 @@ class Variable
 
 public:
 
-	Variable(llvm::Value * v, bool glob) : value(v), global(glob), constant(true)  { }
+	Variable(llvm::Value * v, bool glob, bool c) : value(v), global(glob), constant(c)  { }
 
 	llvm::Value * get_value()
 	{

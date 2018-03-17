@@ -3,6 +3,9 @@
 #include <string>
 
 #include "llvm.h"
+#include "jit.h"
+#include "CompileException.h"
+#include "llvm.h"
 #include "antlr4-runtime.h"
 #include "zrLexer.h"
 #include "zrParser.h"
@@ -10,6 +13,10 @@
 
 int main(int argc, char const * argv[])
 {
+	llvm::InitializeNativeTarget();
+	llvm::InitializeNativeTargetAsmPrinter();
+	llvm::InitializeNativeTargetAsmParser();
+
 	std::ifstream inputFile (argv[1]);
 
 	if (!inputFile.is_open())
@@ -35,13 +42,24 @@ int main(int argc, char const * argv[])
 
 	Visitor visitor;
 
-	llvm::Module * m = visitor.compile(tree);
+	try
+	{
+		llvm::Module * m = visitor.compile(tree);
+		llvm::Function *f = m->getFunction("main");
 
-	std::error_code error;
-    llvm::raw_fd_ostream o("text", error, llvm::sys::fs::OpenFlags::F_None);
-    llvm::WriteBitcodeToFile(m, o);
+		std::cout << JIT::compile(f)() << std::endl;
 
-    m->dump();
+		std::error_code error;
+	    llvm::raw_fd_ostream o("text", error, llvm::sys::fs::OpenFlags::F_None);
+	    llvm::WriteBitcodeToFile(m, o);
 
-	return 1;
+	    m->dump();
+	}
+	catch (std::exception & e)
+	{
+    	std::cerr << e.what() << std::endl;
+    	return 5;
+	}
+
+	return 0;
 }

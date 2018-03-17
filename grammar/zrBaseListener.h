@@ -43,8 +43,14 @@ public:
   virtual void enterGlobal_variable_def(zrParser::Global_variable_defContext * /*ctx*/) override { }
   virtual void exitGlobal_variable_def(zrParser::Global_variable_defContext * /*ctx*/) override { }
 
-  virtual void enterFunction_call(zrParser::Function_callContext * /*ctx*/) override { }
-  virtual void exitFunction_call(zrParser::Function_callContext * /*ctx*/) override { }
+  virtual void enterIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext * /*ctx*/) override { }
+  virtual void exitIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext * /*ctx*/) override { }
+
+  virtual void enterPrintFunctionCall(zrParser::PrintFunctionCallContext * /*ctx*/) override { }
+  virtual void exitPrintFunctionCall(zrParser::PrintFunctionCallContext * /*ctx*/) override { }
+
+  virtual void enterScanFunctionCall(zrParser::ScanFunctionCallContext * /*ctx*/) override { }
+  virtual void exitScanFunctionCall(zrParser::ScanFunctionCallContext * /*ctx*/) override { }
 
   virtual void enterIf_statement(zrParser::If_statementContext * /*ctx*/) override { }
   virtual void exitIf_statement(zrParser::If_statementContext * /*ctx*/) override { }
@@ -90,6 +96,9 @@ public:
 
   virtual void enterUnaryMinusExpression(zrParser::UnaryMinusExpressionContext * /*ctx*/) override { }
   virtual void exitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext * /*ctx*/) override { }
+
+  virtual void enterScanCallExpression(zrParser::ScanCallExpressionContext * /*ctx*/) override { }
+  virtual void exitScanCallExpression(zrParser::ScanCallExpressionContext * /*ctx*/) override { }
 
   virtual void enterAddExpression(zrParser::AddExpressionContext * /*ctx*/) override { }
   virtual void exitAddExpression(zrParser::AddExpressionContext * /*ctx*/) override { }

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Variable.h"
+#include "CompileException.h"
 
 class Scope
 {
@@ -33,7 +34,7 @@ public:
 			return parent->get_variable(name);
 		}
 
-		//TODO NOT FOUND
+		throw CompileException("Indentifier " + name + " not found");
 	}
 
 	void add_variable(std::string name, Variable * variable)
