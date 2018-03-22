@@ -38,7 +38,7 @@ public:
 	llvm::Module * compile(antlr4::tree::ParseTree *tree)
 	{
 		m = new llvm::Module("zr", llvm_context);
-		scope = new Scope();
+		create_scope();
 
 		llvm::Function::Create(t_scan, llvm::GlobalValue::ExternalLinkage, "scan_", m)->setCallingConv(llvm::CallingConv::C);
         llvm::Function::Create(t_print, llvm::GlobalValue::ExternalLinkage, "print_", m)->setCallingConv(llvm::CallingConv::C);
@@ -51,6 +51,7 @@ public:
             throw CompileException("bad llvm ir");
         }
 
+        remove_scope();
 		return m;
 	}
 
@@ -126,9 +127,10 @@ public:
 
     antlrcpp::Any visitFunction_decl(zrParser::Function_declContext *context)
     {
-    	Debug(": function decl" << std::endl);
-
     	std::string func_name = context->Identifier()->getText();
+
+    	if (m->getFunction(func_name) != NULL)
+            throw CompileException("Function " + func_name + " already exists");
 
     	std::vector<std::string> args;
 
@@ -138,16 +140,16 @@ public:
     		args = argst;
     	}
     	 
-    	std::vector<llvm::Type * > at;
+    	std::vector<llvm::Type * > args_types;
         for (int i = 0; i < args.size(); i++)
-            at.push_back(t_int);
+            args_types.push_back(t_int);
 
-        llvm::FunctionType * ft = llvm::FunctionType::get(t_int, at, false);
+        llvm::FunctionType * ft = llvm::FunctionType::get(t_int, args_types, false);
 
         f = llvm::Function::Create(ft, llvm::GlobalValue::ExternalLinkage, func_name, m);
         f->setCallingConv(llvm::CallingConv::C);
 
-		scope = new Scope(scope);
+		create_scope();
         bb = llvm::BasicBlock::Create(llvm_context, "entry_" + func_name, this->f);
 
         llvm::Function::arg_iterator f_args = f->arg_begin();
@@ -159,21 +161,27 @@ public:
 
         	if(scope->has_variable(name))
         	{
-        		std::cout << "Redefinition" << std::endl;
+        		throw CompileException("Redefinition of variable " + name);
         	}
 
         	llvm::AllocaInst * loc = new llvm::AllocaInst(t_int, name, bb);
 
-        	Variable * variable = new Variable(loc, true, false);
-		    scope->add_variable(name, variable);
+        	Variable * variable = new Variable(loc, false, false);
+			scope->add_variable(name, variable);
 
 		    new llvm::StoreInst(arg, loc, false, bb);
 
 		    arg->setName(name);
-		    loc->setName(name);
+		   	loc->setName(name);
         }
 
-        visit(context->block());
+        bool block_returns = visit(context->block());
+        if(!block_returns)
+        {
+    		llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)), bb);
+        }
+
+        remove_scope();
 
     	return NULL;
     }
@@ -189,6 +197,8 @@ public:
     		args.push_back(visit(context->func_decl_arg().at(i)));
     	}
 
+    	Debug(": func decl arg list2" << std::endl);
+
     	return args;
     }
 
@@ -202,7 +212,6 @@ public:
     	Debug(": block" << std::endl);
 
     	bool ret = false;
-
     	for(int i=0;i<context->statement().size();i++)
     	{
     		ret = visit(context->statement().at(i));
@@ -296,7 +305,7 @@ public:
 
     	if(!scope->has_variable(name))
     	{
-    		//TODO
+    		throw CompileException("Variable " + name + " does not exist");
     	}
 
     	llvm::Value * val = visit(context->expression());
@@ -310,6 +319,7 @@ public:
     antlrcpp::Any visitIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext *context)
     {
     	Debug(": Identifier f call" << std::endl);
+
 
 
     	return NULL;	
@@ -374,16 +384,13 @@ public:
 
     		for(int i=0;i<else_if_context.size()-1;i++)
 		    {
-		    	bb = elif_f_cases[i];
 		      	compile_if_case(else_if_context.at(i)->cond_expression(), else_if_context.at(i)->block(), elif_t_cases[i], elif_f_cases[i+1], next);
 		    }
-
-		    bb = elif_f_cases[else_if_context.size()-1];
 
 		    if(else_context != NULL)
 		    {
 		    	compile_if_case(else_if_context.at(else_if_context.size()-1)->cond_expression(), else_if_context.at(else_if_context.size()-1)->block(), elif_t_cases[else_if_context.size()-1], else_case, next);
-    			compile_else_case(else_context->block(), else_case,next);
+    			compile_else_case(else_context->block(), next);
     		}
     		else
     			compile_if_case(else_if_context.at(else_if_context.size()-1)->cond_expression(), else_if_context.at(else_if_context.size()-1)->block(), elif_t_cases[else_if_context.size()-1], next, next);
@@ -393,46 +400,42 @@ public:
     		if(else_context != NULL)
 	        {
 	        	compile_if_case(if_context->cond_expression(), if_context->block(), if_case, else_case, next);
-	        	compile_else_case(else_context->block(), else_case,next);
+	        	compile_else_case(else_context->block(), next);
 	        }
 	        else
 	        {
 	        	compile_if_case(if_context->cond_expression(), if_context->block(), if_case, next, next);
 	        }
     	}
-
-    	bb = next;
     }
 
-    void compile_if_case(zrParser::Cond_expressionContext * cond, zrParser::BlockContext * true_block, llvm::BasicBlock * true_case, llvm::BasicBlock * false_case, llvm::BasicBlock * next)
+    void compile_if_case(zrParser::Cond_expressionContext * cond, zrParser::BlockContext * parse_block, llvm::BasicBlock * block, llvm::BasicBlock * next_block, llvm::BasicBlock * afterif_block)
     {
     	llvm::ICmpInst * cmp = visit(cond);
-    	llvm::BranchInst::Create(true_case, false_case, cmp, bb);
+    	llvm::BranchInst::Create(block, next_block, cmp, bb);
 
     	scope = new Scope(scope);
 
-    	bb = true_case;
-    	bool x = visit(true_block);
+    	bb = block;
 
-    	if(!x) llvm::BranchInst::Create(next, bb);
+    	bool block_returns = visit(parse_block);
+    	if(!block_returns) llvm::BranchInst::Create(afterif_block, bb);
 
-    	Scope * tmp = scope;
-    	scope = scope->get_parent();
-    	delete tmp;
+    	remove_scope();
+
+    	bb = next_block;
     }
 
-    void compile_else_case(zrParser::BlockContext * else_block, llvm::BasicBlock * else_case, llvm::BasicBlock * next)
+    void compile_else_case(zrParser::BlockContext * parse_block, llvm::BasicBlock * afterif_block)
     {
     	scope = new Scope(scope);
 
-    	bb = else_case;
-    	bool x = visit(else_block);
+    	bool block_returns = visit(parse_block);
+    	if(!block_returns) llvm::BranchInst::Create(afterif_block, bb);
 
-    	if(!x) llvm::BranchInst::Create(next, bb);
+    	remove_scope();
 
-    	Scope * tmp = scope;
-    	scope = scope->get_parent();
-    	delete tmp;
+    	bb = afterif_block;
     }
 
     antlrcpp::Any visitElse_if_stat(zrParser::Else_if_statContext *context)
@@ -447,11 +450,11 @@ public:
 
     antlrcpp::Any visitWhile_statement(zrParser::While_statementContext *context)
     {
+    	Debug(": visit while" << std::endl);
+
     	llvm::BasicBlock * preface = llvm::BasicBlock::Create(llvm_context, "preface", f);
-
     	llvm::BasicBlock * loop = llvm::BasicBlock::Create(llvm_context, "loop", f);
-
-    	llvm::BasicBlock * next = llvm::BasicBlock::Create(llvm_context, "empty", f);
+    	llvm::BasicBlock * next = llvm::BasicBlock::Create(llvm_context, "next", f);
 
     	llvm::BranchInst::Create(preface, bb);
 
@@ -460,16 +463,16 @@ public:
     	llvm::ICmpInst * cmp = visit(context->cond_expression());
     	llvm::BranchInst::Create(loop, next, cmp, bb);
 
-    	scope = new Scope(scope);
+    	create_scope();
 
     	bb = loop;
-    	visit(context->block());
+    	bool block_returns =  visit(context->block());
+
+    	if(!block_returns) llvm::BranchInst::Create(preface, bb);
 
     	bb = next;
 
-    	Scope * tmp = scope;
-    	scope = scope->get_parent();
-    	delete tmp;
+    	remove_scope();
 
     	return NULL;
     }
@@ -576,6 +579,11 @@ public:
 
     	std::string name = context->Identifier()->getText();
 
+    	if(!scope->has_variable(name))
+    	{
+    		throw CompileException("Variable " + name + " does not exist");
+    	}
+
     	llvm::Value * address = scope->get_variable(name)->get_value();
     	llvm::Value * value = new llvm::LoadInst(address, name, bb);
 
@@ -675,6 +683,18 @@ public:
     	llvm::ICmpInst * cmp = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLE, lv, rv, "");
 
     	return cmp;
+    }
+
+    void create_scope()
+    {
+    	scope = new Scope(scope);
+    }
+
+    void remove_scope()
+    {
+    	Scope * tmp = scope;
+    	scope = scope->get_parent();
+    	delete tmp;
     }
 
     int parse_int(std::string text)

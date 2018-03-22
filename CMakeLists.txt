@@ -63,6 +63,17 @@ FILE(GLOB src_files ${PROJECT_SOURCE_DIR}/src/*.cpp)
     )
 endforeach(src_file)
 
+FILE(GLOB opt_files ${PROJECT_SOURCE_DIR}/src/opt/*.cpp)
+
+ foreach(opt_file ${opt_files})
+   list(APPEND osrc ${opt_file})
+   set_source_files_properties(
+    ${opt_file}
+    PROPERTIES
+    COMPILE_FLAGS -Wno-overloaded-virtual
+    )
+endforeach(opt_file)
+
 
 # add sources
 #file(GLOB_RECURSE SRC "src/*.cpp" "src/*.h"  )
@@ -71,7 +82,7 @@ endforeach(src_file)
 include_directories(${PROJECT_SOURCE_DIR}/grammar)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
-add_executable(zr ${gsrc} ${ssrc})
+add_executable(zr ${gsrc} ${ssrc} ${osrc})
 add_dependencies(zr antlr4cpp)
 
 # Find the libraries that correspond to the LLVM components

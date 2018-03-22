@@ -1,7 +1,10 @@
 
 #pragma once
 
+#include <iostream>
+
 #include "llvm.h"
+#include "opt/dead_inst.h"
 
 extern "C" int scan_() {
     int result;
@@ -40,7 +43,26 @@ public:
 
     typedef int (*MainPtr)();
 
+    static void opti(llvm::Function * main)
+    {
+        llvm::Module * m = main->getParent();
+
+        auto pm = llvm::legacy::FunctionPassManager(m);
+        pm.add(new dead_inst_pass());
+       // pm.add(new llvm::transforms::PromoteLegacyPass());
+
+        for (llvm::Function & f : *m) 
+        {
+            std::cout << "csdc" << std::endl;
+            while (pm.run(f)) 
+            {
+
+            }
+        }
+    }
+
     static MainPtr compile(llvm::Function * main) {
+        
         llvm::Module * m = main->getParent();
 
 

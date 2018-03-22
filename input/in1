@@ -1,6 +1,10 @@
-def int main()
-	int z = 64 + 5;
-	int z;
 
-	return 56;
+def int main()
+
+	int c;
+
+	c= 5 + c + 1 + 2 + 3;
+
+	c = 10;
+
 end

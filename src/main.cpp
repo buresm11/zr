@@ -47,7 +47,7 @@ int main(int argc, char const * argv[])
 		llvm::Module * m = visitor.compile(tree);
 		llvm::Function *f = m->getFunction("main");
 
-		std::cout << JIT::compile(f)() << std::endl;
+		JIT::opti(f);
 
 		std::error_code error;
 	    llvm::raw_fd_ostream o("text", error, llvm::sys::fs::OpenFlags::F_None);

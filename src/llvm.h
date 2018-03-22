@@ -22,6 +22,7 @@
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Transforms/Scalar.h> 
+#include <llvm/Transforms/Utils/PromoteMemToReg.h>
 #include <llvm/Pass.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/Support/raw_os_ostream.h>
