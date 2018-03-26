@@ -21,7 +21,7 @@
 
 class Visitor : public zrVisitor
 {
-	static llvm::LLVMContext & llvm_context;
+	/*static llvm::LLVMContext & llvm_context;
 	static llvm::Type * t_int;
 	static llvm::Type * t_void;
 	static llvm::FunctionType * t_print;
@@ -715,5 +715,5 @@ public:
         }
 
         return number;
-    }
+    }*/
 };

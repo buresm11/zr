@@ -9,11 +9,11 @@
 #include "antlr4-runtime.h"
 #include "zrLexer.h"
 #include "zrParser.h"
-#include "Visitor.h"
+#include "Compiler.h"
 
 int main(int argc, char const * argv[])
 {
-	llvm::InitializeNativeTarget();
+	/*llvm::InitializeNativeTarget();
 	llvm::InitializeNativeTargetAsmPrinter();
 	llvm::InitializeNativeTargetAsmParser();
 
@@ -38,16 +38,16 @@ int main(int argc, char const * argv[])
 	if(parser.getNumberOfSyntaxErrors() > 0)
 	{	
 		std::cout << "ERRORS" << tree->toStringTree(&parser) << std::endl;
-	}
+	}*/
 
-	Visitor visitor;
+	Compiler compiler;
 
-	try
+	/*try
 	{
 		llvm::Module * m = visitor.compile(tree);
 		llvm::Function *f = m->getFunction("main");
 
-		JIT::opti(f);
+		JIT::run(f);
 
 		std::error_code error;
 	    llvm::raw_fd_ostream o("text", error, llvm::sys::fs::OpenFlags::F_None);
@@ -59,7 +59,7 @@ int main(int argc, char const * argv[])
 	{
     	std::cerr << e.what() << std::endl;
     	return 5;
-	}
+	}*/
 
 	return 0;
 }

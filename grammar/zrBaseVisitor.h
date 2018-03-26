@@ -95,43 +95,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitGtEqExpression(zrParser::GtEqExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitLtEqExpression(zrParser::LtEqExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitGtExpression(zrParser::GtExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitLtExpression(zrParser::LtExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitEqExpression(zrParser::EqExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitBinaryExpression(zrParser::BinaryExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual antlrcpp::Any visitScanCallExpression(zrParser::ScanCallExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitSubtractExpression(zrParser::SubtractExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -147,11 +115,15 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMultiplyExpression(zrParser::MultiplyExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitUnaryExpression(zrParser::UnaryExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitDivideExpression(zrParser::DivideExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitUnOp(zrParser::UnOpContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitBinOp(zrParser::BinOpContext *ctx) override {
     return visitChildren(ctx);
   }
 

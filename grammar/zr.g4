@@ -52,11 +52,11 @@ if_statement
  ;
 
 if_stat
- : If cond_expression Do block
+ : If expression Do block
  ;
 
 else_if_stat
- : Else If cond_expression Do block
+ : Else If expression Do block
  ;
 
 else_stat
@@ -64,7 +64,7 @@ else_stat
  ;
 
  while_statement
- : While cond_expression Do block End
+ : While expression Do block End
  ;
 
 function_decl
@@ -79,26 +79,35 @@ func_decl_arg_list
  : Type_identifier Identifier
  ;
 
-cond_expression
-: expression '>=' expression               #gtEqExpression
- | expression '<=' expression               #ltEqExpression
- | expression '>' expression                #gtExpression
- | expression '<' expression                #ltExpression
- | expression '==' expression               #eqExpression
- | expression '!=' expression               #notEqExpression
-;
 
-expression
- : '-' expression                           #unaryMinusExpression
- | expression '*' expression                #multiplyExpression
- | expression '/' expression                #divideExpression
- | expression '+' expression                #addExpression
- | expression '-' expression                #subtractExpression
+ expression
+ : expression binOp expression 				#binaryExpression
+ | unOp expression 							#unaryExpression
  | Identifier '(' (expression (',' expression)*)? ')'                     #functionCallExpression
  | Scan '(' ')' 							#scanCallExpression
  | Identifier                               #identifierExpression
- | number                                   #numberExpression
- ;
+ | number                                   #numberExpression	
+ ;		
+
+unOp
+:	Excl
+|	Minus 
+;
+
+binOp
+:	Or
+|   And
+|	Equals
+|	NEquals
+|	GTEquals
+|	LTEquals
+|	Gt
+|	Lt 
+|	Add
+|	Minus
+|	Multiply
+|	Divide
+;
 
 number
 : Integer
@@ -125,29 +134,18 @@ Equals   : '==';
 NEquals  : '!=';
 GTEquals : '>=';
 LTEquals : '<=';
-Pow      : '^';
 Excl     : '!';
-GT       : '>';
-LT       : '<';
+Gt       : '>';
+Lt       : '<';
 Add      : '+';
-Subtract : '-';
+Minus	 : '-';
 Multiply : '*';
 Divide   : '/';
-Modulus  : '%';
-OBrace   : '{';
-CBrace   : '}';
-OBracket : '[';
-CBracket : ']';
-OParen   : '(';
-CParen   : ')';
-SColon   : ';';
-Assign   : '=';
-Comma    : ',';
-QMark    : '?';
-Colon    : ':';
+
 
 Type_identifier
  : 'int'
+ | 'bool'
  ;
 
 Identifier
@@ -175,3 +173,4 @@ fragment Int
 fragment Digit 
  : [0-9]
  ;
+

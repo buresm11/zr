@@ -5,6 +5,7 @@
 
 #include "llvm.h"
 #include "opt/dead_inst.h"
+#include "opt/const_propag.h"
 
 extern "C" int scan_() {
     int result;
@@ -17,21 +18,13 @@ extern "C" void print_(int what) {
     std::cout << "Vypis: " << what << std::endl;
 }
 
-/** The Rift Memory manager extends the default LLVM memory manager with
-    support for resolving the Rift runtime functions. This is achieved by
-    extending the behavior of the getSymbolAddress function.
-  */
 class MemoryManager : public llvm::SectionMemoryManager {
 public:
 #define NAME_IS(name) if (Name == #name) return reinterpret_cast<uint64_t>(::name)
-    /** Return the address of symbol, or nullptr if undefind. We extend the
-        default LLVM resolution with the list of RIFT runtime functions.
-      */
-    uint64_t getSymbolAddress(const std::string & Name) override {
+    uint64_t getSymbolAddress(const std::string & Name) override 
+    {
         uint64_t addr = SectionMemoryManager::getSymbolAddress(Name);
         if (addr != 0) return addr;
-        // This bit is for some OSes (Windows and OSX where the MCJIT symbol
-        // loading is broken)
         NAME_IS(scan_);
         NAME_IS(print_);
         llvm::report_fatal_error("Extern function '" + Name + "' couldn't be resolved!");
@@ -48,8 +41,9 @@ public:
         llvm::Module * m = main->getParent();
 
         auto pm = llvm::legacy::FunctionPassManager(m);
-        pm.add(new dead_inst_pass());
-       // pm.add(new llvm::transforms::PromoteLegacyPass());
+        pm.add(new analysis());
+        //pm.add(new dead_inst_pass());
+       //pm. add(new llvm::transforms::PromoteLegacyPass());
 
         for (llvm::Function & f : *m) 
         {
@@ -61,10 +55,9 @@ public:
         }
     }
 
-    static MainPtr compile(llvm::Function * main) {
+    static MainPtr run(llvm::Function * main) {
         
         llvm::Module * m = main->getParent();
-
 
         std::string err;
 

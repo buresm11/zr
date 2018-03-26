@@ -74,35 +74,11 @@ public:
   virtual void enterFunc_decl_arg(zrParser::Func_decl_argContext *ctx) = 0;
   virtual void exitFunc_decl_arg(zrParser::Func_decl_argContext *ctx) = 0;
 
-  virtual void enterGtEqExpression(zrParser::GtEqExpressionContext *ctx) = 0;
-  virtual void exitGtEqExpression(zrParser::GtEqExpressionContext *ctx) = 0;
-
-  virtual void enterLtEqExpression(zrParser::LtEqExpressionContext *ctx) = 0;
-  virtual void exitLtEqExpression(zrParser::LtEqExpressionContext *ctx) = 0;
-
-  virtual void enterGtExpression(zrParser::GtExpressionContext *ctx) = 0;
-  virtual void exitGtExpression(zrParser::GtExpressionContext *ctx) = 0;
-
-  virtual void enterLtExpression(zrParser::LtExpressionContext *ctx) = 0;
-  virtual void exitLtExpression(zrParser::LtExpressionContext *ctx) = 0;
-
-  virtual void enterEqExpression(zrParser::EqExpressionContext *ctx) = 0;
-  virtual void exitEqExpression(zrParser::EqExpressionContext *ctx) = 0;
-
-  virtual void enterNotEqExpression(zrParser::NotEqExpressionContext *ctx) = 0;
-  virtual void exitNotEqExpression(zrParser::NotEqExpressionContext *ctx) = 0;
-
-  virtual void enterUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *ctx) = 0;
-  virtual void exitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *ctx) = 0;
+  virtual void enterBinaryExpression(zrParser::BinaryExpressionContext *ctx) = 0;
+  virtual void exitBinaryExpression(zrParser::BinaryExpressionContext *ctx) = 0;
 
   virtual void enterScanCallExpression(zrParser::ScanCallExpressionContext *ctx) = 0;
   virtual void exitScanCallExpression(zrParser::ScanCallExpressionContext *ctx) = 0;
-
-  virtual void enterAddExpression(zrParser::AddExpressionContext *ctx) = 0;
-  virtual void exitAddExpression(zrParser::AddExpressionContext *ctx) = 0;
-
-  virtual void enterSubtractExpression(zrParser::SubtractExpressionContext *ctx) = 0;
-  virtual void exitSubtractExpression(zrParser::SubtractExpressionContext *ctx) = 0;
 
   virtual void enterNumberExpression(zrParser::NumberExpressionContext *ctx) = 0;
   virtual void exitNumberExpression(zrParser::NumberExpressionContext *ctx) = 0;
@@ -113,11 +89,14 @@ public:
   virtual void enterFunctionCallExpression(zrParser::FunctionCallExpressionContext *ctx) = 0;
   virtual void exitFunctionCallExpression(zrParser::FunctionCallExpressionContext *ctx) = 0;
 
-  virtual void enterMultiplyExpression(zrParser::MultiplyExpressionContext *ctx) = 0;
-  virtual void exitMultiplyExpression(zrParser::MultiplyExpressionContext *ctx) = 0;
+  virtual void enterUnaryExpression(zrParser::UnaryExpressionContext *ctx) = 0;
+  virtual void exitUnaryExpression(zrParser::UnaryExpressionContext *ctx) = 0;
 
-  virtual void enterDivideExpression(zrParser::DivideExpressionContext *ctx) = 0;
-  virtual void exitDivideExpression(zrParser::DivideExpressionContext *ctx) = 0;
+  virtual void enterUnOp(zrParser::UnOpContext *ctx) = 0;
+  virtual void exitUnOp(zrParser::UnOpContext *ctx) = 0;
+
+  virtual void enterBinOp(zrParser::BinOpContext *ctx) = 0;
+  virtual void exitBinOp(zrParser::BinOpContext *ctx) = 0;
 
   virtual void enterNumber(zrParser::NumberContext *ctx) = 0;
   virtual void exitNumber(zrParser::NumberContext *ctx) = 0;
