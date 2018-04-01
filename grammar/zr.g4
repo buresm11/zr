@@ -38,7 +38,7 @@ assignment
  ;
 
  global_variable_def
- : Type_identifier Identifier ('=' number)?
+ : Type_identifier Identifier ('=' (bool_lit | number))?
  ;
 
 function_call
@@ -86,7 +86,7 @@ func_decl_arg_list
  | Identifier '(' (expression (',' expression)*)? ')'                     #functionCallExpression
  | Scan '(' ')' 							#scanCallExpression
  | Identifier                               #identifierExpression
- | number                                   #numberExpression	
+ | (bool_lit | number)                      #literalExpression	
  ;		
 
 unOp
@@ -109,13 +109,17 @@ binOp
 |	Divide
 ;
 
+bool_lit
+: (True | False)
+;
+
 number
 : Integer
 ;
 
 Integer
- : Int
- ;
+: Int
+;
 
 Def       : 'def';
 If        : 'if';
@@ -127,6 +131,8 @@ Do        : 'do';
 End       : 'end';
 Print     : 'print';
 Scan      : 'scan';
+True      : 'true';
+False     : 'false';
 
 Or       : '||';
 And      : '&&';

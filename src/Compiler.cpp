@@ -1,12 +1,14 @@
 
 #include "Compiler.h"
 
-/*llvm::LLVMContext & Visitor::llvm_context = llvm::getGlobalContext();
+llvm::LLVMContext & Compiler::llvm_context = llvm::getGlobalContext();
 
-llvm::Type * Visitor::t_int = llvm::IntegerType::get(llvm::getGlobalContext(), 32);
+llvm::Type * Compiler::t_int = llvm::IntegerType::get(llvm::getGlobalContext(), 32);
 
-llvm::Type * Visitor::t_void = llvm::Type::getVoidTy(llvm::getGlobalContext());
+llvm::Type * Compiler::t_void = llvm::Type::getVoidTy(llvm::getGlobalContext());
 
-llvm::FunctionType * Visitor::t_scan = llvm::FunctionType::get(t_int, false);
+llvm::Type * Compiler::t_bool = llvm::IntegerType::get(llvm::getGlobalContext(), 1);
 
-llvm::FunctionType * Visitor::t_print = llvm::FunctionType::get(t_void, { t_int }, false);*/
+llvm::FunctionType * Compiler::t_scan = llvm::FunctionType::get(t_int, false);
+
+llvm::FunctionType * Compiler::t_print = llvm::FunctionType::get(t_void, { t_int }, false);

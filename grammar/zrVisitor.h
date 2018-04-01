@@ -63,17 +63,19 @@ public:
 
     virtual antlrcpp::Any visitScanCallExpression(zrParser::ScanCallExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitNumberExpression(zrParser::NumberExpressionContext *context) = 0;
-
     virtual antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionCallExpression(zrParser::FunctionCallExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitUnaryExpression(zrParser::UnaryExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitLiteralExpression(zrParser::LiteralExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitUnOp(zrParser::UnOpContext *context) = 0;
 
     virtual antlrcpp::Any visitBinOp(zrParser::BinOpContext *context) = 0;
+
+    virtual antlrcpp::Any visitBool_lit(zrParser::Bool_litContext *context) = 0;
 
     virtual antlrcpp::Any visitNumber(zrParser::NumberContext *context) = 0;
 

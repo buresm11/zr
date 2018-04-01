@@ -82,9 +82,6 @@ public:
   virtual void enterScanCallExpression(zrParser::ScanCallExpressionContext * /*ctx*/) override { }
   virtual void exitScanCallExpression(zrParser::ScanCallExpressionContext * /*ctx*/) override { }
 
-  virtual void enterNumberExpression(zrParser::NumberExpressionContext * /*ctx*/) override { }
-  virtual void exitNumberExpression(zrParser::NumberExpressionContext * /*ctx*/) override { }
-
   virtual void enterIdentifierExpression(zrParser::IdentifierExpressionContext * /*ctx*/) override { }
   virtual void exitIdentifierExpression(zrParser::IdentifierExpressionContext * /*ctx*/) override { }
 
@@ -94,11 +91,17 @@ public:
   virtual void enterUnaryExpression(zrParser::UnaryExpressionContext * /*ctx*/) override { }
   virtual void exitUnaryExpression(zrParser::UnaryExpressionContext * /*ctx*/) override { }
 
+  virtual void enterLiteralExpression(zrParser::LiteralExpressionContext * /*ctx*/) override { }
+  virtual void exitLiteralExpression(zrParser::LiteralExpressionContext * /*ctx*/) override { }
+
   virtual void enterUnOp(zrParser::UnOpContext * /*ctx*/) override { }
   virtual void exitUnOp(zrParser::UnOpContext * /*ctx*/) override { }
 
   virtual void enterBinOp(zrParser::BinOpContext * /*ctx*/) override { }
   virtual void exitBinOp(zrParser::BinOpContext * /*ctx*/) override { }
+
+  virtual void enterBool_lit(zrParser::Bool_litContext * /*ctx*/) override { }
+  virtual void exitBool_lit(zrParser::Bool_litContext * /*ctx*/) override { }
 
   virtual void enterNumber(zrParser::NumberContext * /*ctx*/) override { }
   virtual void exitNumber(zrParser::NumberContext * /*ctx*/) override { }

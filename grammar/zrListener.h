@@ -80,9 +80,6 @@ public:
   virtual void enterScanCallExpression(zrParser::ScanCallExpressionContext *ctx) = 0;
   virtual void exitScanCallExpression(zrParser::ScanCallExpressionContext *ctx) = 0;
 
-  virtual void enterNumberExpression(zrParser::NumberExpressionContext *ctx) = 0;
-  virtual void exitNumberExpression(zrParser::NumberExpressionContext *ctx) = 0;
-
   virtual void enterIdentifierExpression(zrParser::IdentifierExpressionContext *ctx) = 0;
   virtual void exitIdentifierExpression(zrParser::IdentifierExpressionContext *ctx) = 0;
 
@@ -92,11 +89,17 @@ public:
   virtual void enterUnaryExpression(zrParser::UnaryExpressionContext *ctx) = 0;
   virtual void exitUnaryExpression(zrParser::UnaryExpressionContext *ctx) = 0;
 
+  virtual void enterLiteralExpression(zrParser::LiteralExpressionContext *ctx) = 0;
+  virtual void exitLiteralExpression(zrParser::LiteralExpressionContext *ctx) = 0;
+
   virtual void enterUnOp(zrParser::UnOpContext *ctx) = 0;
   virtual void exitUnOp(zrParser::UnOpContext *ctx) = 0;
 
   virtual void enterBinOp(zrParser::BinOpContext *ctx) = 0;
   virtual void exitBinOp(zrParser::BinOpContext *ctx) = 0;
+
+  virtual void enterBool_lit(zrParser::Bool_litContext *ctx) = 0;
+  virtual void exitBool_lit(zrParser::Bool_litContext *ctx) = 0;
 
   virtual void enterNumber(zrParser::NumberContext *ctx) = 0;
   virtual void exitNumber(zrParser::NumberContext *ctx) = 0;

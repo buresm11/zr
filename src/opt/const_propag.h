@@ -5,7 +5,7 @@
 
 #include "llvm.h"
 
-enum class Type 
+enum class TypeX 
 {
     Top,
     Bottom,
@@ -15,26 +15,26 @@ enum class Type
 class ValueContent
 {
 	int value;
-	Type type;
+	TypeX type;
 
 public:
-	ValueContent(Type t, int v) : type(t), value(v) { } 
+	ValueContent(TypeX t, int v) : type(t), value(v) { } 
 
-	ValueContent(Type t) : type(t) { }
+	ValueContent(TypeX t) : type(t) { }
 
 	bool is_bottom() const
 	{
-		return type == Type::Bottom;
+		return type == TypeX::Bottom;
 	}
 
 	bool is_top() const
 	{
-		return type == Type::Top;
+		return type == TypeX::Top;
 	}
 
 	bool is_const() const
 	{
-		return type == Type::Const;
+		return type == TypeX::Const;
 	}
 
 	int get_value() const
@@ -42,7 +42,7 @@ public:
 		return value;
 	}
 
-	Type get_type() const
+	TypeX get_type() const
 	{
 		return type;
 	}
@@ -62,7 +62,7 @@ public:
 		if(is_const())
 		{
 			if(other.is_const() && value == other.get_value()) return false;
-			if(other.is_const() || other.is_top()) { type = Type::Top; return true; }
+			if(other.is_const() || other.is_top()) { type = TypeX::Top; return true; }
 			if(other.is_bottom()) return false;
 		}
 

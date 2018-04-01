@@ -14,10 +14,10 @@ public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, Integer = 6, Def = 7, 
     If = 8, Else = 9, Return = 10, While = 11, To = 12, Do = 13, End = 14, 
-    Print = 15, Scan = 16, Or = 17, And = 18, Equals = 19, NEquals = 20, 
-    GTEquals = 21, LTEquals = 22, Excl = 23, Gt = 24, Lt = 25, Add = 26, 
-    Minus = 27, Multiply = 28, Divide = 29, Type_identifier = 30, Identifier = 31, 
-    String = 32, Comment = 33, Space = 34
+    Print = 15, Scan = 16, True = 17, False = 18, Or = 19, And = 20, Equals = 21, 
+    NEquals = 22, GTEquals = 23, LTEquals = 24, Excl = 25, Gt = 26, Lt = 27, 
+    Add = 28, Minus = 29, Multiply = 30, Divide = 31, Type_identifier = 32, 
+    Identifier = 33, String = 34, Comment = 35, Space = 36
   };
 
   zrLexer(antlr4::CharStream *input);
