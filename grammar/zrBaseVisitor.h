@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <iostream>
-
 
 #include "antlr4-runtime.h"
 #include "zrVisitor.h"
@@ -18,7 +16,6 @@ class  zrBaseVisitor : public zrVisitor {
 public:
 
   virtual antlrcpp::Any visitParse(zrParser::ParseContext *ctx) override {
-    std::cout << "sdfdsf" << std::endl;
     return visitChildren(ctx);
   }
 

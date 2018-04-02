@@ -7,11 +7,10 @@ class Variable
 {
 	llvm::Value * value;
 	bool global;
-	bool constant;
 
 public:
 
-	Variable(llvm::Value * v, bool glob, bool c) : value(v), global(glob), constant(c)  { }
+	Variable(llvm::Value * v, bool glob) : value(v), global(glob)  { }
 
 	llvm::Value * get_value()
 	{
@@ -21,10 +20,5 @@ public:
 	bool is_global()
 	{
 		return global;
-	}
-
-	bool is_constant()
-	{
-		return constant;
 	}
 };

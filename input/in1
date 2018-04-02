@@ -1,8 +1,10 @@
-
 int a;
-int b;
 bool z;
 
-def int main()
+def int main(int x, int y, bool z)
+	int a;
+	bool xxx;
 
+	a = -5;
+	return 5;
 end

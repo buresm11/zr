@@ -35,6 +35,8 @@ int main(int argc, char const * argv[])
 
 	inputFile.close();
 
+	std::cout << tree->toStringTree(&parser);
+
 	if(parser.getNumberOfSyntaxErrors() > 0)
 	{	
 		std::cout << "ERRORS" << tree->toStringTree(&parser) << std::endl;

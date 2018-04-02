@@ -34,11 +34,11 @@ assignment
  ;
 
  variable_def
- : Type_identifier Identifier ('=' expression)?
+ : Type_identifier Identifier
  ;
 
  global_variable_def
- : Type_identifier Identifier ('=' (bool_lit | number))?
+ : Type_identifier Identifier
  ;
 
 function_call
