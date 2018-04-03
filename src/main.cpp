@@ -47,13 +47,15 @@ int main(int argc, char const * argv[])
 	try
 	{
 		llvm::Module * m = compiler.compile(tree);
-		//llvm::Function *f = m->getFunction("main");
+		llvm::Function *f = m->getFunction("main");
 
-		//JIT::run(f);
+		std::cout << "-----------" << std::endl;
+		JIT::run(f)();
+		std::cout << "-----------" << std::endl;
 
-		//std::error_code error;
-	   // llvm::raw_fd_ostream o("text", error, llvm::sys::fs::OpenFlags::F_None);
-	   // llvm::WriteBitcodeToFile(m, o);
+		std::error_code error;
+	    llvm::raw_fd_ostream o("text", error, llvm::sys::fs::OpenFlags::F_None);
+	    llvm::WriteBitcodeToFile(m, o);
 
 	    m->dump();
 	}

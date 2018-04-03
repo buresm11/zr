@@ -47,7 +47,6 @@ public:
 
         for (llvm::Function & f : *m) 
         {
-            std::cout << "csdc" << std::endl;
             while (pm.run(f)) 
             {
 
@@ -75,10 +74,6 @@ public:
 
         engine->finalizeObject();
 
-        /*llvm::ExecutionEngine * engine = llvm::EngineBuilder(std::unique_ptr<llvm::Module>(m))
-            .setMCJITMemoryManager(std::unique_ptr<MemoryManager>(new MemoryManager()))
-            .create();
-        engine->finalizeObject(); */
         return reinterpret_cast<MainPtr>(engine->getPointerToFunction(main));
     }
 };

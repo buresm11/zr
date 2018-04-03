@@ -63,7 +63,7 @@ public:
 	llvm::Module * compile(antlr4::tree::ParseTree *tree)
 	{
 		m = new llvm::Module("zr", llvm_context);
-		create_scope();
+		create_new_scope();
 
 		llvm::Function::Create(t_scan, llvm::GlobalValue::ExternalLinkage, "scan_", m)->setCallingConv(llvm::CallingConv::C);
         llvm::Function::Create(t_print, llvm::GlobalValue::ExternalLinkage, "print_", m)->setCallingConv(llvm::CallingConv::C);
@@ -122,6 +122,8 @@ public:
 
     	std::string name = ctx->Identifier()->getText();
     	Type type = get_type_from_string(ctx->Type_identifier()->getText());
+    	Variable * variable;
+
 
     	if(scope->has_variable(name))
     	{
@@ -135,15 +137,15 @@ public:
     		gv = new llvm::GlobalVariable(*m, t_int, false, llvm::GlobalValue::CommonLinkage, NULL, name);
   		    gv->setAlignment(4);
   		    gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)));
+  		    variable = new Variable(gv, true, t_int);
     	}
     	else if(type == Type::BoolType)
     	{
     		gv = new llvm::GlobalVariable(*m, t_bool, false, llvm::GlobalValue::CommonLinkage, NULL, name);
   		    gv->setAlignment(4);
   		    gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 0)));
+  		    variable = new Variable(gv, true, t_bool);
     	}
-
-    	Variable * variable = new Variable(gv, true);
 		scope->add_variable(name, variable);
 
     	return NULL;
@@ -171,7 +173,6 @@ public:
     			if(args.at(i)->get_type() == Type::IntType) args_types.push_back(t_int);
     			else if(args.at(i)->get_type() == Type::BoolType) args_types.push_back(t_bool);
             	
-
             	delete args.at(i);
     		}
     	}  
@@ -207,7 +208,7 @@ public:
 
         	llvm::AllocaInst * loc = new llvm::AllocaInst(arg->getType(), name, bb);
 
-        	Variable * variable = new Variable(loc, false);
+        	Variable * variable = new Variable(loc, false, arg->getType());
 			scope->add_variable(name, variable);
 
 		    new llvm::StoreInst(arg, loc, false, bb);
@@ -217,10 +218,10 @@ public:
         }
 
         bool block_returns = visit(ctx->block());
-        /*if(!block_returns)
+        if(!block_returns)
         {
     		llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)), bb);
-        }*/
+        }
 
         remove_scope();
 
@@ -243,6 +244,9 @@ public:
 
     antlrcpp::Any visitFunc_decl_arg(zrParser::Func_decl_argContext *ctx) override
     {
+    	Debug(": func decl arg" << std::endl);
+
+
     	std::string arg_name = ctx->Identifier()->getText();
     	Type arg_type = get_type_from_string(ctx->Type_identifier()->getText());
 
@@ -277,19 +281,19 @@ public:
     	}
     	else if(context->if_statement() != NULL)
     	{
-    		//visit(context->if_statement());
+    		visit(context->if_statement());
     	}
     	else if(context->while_statement() != NULL)
     	{
-    		//visit(context->while_statement());
+    		visit(context->while_statement());
     	}
     	else if(context->function_call() != NULL)
     	{
-    		//visit(context->function_call());
+    		visit(context->function_call());
     	}
     	else if(context->return_statement() != NULL)
     	{
-    		//visit(context->return_statement());
+    		visit(context->return_statement());
     		return true;
     	}
 
@@ -312,11 +316,11 @@ public:
 
     	if(type == Type::IntType)
     	{
-    		 variable = new Variable(new llvm::AllocaInst(t_int, name, bb), false);
+    		 variable = new Variable(new llvm::AllocaInst(t_int, name, bb), false, t_int);
     	}   
     	else if(type == Type::BoolType)
     	{
-    		 variable = new Variable(new llvm::AllocaInst(t_bool, name, bb), false);
+    		 variable = new Variable(new llvm::AllocaInst(t_bool, name, bb), false, t_bool);
     	}  
 
     	scope->add_variable(name, variable);
@@ -324,18 +328,25 @@ public:
     	return NULL;
     }
 
-    antlrcpp::Any visitAssignment(zrParser::AssignmentContext *context)
+    antlrcpp::Any visitAssignment(zrParser::AssignmentContext *ctx) override
     {
     	Debug(": assigment" << std::endl);
 
-    	std::string name = context->Identifier()->getText();
+    	std::string name = ctx->Identifier()->getText();
 
     	if(!scope->has_variable(name))
     	{
     		throw CompileException("Variable " + name + " does not exist");
     	}
 
-    	llvm::Value * val = visit(context->expression());
+    	llvm::Value * val = visit(ctx->expression());
+    	llvm::Type * type = scope->get_variable(name)->get_type();
+
+    	if(type != val->getType())
+    	{
+    		throw CompileException("Incompatible types");
+    	}
+
     	llvm::Value * address = scope->get_variable(name)->get_value();
 
     	new llvm::StoreInst(val, address, false, bb);
@@ -343,7 +354,260 @@ public:
     	return NULL;
     }
 
-    virtual antlrcpp::Any visitBinaryExpression(zrParser::BinaryExpressionContext *ctx) override 
+    antlrcpp::Any visitIf_statement(zrParser::If_statementContext *ctx) override
+    {
+    	Debug(": if statatement" << std::endl);
+
+    	compile_if(ctx->if_stat(), ctx->else_if_stat(), ctx->else_stat());
+
+    	return NULL;
+    }
+
+    void compile_if(zrParser::If_statContext * if_context, std::vector<zrParser::Else_if_statContext *> else_if_context, zrParser::Else_statContext * else_context)
+    {
+    	llvm::BasicBlock * if_case = llvm::BasicBlock::Create(llvm_context, "if_case", f);
+    	llvm::BasicBlock ** elif_cmp = new llvm::BasicBlock * [else_if_context.size()];
+    	llvm::BasicBlock ** elif_case = new llvm::BasicBlock * [else_if_context.size()];
+    	
+    	for(int i=0;i<else_if_context.size();i++)
+	    {
+	    	elif_cmp[i] = llvm::BasicBlock::Create(llvm_context, "elif_cmp" + std::to_string(i), f);
+	      	elif_case[i] = llvm::BasicBlock::Create(llvm_context, "elif_case" + std::to_string(i), f);
+	    }
+
+	    llvm::BasicBlock * else_case;
+
+		if(else_context != NULL) else_case = llvm::BasicBlock::Create(llvm_context, "else_case", f);
+
+    	llvm::BasicBlock * next = llvm::BasicBlock::Create(llvm_context, "next", f);
+
+    	if(else_if_context.size() > 0)
+    	{	    	
+    		compile_if_case(if_context->expression(), if_context->block(), if_case, elif_cmp[0], next);
+
+    		for(int i=0;i<else_if_context.size()-1;i++)
+		    {
+		      	compile_if_case(else_if_context.at(i)->expression(), else_if_context.at(i)->block(), 
+		      		elif_case[i], elif_cmp[i+1], next);
+		    }
+
+		    if(else_context != NULL)
+		    {
+		    	compile_if_case(else_if_context.at(else_if_context.size()-1)->expression(), 
+		    		else_if_context.at(else_if_context.size()-1)->block(), elif_case[else_if_context.size()-1], else_case, next);
+    			compile_else_case(else_context->block(), next);
+    		}
+    		else
+    			compile_if_case(else_if_context.at(else_if_context.size()-1)->expression(), 
+    				else_if_context.at(else_if_context.size()-1)->block(), elif_case[else_if_context.size()-1], next, next);
+    	}	
+    	else
+    	{
+    		if(else_context != NULL)
+	        {
+	        	compile_if_case(if_context->expression(), if_context->block(), if_case, else_case, next);
+	        	compile_else_case(else_context->block(), next);
+	        }
+	        else
+	        {
+	        	compile_if_case(if_context->expression(), if_context->block(), if_case, next, next);
+	        }
+    	}
+    }
+
+    void compile_if_case(zrParser::ExpressionContext * expression, zrParser::BlockContext * parse_block, llvm::BasicBlock * block, 
+    	llvm::BasicBlock * next_block, llvm::BasicBlock * next)
+    {
+
+    	llvm::Value * exp_val = visit(expression);
+
+    	llvm::Value * cmp_val;
+
+    	if(exp_val->getType() == t_bool)
+    	{
+    		cmp_val = exp_val;
+    	}
+    	else if(exp_val->getType() == t_int)
+    	{
+    		cmp_val  = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_EQ, exp_val, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)), "");
+    	}
+
+    	llvm::BranchInst::Create(block, next_block, cmp_val, bb);
+
+    	scope = new Scope(scope);
+
+    	bb = block;
+
+    	bool block_returns = visit(parse_block);
+    	if(!block_returns) llvm::BranchInst::Create(next, bb);
+
+    	remove_scope();
+
+    	bb = next_block;
+    }
+
+    void compile_else_case(zrParser::BlockContext * parse_block, llvm::BasicBlock * next)
+    {
+    	scope = new Scope(scope);
+
+    	bool block_returns = visit(parse_block);
+    	if(!block_returns) llvm::BranchInst::Create(next, bb);
+
+    	remove_scope();
+
+    	bb = next;
+    }
+
+    antlrcpp::Any visitWhile_statement(zrParser::While_statementContext *ctx) override
+    {
+    	Debug(": visit while" << std::endl);
+
+    	llvm::BasicBlock * preface = llvm::BasicBlock::Create(llvm_context, "preface", f);
+    	llvm::BasicBlock * loop = llvm::BasicBlock::Create(llvm_context, "loop", f);
+    	llvm::BasicBlock * next = llvm::BasicBlock::Create(llvm_context, "next", f);
+
+    	llvm::BranchInst::Create(preface, bb);
+
+    	bb = preface;
+
+    	llvm::Value * exp_val = visit(ctx->expression());
+
+    	llvm::Value * cmp_val;
+
+    	if(exp_val->getType() == t_bool)
+    	{
+    		cmp_val = exp_val;
+    	}
+    	else if(exp_val->getType() == t_int)
+    	{
+    		cmp_val  = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_EQ, exp_val, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)), "");
+    	}
+
+    	llvm::BranchInst::Create(loop, next, cmp_val, bb);
+
+    	create_scope();
+
+    	bb = loop;
+    	bool block_returns =  visit(ctx->block());
+
+    	if(!block_returns) llvm::BranchInst::Create(preface, bb);
+
+    	bb = next;
+
+    	remove_scope();
+
+    	return NULL;
+    }
+
+    antlrcpp::Any visitIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext *ctx) override 
+    {
+    	std::string f_name = ctx->Identifier()->getText();
+    	std::vector<llvm::Value * > args;
+
+    	for(int i=0;i<ctx->expression().size();i++)
+    	{
+    		llvm::Value * val = visit(ctx->expression().at(i));
+    		args.push_back(val);
+    	}
+
+    	compile_call(f_name, args);
+
+    	return NULL;
+  	}
+
+  	antlrcpp::Any visitPrintFunctionCall(zrParser::PrintFunctionCallContext *ctx) override 
+  	{
+    	Debug(": Print f call" << std::endl);
+
+    	llvm::Value * val = visit(ctx->expression());
+
+    	if(val->getType() == t_int)
+    	{
+    		llvm::CallInst::Create(m->getFunction("print_"), val, "", bb);
+    	}
+		else
+			throw CompileException("Print only supports int");
+    	
+    	return NULL;
+  	}
+
+	antlrcpp::Any visitScanFunctionCall(zrParser::ScanFunctionCallContext *ctx) override 
+	{
+		Debug(": Scan f call" << std::endl);
+
+    	std::vector<llvm::Value * > args;
+    	llvm::CallInst::Create(m->getFunction("scan_"), args, "", bb);
+
+    	return NULL;
+	}
+
+    antlrcpp::Any visitReturn_statement(zrParser::Return_statementContext *ctx) override
+    {
+    	Debug(": return" << std::endl);
+
+    	llvm::Value * val = visit(ctx->expression());
+
+    	llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, val, bb);
+
+    	return NULL;
+    }	
+
+   	llvm::Value * compile_call(std::string f_name, std::vector<llvm::Value * > args)
+   	{
+    	llvm::Function * func = m->getFunction(f_name);
+        if (f == NULL)
+        {
+        	throw CompileException("Function " + f_name + "does not exist");
+        }
+        if (func->arg_size() != args.size())
+        {
+        	throw CompileException(f_name + " called with wrong arguments1");
+        }
+
+        llvm::Function::arg_iterator f_args = func->arg_begin();
+
+        for(int i=0;i < args.size(); i++)
+        {
+        	llvm::Value* arg = f_args++;
+
+        	if(arg->getType() != args.at(i)->getType())
+        	{
+        		throw CompileException(f_name + " called with wrong arguments");
+        	}
+        }
+
+        llvm::Value * value = llvm::CallInst::Create(func, args, f_name, bb);
+
+        return value;
+   	}
+
+    antlrcpp::Any visitFunctionCallExpression(zrParser::FunctionCallExpressionContext *ctx) override
+    {
+    	std::string f_name = ctx->Identifier()->getText();
+    	std::vector<llvm::Value * > args;
+
+    	for(int i=0;i<ctx->expression().size();i++)
+    	{
+    		llvm::Value * val = visit(ctx->expression().at(i));
+    		args.push_back(val);
+    	}
+
+    	return compile_call(f_name, args);
+    }
+
+    antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *ctx) override 
+    {
+    	Debug(": identifier" << std::endl);
+
+    	std::string name = ctx->Identifier()->getText();
+
+    	llvm::Value * address = scope->get_variable(name)->get_value();
+    	llvm::Value * value = new llvm::LoadInst(address, name, bb);
+
+    	return value;
+  	}
+
+    antlrcpp::Any visitBinaryExpression(zrParser::BinaryExpressionContext *ctx) override 
     {
     	Debug(": binary" << std::endl);
 
@@ -354,35 +618,59 @@ public:
 
     	if(ctx->binOp()->Or() != NULL)
     	{
-
+    		if(exp_lv->getType() == t_bool && exp_rv->getType() == t_bool)
+				 val = llvm::BinaryOperator::Create(llvm::Instruction::Or, exp_lv , exp_rv, "", bb);
+			else
+				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->And() != NULL)
-    	{
-
+    	{	
+    		if(exp_lv->getType() == t_bool && exp_rv->getType() == t_bool)
+				 val = llvm::BinaryOperator::Create(llvm::Instruction::And, exp_lv , exp_rv, "", bb);
+			else
+				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->Equals() != NULL)
     	{
-
+    		if(exp_lv->getType() == exp_rv->getType())
+				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_EQ, exp_lv, exp_rv, "");
+			else
+				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->NEquals() != NULL)
     	{
-
+    		if(exp_lv->getType() == exp_rv->getType())
+				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_NE, exp_lv, exp_rv, "");
+			else
+				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->GTEquals() != NULL)
     	{
-
+    		if(exp_lv->getType() == exp_rv->getType())
+				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGE, exp_lv, exp_rv, "");
+			else
+				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->LTEquals() != NULL)
     	{
-
+    		if(exp_lv->getType() == exp_rv->getType())
+				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLE, exp_lv, exp_rv, "");
+			else
+				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->Gt() != NULL)
     	{
-
+    		if(exp_lv->getType() == exp_rv->getType())
+				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGT, exp_lv, exp_rv, "");
+			else
+				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->Lt() != NULL)
     	{
-
+    		if(exp_lv->getType() == exp_rv->getType())
+				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLT, exp_lv, exp_rv, "");
+			else
+				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->Add() != NULL)
     	{
@@ -427,7 +715,7 @@ public:
     	{
     		if(exp_val->getType() == t_bool)
 				val = llvm::BinaryOperator::Create(llvm::Instruction::Xor,
-				 				llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 0)), exp_val, "", bb);
+				 				llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 1)), exp_val, "", bb);
 			else
 				throw CompileException("Operation not supported");
     	}
@@ -490,6 +778,11 @@ public:
 	void create_scope()
     {
     	scope = new Scope(scope);
+    }
+
+    void create_new_scope()
+    {
+    	scope = new Scope();
     }
 
     void remove_scope()

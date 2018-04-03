@@ -16,6 +16,7 @@ public:
 
 	bool has_variable(std::string name)
 	{
+
 		return variables.find(name) != variables.end();
 	}
 
@@ -34,7 +35,7 @@ public:
 			return parent->get_variable(name);
 		}
 
-		throw CompileException("Indentifier " + name + " not found");
+		throw CompileException("Variable " + name + " does not exist");
 	}
 
 	void add_variable(std::string name, Variable * variable)

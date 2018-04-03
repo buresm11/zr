@@ -5,12 +5,13 @@
 
 class Variable
 {
+	llvm::Type * type;
 	llvm::Value * value;
 	bool global;
 
 public:
 
-	Variable(llvm::Value * v, bool glob) : value(v), global(glob)  { }
+	Variable(llvm::Value * v, bool glob, llvm::Type * t) : value(v), global(glob), type(t)  { }
 
 	llvm::Value * get_value()
 	{
@@ -20,5 +21,10 @@ public:
 	bool is_global()
 	{
 		return global;
+	}
+
+	llvm::Type * get_type()
+	{
+		return type;
 	}
 };
