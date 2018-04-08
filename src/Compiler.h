@@ -211,7 +211,7 @@ public:
         	Variable * variable = new Variable(loc, false, arg->getType());
 			scope->add_variable(name, variable);
 
-		    new llvm::StoreInst(arg, loc, false, bb);
+		    llvm::StoreInst * si = new llvm::StoreInst(arg, loc, false, bb);
 
 		    arg->setName(name);
 		   	loc->setName(name);
@@ -619,14 +619,14 @@ public:
     	if(ctx->binOp()->Or() != NULL)
     	{
     		if(exp_lv->getType() == t_bool && exp_rv->getType() == t_bool)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::Or, exp_lv , exp_rv, "", bb);
+				 val = llvm::BinaryOperator::Create(llvm::Instruction::Or, exp_lv , exp_rv, "or", bb);
 			else
 				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->And() != NULL)
     	{	
     		if(exp_lv->getType() == t_bool && exp_rv->getType() == t_bool)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::And, exp_lv , exp_rv, "", bb);
+				 val = llvm::BinaryOperator::Create(llvm::Instruction::And, exp_lv , exp_rv, "and", bb);
 			else
 				throw CompileException("Operation not supported");
     	}
@@ -675,28 +675,28 @@ public:
     	else if(ctx->binOp()->Add() != NULL)
     	{
     		if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::Add, exp_lv , exp_rv, "", bb);
+				 val = llvm::BinaryOperator::Create(llvm::Instruction::Add, exp_lv , exp_rv, "add", bb);
 			else
 				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->Minus() != NULL)
     	{
     		if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, exp_lv , exp_rv, "", bb);
+				 val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, exp_lv , exp_rv, "sub", bb);
 			else
 				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->Multiply() != NULL)
     	{
     		if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::Mul, exp_lv , exp_rv, "", bb);
+				 val = llvm::BinaryOperator::Create(llvm::Instruction::Mul, exp_lv , exp_rv, "mul", bb);
 			else
 				throw CompileException("Operation not supported");
     	}
     	else if(ctx->binOp()->Divide() != NULL)
     	{
     		if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::UDiv, exp_lv , exp_rv, "", bb);
+				 val = llvm::BinaryOperator::Create(llvm::Instruction::SDiv, exp_lv , exp_rv, "sdiv", bb);
 			else
 				throw CompileException("Operation not supported");
     	}

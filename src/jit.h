@@ -36,14 +36,13 @@ public:
 
     typedef int (*MainPtr)();
 
-    static void opti(llvm::Function * main)
-    {
+    static MainPtr run(llvm::Function * main) {
+        
         llvm::Module * m = main->getParent();
 
         auto pm = llvm::legacy::FunctionPassManager(m);
         pm.add(new analysis());
-        //pm.add(new dead_inst_pass());
-       //pm. add(new llvm::transforms::PromoteLegacyPass());
+        pm.add(new const_propag());
 
         for (llvm::Function & f : *m) 
         {
@@ -52,11 +51,6 @@ public:
 
             }
         }
-    }
-
-    static MainPtr run(llvm::Function * main) {
-        
-        llvm::Module * m = main->getParent();
 
         std::string err;
 

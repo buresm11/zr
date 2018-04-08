@@ -1,24 +1,4 @@
-
- def int fact(int n)
- 
-    if n==1 do
-    	return 1;
-    end
-
-    return fact(n-1) * n;
- end
-
 def int main()
 
-	bool ok;
-	if fact(5) == 120 do
-		ok = true;
-	else do
-		ok = false;
-	end
-
-	if ok do
-		print(fact(5));	
-	end	
 
 end

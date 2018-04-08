@@ -16,7 +16,6 @@ public:
 
 	bool has_variable(std::string name)
 	{
-
 		return variables.find(name) != variables.end();
 	}
 
