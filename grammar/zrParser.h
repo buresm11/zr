@@ -13,21 +13,21 @@ class  zrParser : public antlr4::Parser {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, Integer = 6, Def = 7, 
-    If = 8, Else = 9, Return = 10, While = 11, To = 12, Do = 13, End = 14, 
-    Print = 15, Scan = 16, True = 17, False = 18, Or = 19, And = 20, Equals = 21, 
-    NEquals = 22, GTEquals = 23, LTEquals = 24, Excl = 25, Gt = 26, Lt = 27, 
-    Add = 28, Minus = 29, Multiply = 30, Divide = 31, Type_identifier = 32, 
-    Identifier = 33, String = 34, Comment = 35, Space = 36
+    If = 8, Else = 9, Return = 10, Break = 11, While = 12, To = 13, Do = 14, 
+    End = 15, Print = 16, Scan = 17, True = 18, False = 19, Void = 20, Or = 21, 
+    And = 22, Equals = 23, NEquals = 24, GTEquals = 25, LTEquals = 26, Excl = 27, 
+    Gt = 28, Lt = 29, Add = 30, Minus = 31, Multiply = 32, Divide = 33, 
+    Type_identifier = 34, Identifier = 35, String = 36, Comment = 37, Space = 38
   };
 
   enum {
     RuleParse = 0, RuleTop_block = 1, RuleBlock = 2, RuleGlobal_statement = 3, 
-    RuleStatement = 4, RuleReturn_statement = 5, RuleAssignment = 6, RuleVariable_def = 7, 
-    RuleGlobal_variable_def = 8, RuleFunction_call = 9, RuleIf_statement = 10, 
-    RuleIf_stat = 11, RuleElse_if_stat = 12, RuleElse_stat = 13, RuleWhile_statement = 14, 
-    RuleFunction_decl = 15, RuleFunc_decl_arg_list = 16, RuleFunc_decl_arg = 17, 
-    RuleExpression = 18, RuleUnOp = 19, RuleBinOp = 20, RuleBool_lit = 21, 
-    RuleNumber = 22
+    RuleStatement = 4, RuleBreak_statement = 5, RuleReturn_statement = 6, 
+    RuleAssignment = 7, RuleVariable_def = 8, RuleGlobal_variable_def = 9, 
+    RuleFunction_call = 10, RuleIf_statement = 11, RuleIf_stat = 12, RuleElse_if_stat = 13, 
+    RuleElse_stat = 14, RuleWhile_statement = 15, RuleFunction_decl = 16, 
+    RuleFunc_decl_arg_list = 17, RuleFunc_decl_arg = 18, RuleExpression = 19, 
+    RuleUnOp = 20, RuleBinOp = 21, RuleBool_lit = 22, RuleNumber = 23
   };
 
   zrParser(antlr4::TokenStream *input);
@@ -45,6 +45,7 @@ public:
   class BlockContext;
   class Global_statementContext;
   class StatementContext;
+  class Break_statementContext;
   class Return_statementContext;
   class AssignmentContext;
   class Variable_defContext;
@@ -139,6 +140,7 @@ public:
     If_statementContext *if_statement();
     While_statementContext *while_statement();
     Return_statementContext *return_statement();
+    Break_statementContext *break_statement();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -148,6 +150,21 @@ public:
   };
 
   StatementContext* statement();
+
+  class  Break_statementContext : public antlr4::ParserRuleContext {
+  public:
+    Break_statementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *Break();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Break_statementContext* break_statement();
 
   class  Return_statementContext : public antlr4::ParserRuleContext {
   public:
@@ -361,10 +378,11 @@ public:
     Function_declContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Def();
-    antlr4::tree::TerminalNode *Type_identifier();
     antlr4::tree::TerminalNode *Identifier();
     BlockContext *block();
     antlr4::tree::TerminalNode *End();
+    antlr4::tree::TerminalNode *Type_identifier();
+    antlr4::tree::TerminalNode *Void();
     Func_decl_arg_listContext *func_decl_arg_list();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;

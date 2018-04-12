@@ -1,4 +1,23 @@
-def int main()
+def void x()
 
+	if( 5 < 7) do
+		return;
+	end
+
+	print(5);
+
+end
+
+def int main(int c)
+
+	bool  a;
+
+	a = false;
+
+	a = !a;
+
+	bool b;
+
+	b = a;
 
 end

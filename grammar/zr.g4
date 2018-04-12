@@ -23,10 +23,15 @@ statement
  | if_statement
  | while_statement
  | return_statement ';'
+ | break_statement ';'
+ ;
+
+ break_statement
+ : Break
  ;
 
  return_statement
- : Return expression
+ : Return expression?
  ;
 
 assignment
@@ -68,7 +73,7 @@ else_stat
  ;
 
 function_decl
- : Def Type_identifier Identifier '(' func_decl_arg_list? ')' block End
+ : Def (Type_identifier | Void) Identifier '(' func_decl_arg_list? ')' block End
  ;
 
 func_decl_arg_list
@@ -125,6 +130,7 @@ Def       : 'def';
 If        : 'if';
 Else      : 'else';
 Return    : 'return';
+Break     : 'break';
 While     : 'while';
 To        : 'to';
 Do        : 'do';
@@ -133,6 +139,7 @@ Print     : 'print';
 Scan      : 'scan';
 True      : 'true';
 False     : 'false';
+Void      : 'void';
 
 Or       : '||';
 And      : '&&';

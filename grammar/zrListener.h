@@ -29,6 +29,9 @@ public:
   virtual void enterStatement(zrParser::StatementContext *ctx) = 0;
   virtual void exitStatement(zrParser::StatementContext *ctx) = 0;
 
+  virtual void enterBreak_statement(zrParser::Break_statementContext *ctx) = 0;
+  virtual void exitBreak_statement(zrParser::Break_statementContext *ctx) = 0;
+
   virtual void enterReturn_statement(zrParser::Return_statementContext *ctx) = 0;
   virtual void exitReturn_statement(zrParser::Return_statementContext *ctx) = 0;
 

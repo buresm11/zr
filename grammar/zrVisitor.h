@@ -29,6 +29,8 @@ public:
 
     virtual antlrcpp::Any visitStatement(zrParser::StatementContext *context) = 0;
 
+    virtual antlrcpp::Any visitBreak_statement(zrParser::Break_statementContext *context) = 0;
+
     virtual antlrcpp::Any visitReturn_statement(zrParser::Return_statementContext *context) = 0;
 
     virtual antlrcpp::Any visitAssignment(zrParser::AssignmentContext *context) = 0;

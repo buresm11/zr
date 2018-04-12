@@ -46,11 +46,10 @@ public:
 
         for (llvm::Function & f : *m) 
         {
-            while (pm.run(f)) 
-            {
-
-            }
+            pm.run(f);
         }
+
+        m->dump();
 
         std::string err;
 

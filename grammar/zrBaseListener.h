@@ -31,6 +31,9 @@ public:
   virtual void enterStatement(zrParser::StatementContext * /*ctx*/) override { }
   virtual void exitStatement(zrParser::StatementContext * /*ctx*/) override { }
 
+  virtual void enterBreak_statement(zrParser::Break_statementContext * /*ctx*/) override { }
+  virtual void exitBreak_statement(zrParser::Break_statementContext * /*ctx*/) override { }
+
   virtual void enterReturn_statement(zrParser::Return_statementContext * /*ctx*/) override { }
   virtual void exitReturn_statement(zrParser::Return_statementContext * /*ctx*/) override { }
 

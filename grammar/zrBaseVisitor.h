@@ -35,6 +35,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitBreak_statement(zrParser::Break_statementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitReturn_statement(zrParser::Return_statementContext *ctx) override {
     return visitChildren(ctx);
   }
