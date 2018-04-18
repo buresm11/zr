@@ -6,7 +6,6 @@
 #include "antlr4-runtime.h"
 #include "llvm.h"
 #include "zrBaseVisitor.h"
-#include "ContextValue.h"
 #include "Scope.h"
 #include "CompileException.h"
 
@@ -79,7 +78,7 @@ public:
 		if (llvm::verifyModule(*m, & err)) 
     	{
        		m->dump();
-            throw CompileException("bad llvm ir");
+            throw CompileException("Bad llvm ir");
     	}
 
     	remove_scope();
@@ -141,14 +140,14 @@ public:
     		gv = new llvm::GlobalVariable(*m, t_int, false, llvm::GlobalValue::CommonLinkage, NULL, name);
   		    gv->setAlignment(4);
   		    gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)));
-  		    variable = new Variable(gv, true, t_int);
+  		    variable = new Variable(gv, true);
     	}
     	else if(type == Type::BoolType)
     	{
     		gv = new llvm::GlobalVariable(*m, t_bool, false, llvm::GlobalValue::CommonLinkage, NULL, name);
   		    gv->setAlignment(4);
   		    gv->setInitializer(llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 0)));
-  		    variable = new Variable(gv, true, t_bool);
+  		    variable = new Variable(gv, true);
     	}
 		scope->add_variable(name, variable);
 
@@ -217,15 +216,15 @@ public:
         		throw CompileException("Redefinition of variable " + name);
         	}
 
-        	llvm::AllocaInst * loc = new llvm::AllocaInst(arg->getType(), name, bb);
+        	llvm::AllocaInst * alloc = new llvm::AllocaInst(arg->getType(), name, bb);
 
-        	Variable * variable = new Variable(loc, false, arg->getType());
+        	Variable * variable = new Variable(alloc, false);
 			scope->add_variable(name, variable);
 
-		    llvm::StoreInst * si = new llvm::StoreInst(arg, loc, false, bb);
+		    llvm::StoreInst * si = new llvm::StoreInst(arg, alloc, false, bb);
 
 		    arg->setName(name);
-		   	loc->setName(name);
+		   	alloc->setName(name);
         }
 
         bool block_returns = visit(ctx->block());
@@ -342,14 +341,14 @@ public:
 
     	Variable * variable;
 
-    	if(type == Type::IntType)
-    	{
-    		 variable = new Variable(new llvm::AllocaInst(t_int, name, bb), false, t_int);
-    	}   
-    	else if(type == Type::BoolType)
-    	{
-    		 variable = new Variable(new llvm::AllocaInst(t_bool, name, bb), false, t_bool);
-    	}  
+	    if(type == Type::IntType)
+	    {
+	        variable = new Variable(new llvm::AllocaInst(t_int, name, bb), false);
+	    }   
+	    else if(type == Type::BoolType)
+	    {
+	    	variable = new Variable(new llvm::AllocaInst(t_bool, name, bb), false);  
+    	}
 
     	scope->add_variable(name, variable);
 
@@ -363,17 +362,17 @@ public:
     	std::string name = ctx->Identifier()->getText();
 
     	llvm::Value * val = visit(ctx->expression());
-    	llvm::Type * type = scope->get_variable(name)->get_type();
+    	llvm::Type * type = scope->get_variable(name)->get_value()->getType();
 
-    	if(type != val->getType())
-    	{
-    		throw CompileException("Incompatible types");
-    	}
+		if(type != val->getType())
+	    {
+	    	throw CompileException("Incompatible types");
+	    }
 
     	llvm::Value * address = scope->get_variable(name)->get_value();
 
     	new llvm::StoreInst(val, address, false, bb);
-
+    	
     	return NULL;
     }
 
@@ -525,6 +524,8 @@ public:
 
     antlrcpp::Any visitIdentifierFunctionCall(zrParser::IdentifierFunctionCallContext *ctx) override 
     {
+    	Debug(": Indentifier f call" << std::endl);
+
     	std::string f_name = ctx->Identifier()->getText();
     	std::vector<llvm::Value * > args;
 
@@ -920,150 +921,6 @@ public:
 
 		return val;
 	}	
-
-    /*antlrcpp::Any visitBinaryExpression(zrParser::BinaryExpressionContext *ctx) override 
-    {
-    	Debug(": binary" << std::endl);
-
-    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
-    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
-
-    	llvm::Value * val;
-
-    	if(ctx->binOp()->Or() != NULL)
-    	{
-    		if(exp_lv->getType() == t_bool && exp_rv->getType() == t_bool)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::Or, exp_lv , exp_rv, "or", bb);
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->And() != NULL)
-    	{	
-    		if(exp_lv->getType() == t_bool && exp_rv->getType() == t_bool)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::And, exp_lv , exp_rv, "and", bb);
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->Equals() != NULL)
-    	{
-    		if(exp_lv->getType() == exp_rv->getType())
-				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_EQ, exp_lv, exp_rv, "eq");
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->NEquals() != NULL)
-    	{
-    		if(exp_lv->getType() == exp_rv->getType())
-				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_NE, exp_lv, exp_rv, "ne");
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->GTEquals() != NULL)
-    	{
-    		if(exp_lv->getType() == exp_rv->getType())
-				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGE, exp_lv, exp_rv, "sge");
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->LTEquals() != NULL)
-    	{
-    		if(exp_lv->getType() == exp_rv->getType())
-				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLE, exp_lv, exp_rv, "sle");
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->Gt() != NULL)
-    	{
-    		if(exp_lv->getType() == exp_rv->getType())
-				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGT, exp_lv, exp_rv, "sgt");
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->Lt() != NULL)
-    	{
-    		if(exp_lv->getType() == exp_rv->getType())
-				 val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLT, exp_lv, exp_rv, "slt");
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->Add() != NULL)
-    	{
-    		if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::Add, exp_lv , exp_rv, "add", bb);
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->Minus() != NULL)
-    	{
-    		if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, exp_lv , exp_rv, "sub", bb);
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->Multiply() != NULL)
-    	{
-    		if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::Mul, exp_lv , exp_rv, "mul", bb);
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->binOp()->Divide() != NULL)
-    	{
-    		if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
-				 val = llvm::BinaryOperator::Create(llvm::Instruction::SDiv, exp_lv , exp_rv, "sdiv", bb);
-			else
-				throw CompileException("Operation not supported");
-    	}
-
-    	return val;
-  	}
-
-    antlrcpp::Any visitUnaryExpression(zrParser::UnaryExpressionContext *ctx) override 
-    {
-    	Debug(": unary" << std::endl);
-
-    	llvm::Value * exp_val = visit(ctx->expression());
-    	llvm::Value * val;
-
-    	if(ctx->unOp()->Excl() != NULL)
-    	{
-    		if(exp_val->getType() == t_bool)
-				val = llvm::BinaryOperator::Create(llvm::Instruction::Xor,
-				 				llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 1)), exp_val, "", bb);
-			else
-				throw CompileException("Operation not supported");
-    	}
-    	else if(ctx->unOp()->Minus() != NULL)
-    	{
-    		if(exp_val->getType() == t_int)
-				val = llvm::BinaryOperator::Create(llvm::Instruction::Sub,
-				 				llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)), exp_val, "", bb);
-			else
-				throw CompileException("Operation not supported");
-    	}
-
-    	return val;
-  	}
-
-	antlrcpp::Any visitLiteralExpression(zrParser::LiteralExpressionContext *ctx) override 
-    {
-    	Debug(": literal" << std::endl);
-
-    	llvm::Value * val;
-
-    	if(ctx->number() != NULL)
-    	{
-    		val = llvm::ConstantInt::get(llvm_context, llvm::APInt(32, parse_int(ctx->number()->Integer()->getText())));
-    	}
-    	else if(ctx->bool_lit() != NULL)
-    	{
-    		if(ctx->bool_lit()->True() != NULL)
-    			val = llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 1));
-    		else if (ctx->bool_lit()->False() != NULL)
-    			val =  llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 0));
-    	}
-    	return val;
-    }	*/
 
     antlrcpp::Any visitBool_lit(zrParser::Bool_litContext *ctx) override
     {

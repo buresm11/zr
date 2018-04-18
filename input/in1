@@ -1,14 +1,12 @@
-def int x(int a, int b)
 
+int a;
+int b;
+bool c;
+
+def int x()
 	return a + b;
-
-
 end
 
-def int main()
-
-	int a;
-
-	x(10,5);
-
+def bool main()
+	print(x());
 end

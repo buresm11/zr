@@ -1,8 +1,29 @@
 
 #pragma once
 
-#include "Variable.h"
 #include "CompileException.h"
+#include "llvm.h"
+
+class Variable
+{
+	llvm::Type * type;
+	llvm::Value * value;
+	bool global;
+
+public:
+
+	Variable(llvm::Value * v, bool glob) : value(v), global(glob)  { }
+
+	llvm::Value * get_value()
+	{
+		return value;
+	}
+
+	bool is_global()
+	{
+		return global;
+	}
+};
 
 class Scope
 {

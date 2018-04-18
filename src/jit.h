@@ -48,15 +48,15 @@ public:
         //pm.add(new dead_inst());
        // pm.add(new tail_call_analysis());
 
-        pm.add(new func_inlining_analysis());
-        pm.add(new func_inlining());
+        //pm.add(new func_inlining_analysis());
+        //pm.add(new func_inlining());
 
         for (llvm::Function & f : *m) 
         {
             pm.run(f);
         }
 
-        m->dump();
+        //m->dump();
 
         std::string err;
 

@@ -52,7 +52,6 @@ function_call
  | Scan '(' ')'                  #scanFunctionCall
  ;
 
-
 if_statement
  : if_stat else_if_stat* else_stat? End
  ;
@@ -107,7 +106,7 @@ expression
  | '(' expression ')'						#paranthesisExpression
  ;
 
- exprList 
+exprList 
  : expression (',' expression)* 
  ;
 		

@@ -35,11 +35,10 @@ int main(int argc, char const * argv[])
 
 	inputFile.close();
 
-	std::cout << tree->toStringTree(&parser);
-
 	if(parser.getNumberOfSyntaxErrors() > 0)
 	{	
-		std::cout << "ERRORS" << tree->toStringTree(&parser) << std::endl;
+		std::cout << "ERRORS" << std::endl << tree->toStringTree(&parser) << std::endl;
+		return 1;
 	}
 
 	Compiler compiler;
@@ -49,22 +48,28 @@ int main(int argc, char const * argv[])
 		llvm::Module * m = compiler.compile(tree);
 		llvm::Function *f = m->getFunction("main");
 
+		if(f == NULL) 
+			throw CompileException("Missing main function");
+
+		std::cout << std::endl;
+		std::cout << std::endl;
+		std::cout << "------NONOPTIMALIZED-----" << std::endl;
 		m->dump();
+		std::cout << "------NONOPTIMALIZED-----" << std::endl;
+		std::cout << std::endl;
+		std::cout << std::endl;
 
-		std::cout << "-----------" << std::endl;
+		std::cout << "------RUN-----" << std::endl;
 		JIT::run(f)();
-		std::cout << "-----------" << std::endl;
-
-		std::error_code error;
-	    llvm::raw_fd_ostream o("text", error, llvm::sys::fs::OpenFlags::F_None);
-	    llvm::WriteBitcodeToFile(m, o);
-
+		std::cout << "------RUN-----" << std::endl;
+		std::cout << std::endl;
+		std::cout << std::endl;
 	    
 	}
 	catch (std::exception & e)
 	{
     	std::cerr << e.what() << std::endl;
-    	return 5;
+    	return 1;
 	}
 
 	return 0;
