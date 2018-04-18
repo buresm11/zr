@@ -6,6 +6,8 @@
 #include "llvm.h"
 #include "opt/dead_inst.h"
 #include "opt/const_propag.h"
+#include "opt/tail_call.h"
+#include "opt/func_inlining.h"
 
 extern "C" int scan_() {
     int result;
@@ -41,8 +43,13 @@ public:
         llvm::Module * m = main->getParent();
 
         auto pm = llvm::legacy::FunctionPassManager(m);
-        pm.add(new analysis());
-        pm.add(new const_propag());
+        //pm.add(new analysis());
+        //pm.add(new const_propag());
+        //pm.add(new dead_inst());
+       // pm.add(new tail_call_analysis());
+
+        pm.add(new func_inlining_analysis());
+        pm.add(new func_inlining());
 
         for (llvm::Function & f : *m) 
         {

@@ -80,9 +80,9 @@ zrParser::ParseContext* zrParser::parse() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(48);
+    setState(46);
     top_block();
-    setState(49);
+    setState(47);
     match(zrParser::EOF);
    
   }
@@ -152,23 +152,23 @@ zrParser::Top_blockContext* zrParser::top_block() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(55);
+    setState(53);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == zrParser::Def
 
     || _la == zrParser::Type_identifier) {
-      setState(53);
+      setState(51);
       _errHandler->sync(this);
       switch (_input->LA(1)) {
         case zrParser::Def: {
-          setState(51);
+          setState(49);
           function_decl();
           break;
         }
 
         case zrParser::Type_identifier: {
-          setState(52);
+          setState(50);
           global_statement();
           break;
         }
@@ -176,7 +176,7 @@ zrParser::Top_blockContext* zrParser::top_block() {
       default:
         throw NoViableAltException(this);
       }
-      setState(57);
+      setState(55);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -240,7 +240,7 @@ zrParser::BlockContext* zrParser::block() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(61);
+    setState(59);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
@@ -252,9 +252,9 @@ zrParser::BlockContext* zrParser::block() {
       | (1ULL << zrParser::Scan)
       | (1ULL << zrParser::Type_identifier)
       | (1ULL << zrParser::Identifier))) != 0)) {
-      setState(58);
+      setState(56);
       statement();
-      setState(63);
+      setState(61);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -313,9 +313,9 @@ zrParser::Global_statementContext* zrParser::global_statement() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(64);
+    setState(62);
     global_variable_def();
-    setState(65);
+    setState(63);
     match(zrParser::T__0);
    
   }
@@ -395,64 +395,64 @@ zrParser::StatementContext* zrParser::statement() {
     exitRule();
   });
   try {
-    setState(84);
+    setState(82);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 3, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(67);
+      setState(65);
       variable_def();
-      setState(68);
+      setState(66);
       match(zrParser::T__0);
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(70);
+      setState(68);
       assignment();
-      setState(71);
+      setState(69);
       match(zrParser::T__0);
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(73);
+      setState(71);
       function_call();
-      setState(74);
+      setState(72);
       match(zrParser::T__0);
       break;
     }
 
     case 4: {
       enterOuterAlt(_localctx, 4);
-      setState(76);
+      setState(74);
       if_statement();
       break;
     }
 
     case 5: {
       enterOuterAlt(_localctx, 5);
-      setState(77);
+      setState(75);
       while_statement();
       break;
     }
 
     case 6: {
       enterOuterAlt(_localctx, 6);
-      setState(78);
+      setState(76);
       return_statement();
-      setState(79);
+      setState(77);
       match(zrParser::T__0);
       break;
     }
 
     case 7: {
       enterOuterAlt(_localctx, 7);
-      setState(81);
+      setState(79);
       break_statement();
-      setState(82);
+      setState(80);
       match(zrParser::T__0);
       break;
     }
@@ -513,7 +513,7 @@ zrParser::Break_statementContext* zrParser::break_statement() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(86);
+    setState(84);
     match(zrParser::Break);
    
   }
@@ -575,9 +575,9 @@ zrParser::Return_statementContext* zrParser::return_statement() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(88);
+    setState(86);
     match(zrParser::Return);
-    setState(90);
+    setState(88);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
@@ -588,8 +588,9 @@ zrParser::Return_statementContext* zrParser::return_statement() {
       | (1ULL << zrParser::False)
       | (1ULL << zrParser::Excl)
       | (1ULL << zrParser::Minus)
+      | (1ULL << zrParser::Lparen)
       | (1ULL << zrParser::Identifier))) != 0)) {
-      setState(89);
+      setState(87);
       expression(0);
     }
    
@@ -651,11 +652,11 @@ zrParser::AssignmentContext* zrParser::assignment() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(92);
+    setState(90);
     match(zrParser::Identifier);
-    setState(93);
+    setState(91);
     match(zrParser::T__1);
-    setState(94);
+    setState(92);
     expression(0);
    
   }
@@ -716,9 +717,9 @@ zrParser::Variable_defContext* zrParser::variable_def() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(96);
+    setState(94);
     match(zrParser::Type_identifier);
-    setState(97);
+    setState(95);
     match(zrParser::Identifier);
    
   }
@@ -779,9 +780,9 @@ zrParser::Global_variable_defContext* zrParser::global_variable_def() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(99);
+    setState(97);
     match(zrParser::Type_identifier);
-    setState(100);
+    setState(98);
     match(zrParser::Identifier);
    
   }
@@ -840,12 +841,8 @@ tree::TerminalNode* zrParser::IdentifierFunctionCallContext::Identifier() {
   return getToken(zrParser::Identifier, 0);
 }
 
-std::vector<zrParser::ExpressionContext *> zrParser::IdentifierFunctionCallContext::expression() {
-  return getRuleContexts<zrParser::ExpressionContext>();
-}
-
-zrParser::ExpressionContext* zrParser::IdentifierFunctionCallContext::expression(size_t i) {
-  return getRuleContext<zrParser::ExpressionContext>(i);
+zrParser::ExprListContext* zrParser::IdentifierFunctionCallContext::exprList() {
+  return getRuleContext<zrParser::ExprListContext>(0);
 }
 
 zrParser::IdentifierFunctionCallContext::IdentifierFunctionCallContext(Function_callContext *ctx) { copyFrom(ctx); }
@@ -905,17 +902,17 @@ zrParser::Function_callContext* zrParser::function_call() {
     exitRule();
   });
   try {
-    setState(123);
+    setState(114);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case zrParser::Identifier: {
         _localctx = dynamic_cast<Function_callContext *>(_tracker.createInstance<zrParser::IdentifierFunctionCallContext>(_localctx));
         enterOuterAlt(_localctx, 1);
-        setState(102);
+        setState(100);
         match(zrParser::Identifier);
+        setState(101);
+        match(zrParser::Lparen);
         setState(103);
-        match(zrParser::T__2);
-        setState(112);
         _errHandler->sync(this);
 
         _la = _input->LA(1);
@@ -926,50 +923,39 @@ zrParser::Function_callContext* zrParser::function_call() {
           | (1ULL << zrParser::False)
           | (1ULL << zrParser::Excl)
           | (1ULL << zrParser::Minus)
+          | (1ULL << zrParser::Lparen)
           | (1ULL << zrParser::Identifier))) != 0)) {
-          setState(104);
-          expression(0);
-          setState(109);
-          _errHandler->sync(this);
-          _la = _input->LA(1);
-          while (_la == zrParser::T__3) {
-            setState(105);
-            match(zrParser::T__3);
-            setState(106);
-            expression(0);
-            setState(111);
-            _errHandler->sync(this);
-            _la = _input->LA(1);
-          }
+          setState(102);
+          exprList();
         }
-        setState(114);
-        match(zrParser::T__4);
+        setState(105);
+        match(zrParser::Rparen);
         break;
       }
 
       case zrParser::Print: {
         _localctx = dynamic_cast<Function_callContext *>(_tracker.createInstance<zrParser::PrintFunctionCallContext>(_localctx));
         enterOuterAlt(_localctx, 2);
-        setState(115);
+        setState(106);
         match(zrParser::Print);
-        setState(116);
-        match(zrParser::T__2);
-        setState(117);
+        setState(107);
+        match(zrParser::Lparen);
+        setState(108);
         expression(0);
-        setState(118);
-        match(zrParser::T__4);
+        setState(109);
+        match(zrParser::Rparen);
         break;
       }
 
       case zrParser::Scan: {
         _localctx = dynamic_cast<Function_callContext *>(_tracker.createInstance<zrParser::ScanFunctionCallContext>(_localctx));
         enterOuterAlt(_localctx, 3);
-        setState(120);
+        setState(111);
         match(zrParser::Scan);
-        setState(121);
-        match(zrParser::T__2);
-        setState(122);
-        match(zrParser::T__4);
+        setState(112);
+        match(zrParser::Lparen);
+        setState(113);
+        match(zrParser::Rparen);
         break;
       }
 
@@ -1049,29 +1035,29 @@ zrParser::If_statementContext* zrParser::if_statement() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(125);
+    setState(116);
     if_stat();
-    setState(129);
+    setState(120);
     _errHandler->sync(this);
-    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 8, _ctx);
+    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 7, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
-        setState(126);
+        setState(117);
         else_if_stat(); 
       }
-      setState(131);
+      setState(122);
       _errHandler->sync(this);
-      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 8, _ctx);
+      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 7, _ctx);
     }
-    setState(133);
+    setState(124);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == zrParser::Else) {
-      setState(132);
+      setState(123);
       else_stat();
     }
-    setState(135);
+    setState(126);
     match(zrParser::End);
    
   }
@@ -1140,13 +1126,13 @@ zrParser::If_statContext* zrParser::if_stat() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(137);
+    setState(128);
     match(zrParser::If);
-    setState(138);
+    setState(129);
     expression(0);
-    setState(139);
+    setState(130);
     match(zrParser::Do);
-    setState(140);
+    setState(131);
     block();
    
   }
@@ -1219,15 +1205,15 @@ zrParser::Else_if_statContext* zrParser::else_if_stat() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(142);
+    setState(133);
     match(zrParser::Else);
-    setState(143);
+    setState(134);
     match(zrParser::If);
-    setState(144);
+    setState(135);
     expression(0);
-    setState(145);
+    setState(136);
     match(zrParser::Do);
-    setState(146);
+    setState(137);
     block();
    
   }
@@ -1292,11 +1278,11 @@ zrParser::Else_statContext* zrParser::else_stat() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(148);
+    setState(139);
     match(zrParser::Else);
-    setState(149);
+    setState(140);
     match(zrParser::Do);
-    setState(150);
+    setState(141);
     block();
    
   }
@@ -1369,15 +1355,15 @@ zrParser::While_statementContext* zrParser::while_statement() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(152);
+    setState(143);
     match(zrParser::While);
-    setState(153);
+    setState(144);
     expression(0);
-    setState(154);
+    setState(145);
     match(zrParser::Do);
-    setState(155);
+    setState(146);
     block();
-    setState(156);
+    setState(147);
     match(zrParser::End);
    
   }
@@ -1459,9 +1445,9 @@ zrParser::Function_declContext* zrParser::function_decl() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(158);
+    setState(149);
     match(zrParser::Def);
-    setState(159);
+    setState(150);
     _la = _input->LA(1);
     if (!(_la == zrParser::Void
 
@@ -1472,23 +1458,23 @@ zrParser::Function_declContext* zrParser::function_decl() {
       _errHandler->reportMatch(this);
       consume();
     }
-    setState(160);
+    setState(151);
     match(zrParser::Identifier);
-    setState(161);
-    match(zrParser::T__2);
-    setState(163);
+    setState(152);
+    match(zrParser::Lparen);
+    setState(154);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == zrParser::Type_identifier) {
-      setState(162);
+      setState(153);
       func_decl_arg_list();
     }
-    setState(165);
-    match(zrParser::T__4);
-    setState(166);
+    setState(156);
+    match(zrParser::Rparen);
+    setState(157);
     block();
-    setState(167);
+    setState(158);
     match(zrParser::End);
    
   }
@@ -1550,17 +1536,17 @@ zrParser::Func_decl_arg_listContext* zrParser::func_decl_arg_list() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(169);
+    setState(160);
     func_decl_arg();
-    setState(174);
+    setState(165);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == zrParser::T__3) {
-      setState(170);
-      match(zrParser::T__3);
-      setState(171);
+    while (_la == zrParser::T__2) {
+      setState(161);
+      match(zrParser::T__2);
+      setState(162);
       func_decl_arg();
-      setState(176);
+      setState(167);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -1623,9 +1609,9 @@ zrParser::Func_decl_argContext* zrParser::func_decl_arg() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(177);
+    setState(168);
     match(zrParser::Type_identifier);
-    setState(178);
+    setState(169);
     match(zrParser::Identifier);
    
   }
@@ -1653,36 +1639,32 @@ void zrParser::ExpressionContext::copyFrom(ExpressionContext *ctx) {
   ParserRuleContext::copyFrom(ctx);
 }
 
-//----------------- BinaryExpressionContext ------------------------------------------------------------------
+//----------------- LtExpressionContext ------------------------------------------------------------------
 
-std::vector<zrParser::ExpressionContext *> zrParser::BinaryExpressionContext::expression() {
+std::vector<zrParser::ExpressionContext *> zrParser::LtExpressionContext::expression() {
   return getRuleContexts<zrParser::ExpressionContext>();
 }
 
-zrParser::ExpressionContext* zrParser::BinaryExpressionContext::expression(size_t i) {
+zrParser::ExpressionContext* zrParser::LtExpressionContext::expression(size_t i) {
   return getRuleContext<zrParser::ExpressionContext>(i);
 }
 
-zrParser::BinOpContext* zrParser::BinaryExpressionContext::binOp() {
-  return getRuleContext<zrParser::BinOpContext>(0);
-}
+zrParser::LtExpressionContext::LtExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
 
-zrParser::BinaryExpressionContext::BinaryExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
-
-void zrParser::BinaryExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+void zrParser::LtExpressionContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<zrListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterBinaryExpression(this);
+    parserListener->enterLtExpression(this);
 }
-void zrParser::BinaryExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+void zrParser::LtExpressionContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<zrListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitBinaryExpression(this);
+    parserListener->exitLtExpression(this);
 }
 
-antlrcpp::Any zrParser::BinaryExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+antlrcpp::Any zrParser::LtExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
-    return parserVisitor->visitBinaryExpression(this);
+    return parserVisitor->visitLtExpression(this);
   else
     return visitor->visitChildren(this);
 }
@@ -1711,6 +1693,64 @@ antlrcpp::Any zrParser::ScanCallExpressionContext::accept(tree::ParseTreeVisitor
   else
     return visitor->visitChildren(this);
 }
+//----------------- GtExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::GtExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::GtExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::GtExpressionContext::GtExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::GtExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterGtExpression(this);
+}
+void zrParser::GtExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitGtExpression(this);
+}
+
+antlrcpp::Any zrParser::GtExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitGtExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- NotEqExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::NotEqExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::NotEqExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::NotEqExpressionContext::NotEqExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::NotEqExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterNotEqExpression(this);
+}
+void zrParser::NotEqExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitNotEqExpression(this);
+}
+
+antlrcpp::Any zrParser::NotEqExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitNotEqExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- IdentifierExpressionContext ------------------------------------------------------------------
 
 tree::TerminalNode* zrParser::IdentifierExpressionContext::Identifier() {
@@ -1736,18 +1776,321 @@ antlrcpp::Any zrParser::IdentifierExpressionContext::accept(tree::ParseTreeVisit
   else
     return visitor->visitChildren(this);
 }
+//----------------- NotExpressionContext ------------------------------------------------------------------
+
+zrParser::ExpressionContext* zrParser::NotExpressionContext::expression() {
+  return getRuleContext<zrParser::ExpressionContext>(0);
+}
+
+zrParser::NotExpressionContext::NotExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::NotExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterNotExpression(this);
+}
+void zrParser::NotExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitNotExpression(this);
+}
+
+antlrcpp::Any zrParser::NotExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitNotExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- MultiplyExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::MultiplyExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::MultiplyExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::MultiplyExpressionContext::MultiplyExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::MultiplyExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterMultiplyExpression(this);
+}
+void zrParser::MultiplyExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitMultiplyExpression(this);
+}
+
+antlrcpp::Any zrParser::MultiplyExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitMultiplyExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- ParanthesisExpressionContext ------------------------------------------------------------------
+
+zrParser::ExpressionContext* zrParser::ParanthesisExpressionContext::expression() {
+  return getRuleContext<zrParser::ExpressionContext>(0);
+}
+
+zrParser::ParanthesisExpressionContext::ParanthesisExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::ParanthesisExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterParanthesisExpression(this);
+}
+void zrParser::ParanthesisExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitParanthesisExpression(this);
+}
+
+antlrcpp::Any zrParser::ParanthesisExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitParanthesisExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- GtEqExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::GtEqExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::GtEqExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::GtEqExpressionContext::GtEqExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::GtEqExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterGtEqExpression(this);
+}
+void zrParser::GtEqExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitGtEqExpression(this);
+}
+
+antlrcpp::Any zrParser::GtEqExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitGtEqExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- DivideExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::DivideExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::DivideExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::DivideExpressionContext::DivideExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::DivideExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterDivideExpression(this);
+}
+void zrParser::DivideExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitDivideExpression(this);
+}
+
+antlrcpp::Any zrParser::DivideExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitDivideExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- OrExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::OrExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::OrExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::OrExpressionContext::OrExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::OrExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterOrExpression(this);
+}
+void zrParser::OrExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitOrExpression(this);
+}
+
+antlrcpp::Any zrParser::OrExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitOrExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- UnaryMinusExpressionContext ------------------------------------------------------------------
+
+zrParser::ExpressionContext* zrParser::UnaryMinusExpressionContext::expression() {
+  return getRuleContext<zrParser::ExpressionContext>(0);
+}
+
+zrParser::UnaryMinusExpressionContext::UnaryMinusExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::UnaryMinusExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterUnaryMinusExpression(this);
+}
+void zrParser::UnaryMinusExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitUnaryMinusExpression(this);
+}
+
+antlrcpp::Any zrParser::UnaryMinusExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitUnaryMinusExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- EqExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::EqExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::EqExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::EqExpressionContext::EqExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::EqExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterEqExpression(this);
+}
+void zrParser::EqExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitEqExpression(this);
+}
+
+antlrcpp::Any zrParser::EqExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitEqExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- AndExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::AndExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::AndExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::AndExpressionContext::AndExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::AndExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterAndExpression(this);
+}
+void zrParser::AndExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitAndExpression(this);
+}
+
+antlrcpp::Any zrParser::AndExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitAndExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- AddExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::AddExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::AddExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::AddExpressionContext::AddExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::AddExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterAddExpression(this);
+}
+void zrParser::AddExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitAddExpression(this);
+}
+
+antlrcpp::Any zrParser::AddExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitAddExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- SubtractExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::SubtractExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::SubtractExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::SubtractExpressionContext::SubtractExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::SubtractExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterSubtractExpression(this);
+}
+void zrParser::SubtractExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitSubtractExpression(this);
+}
+
+antlrcpp::Any zrParser::SubtractExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitSubtractExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- FunctionCallExpressionContext ------------------------------------------------------------------
 
 tree::TerminalNode* zrParser::FunctionCallExpressionContext::Identifier() {
   return getToken(zrParser::Identifier, 0);
 }
 
-std::vector<zrParser::ExpressionContext *> zrParser::FunctionCallExpressionContext::expression() {
-  return getRuleContexts<zrParser::ExpressionContext>();
-}
-
-zrParser::ExpressionContext* zrParser::FunctionCallExpressionContext::expression(size_t i) {
-  return getRuleContext<zrParser::ExpressionContext>(i);
+zrParser::ExprListContext* zrParser::FunctionCallExpressionContext::exprList() {
+  return getRuleContext<zrParser::ExprListContext>(0);
 }
 
 zrParser::FunctionCallExpressionContext::FunctionCallExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
@@ -1766,35 +2109,6 @@ void zrParser::FunctionCallExpressionContext::exitRule(tree::ParseTreeListener *
 antlrcpp::Any zrParser::FunctionCallExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
     return parserVisitor->visitFunctionCallExpression(this);
-  else
-    return visitor->visitChildren(this);
-}
-//----------------- UnaryExpressionContext ------------------------------------------------------------------
-
-zrParser::UnOpContext* zrParser::UnaryExpressionContext::unOp() {
-  return getRuleContext<zrParser::UnOpContext>(0);
-}
-
-zrParser::ExpressionContext* zrParser::UnaryExpressionContext::expression() {
-  return getRuleContext<zrParser::ExpressionContext>(0);
-}
-
-zrParser::UnaryExpressionContext::UnaryExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
-
-void zrParser::UnaryExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zrListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterUnaryExpression(this);
-}
-void zrParser::UnaryExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zrListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitUnaryExpression(this);
-}
-
-antlrcpp::Any zrParser::UnaryExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
-    return parserVisitor->visitUnaryExpression(this);
   else
     return visitor->visitChildren(this);
 }
@@ -1827,6 +2141,35 @@ antlrcpp::Any zrParser::LiteralExpressionContext::accept(tree::ParseTreeVisitor 
   else
     return visitor->visitChildren(this);
 }
+//----------------- LtEqExpressionContext ------------------------------------------------------------------
+
+std::vector<zrParser::ExpressionContext *> zrParser::LtEqExpressionContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
+}
+
+zrParser::ExpressionContext* zrParser::LtEqExpressionContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
+}
+
+zrParser::LtEqExpressionContext::LtEqExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+void zrParser::LtEqExpressionContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterLtEqExpression(this);
+}
+void zrParser::LtEqExpressionContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<zrListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitLtEqExpression(this);
+}
+
+antlrcpp::Any zrParser::LtEqExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
+    return parserVisitor->visitLtEqExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
 
 zrParser::ExpressionContext* zrParser::expression() {
    return expression(0);
@@ -1848,30 +2191,19 @@ zrParser::ExpressionContext* zrParser::expression(int precedence) {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(205);
+    setState(194);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 15, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 13, _ctx)) {
     case 1: {
-      _localctx = _tracker.createInstance<UnaryExpressionContext>(_localctx);
-      _ctx = _localctx;
-      previousContext = _localctx;
-
-      setState(181);
-      unOp();
-      setState(182);
-      expression(5);
-      break;
-    }
-
-    case 2: {
       _localctx = _tracker.createInstance<FunctionCallExpressionContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(184);
+
+      setState(172);
       match(zrParser::Identifier);
-      setState(185);
-      match(zrParser::T__2);
-      setState(194);
+      setState(173);
+      match(zrParser::Lparen);
+      setState(175);
       _errHandler->sync(this);
 
       _la = _input->LA(1);
@@ -1882,65 +2214,76 @@ zrParser::ExpressionContext* zrParser::expression(int precedence) {
         | (1ULL << zrParser::False)
         | (1ULL << zrParser::Excl)
         | (1ULL << zrParser::Minus)
+        | (1ULL << zrParser::Lparen)
         | (1ULL << zrParser::Identifier))) != 0)) {
-        setState(186);
-        expression(0);
-        setState(191);
-        _errHandler->sync(this);
-        _la = _input->LA(1);
-        while (_la == zrParser::T__3) {
-          setState(187);
-          match(zrParser::T__3);
-          setState(188);
-          expression(0);
-          setState(193);
-          _errHandler->sync(this);
-          _la = _input->LA(1);
-        }
+        setState(174);
+        exprList();
       }
-      setState(196);
-      match(zrParser::T__4);
+      setState(177);
+      match(zrParser::Rparen);
+      break;
+    }
+
+    case 2: {
+      _localctx = _tracker.createInstance<ScanCallExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(178);
+      match(zrParser::Scan);
+      setState(179);
+      match(zrParser::Lparen);
+      setState(180);
+      match(zrParser::Rparen);
       break;
     }
 
     case 3: {
-      _localctx = _tracker.createInstance<ScanCallExpressionContext>(_localctx);
+      _localctx = _tracker.createInstance<UnaryMinusExpressionContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(197);
-      match(zrParser::Scan);
-      setState(198);
-      match(zrParser::T__2);
-      setState(199);
-      match(zrParser::T__4);
+      setState(181);
+      match(zrParser::Minus);
+      setState(182);
+      expression(17);
       break;
     }
 
     case 4: {
-      _localctx = _tracker.createInstance<IdentifierExpressionContext>(_localctx);
+      _localctx = _tracker.createInstance<NotExpressionContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(200);
-      match(zrParser::Identifier);
+      setState(183);
+      match(zrParser::Excl);
+      setState(184);
+      expression(16);
       break;
     }
 
     case 5: {
+      _localctx = _tracker.createInstance<IdentifierExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(185);
+      match(zrParser::Identifier);
+      break;
+    }
+
+    case 6: {
       _localctx = _tracker.createInstance<LiteralExpressionContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(203);
+      setState(188);
       _errHandler->sync(this);
       switch (_input->LA(1)) {
         case zrParser::True:
         case zrParser::False: {
-          setState(201);
+          setState(186);
           bool_lit();
           break;
         }
 
         case zrParser::Integer: {
-          setState(202);
+          setState(187);
           number();
           break;
         }
@@ -1951,30 +2294,205 @@ zrParser::ExpressionContext* zrParser::expression(int precedence) {
       break;
     }
 
+    case 7: {
+      _localctx = _tracker.createInstance<ParanthesisExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(190);
+      match(zrParser::Lparen);
+      setState(191);
+      expression(0);
+      setState(192);
+      match(zrParser::Rparen);
+      break;
+    }
+
     }
     _ctx->stop = _input->LT(-1);
-    setState(213);
+    setState(234);
     _errHandler->sync(this);
-    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 16, _ctx);
+    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 15, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
         if (!_parseListeners.empty())
           triggerExitRuleEvent();
         previousContext = _localctx;
-        auto newContext = _tracker.createInstance<BinaryExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
-        _localctx = newContext;
-        pushNewRecursionContext(newContext, startState, RuleExpression);
-        setState(207);
+        setState(232);
+        _errHandler->sync(this);
+        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 14, _ctx)) {
+        case 1: {
+          auto newContext = _tracker.createInstance<MultiplyExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(196);
 
-        if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
-        setState(208);
-        binOp();
-        setState(209);
-        expression(7); 
+          if (!(precpred(_ctx, 15))) throw FailedPredicateException(this, "precpred(_ctx, 15)");
+          setState(197);
+          match(zrParser::Multiply);
+          setState(198);
+          expression(16);
+          break;
+        }
+
+        case 2: {
+          auto newContext = _tracker.createInstance<DivideExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(199);
+
+          if (!(precpred(_ctx, 14))) throw FailedPredicateException(this, "precpred(_ctx, 14)");
+          setState(200);
+          match(zrParser::Divide);
+          setState(201);
+          expression(15);
+          break;
+        }
+
+        case 3: {
+          auto newContext = _tracker.createInstance<AddExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(202);
+
+          if (!(precpred(_ctx, 13))) throw FailedPredicateException(this, "precpred(_ctx, 13)");
+          setState(203);
+          match(zrParser::Add);
+          setState(204);
+          expression(14);
+          break;
+        }
+
+        case 4: {
+          auto newContext = _tracker.createInstance<SubtractExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(205);
+
+          if (!(precpred(_ctx, 12))) throw FailedPredicateException(this, "precpred(_ctx, 12)");
+          setState(206);
+          match(zrParser::Minus);
+          setState(207);
+          expression(13);
+          break;
+        }
+
+        case 5: {
+          auto newContext = _tracker.createInstance<GtEqExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(208);
+
+          if (!(precpred(_ctx, 11))) throw FailedPredicateException(this, "precpred(_ctx, 11)");
+          setState(209);
+          match(zrParser::GTEquals);
+          setState(210);
+          expression(12);
+          break;
+        }
+
+        case 6: {
+          auto newContext = _tracker.createInstance<LtEqExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(211);
+
+          if (!(precpred(_ctx, 10))) throw FailedPredicateException(this, "precpred(_ctx, 10)");
+          setState(212);
+          match(zrParser::LTEquals);
+          setState(213);
+          expression(11);
+          break;
+        }
+
+        case 7: {
+          auto newContext = _tracker.createInstance<GtExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(214);
+
+          if (!(precpred(_ctx, 9))) throw FailedPredicateException(this, "precpred(_ctx, 9)");
+          setState(215);
+          match(zrParser::Gt);
+          setState(216);
+          expression(10);
+          break;
+        }
+
+        case 8: {
+          auto newContext = _tracker.createInstance<LtExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(217);
+
+          if (!(precpred(_ctx, 8))) throw FailedPredicateException(this, "precpred(_ctx, 8)");
+          setState(218);
+          match(zrParser::Lt);
+          setState(219);
+          expression(9);
+          break;
+        }
+
+        case 9: {
+          auto newContext = _tracker.createInstance<EqExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(220);
+
+          if (!(precpred(_ctx, 7))) throw FailedPredicateException(this, "precpred(_ctx, 7)");
+          setState(221);
+          match(zrParser::Equals);
+          setState(222);
+          expression(8);
+          break;
+        }
+
+        case 10: {
+          auto newContext = _tracker.createInstance<NotEqExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(223);
+
+          if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
+          setState(224);
+          match(zrParser::NEquals);
+          setState(225);
+          expression(7);
+          break;
+        }
+
+        case 11: {
+          auto newContext = _tracker.createInstance<AndExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(226);
+
+          if (!(precpred(_ctx, 5))) throw FailedPredicateException(this, "precpred(_ctx, 5)");
+          setState(227);
+          match(zrParser::And);
+          setState(228);
+          expression(6);
+          break;
+        }
+
+        case 12: {
+          auto newContext = _tracker.createInstance<OrExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleExpression);
+          setState(229);
+
+          if (!(precpred(_ctx, 4))) throw FailedPredicateException(this, "precpred(_ctx, 4)");
+          setState(230);
+          match(zrParser::Or);
+          setState(231);
+          expression(5);
+          break;
+        }
+
+        } 
       }
-      setState(215);
+      setState(236);
       _errHandler->sync(this);
-      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 16, _ctx);
+      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 15, _ctx);
     }
   }
   catch (RecognitionException &e) {
@@ -1985,48 +2503,48 @@ zrParser::ExpressionContext* zrParser::expression(int precedence) {
   return _localctx;
 }
 
-//----------------- UnOpContext ------------------------------------------------------------------
+//----------------- ExprListContext ------------------------------------------------------------------
 
-zrParser::UnOpContext::UnOpContext(ParserRuleContext *parent, size_t invokingState)
+zrParser::ExprListContext::ExprListContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* zrParser::UnOpContext::Excl() {
-  return getToken(zrParser::Excl, 0);
+std::vector<zrParser::ExpressionContext *> zrParser::ExprListContext::expression() {
+  return getRuleContexts<zrParser::ExpressionContext>();
 }
 
-tree::TerminalNode* zrParser::UnOpContext::Minus() {
-  return getToken(zrParser::Minus, 0);
+zrParser::ExpressionContext* zrParser::ExprListContext::expression(size_t i) {
+  return getRuleContext<zrParser::ExpressionContext>(i);
 }
 
 
-size_t zrParser::UnOpContext::getRuleIndex() const {
-  return zrParser::RuleUnOp;
+size_t zrParser::ExprListContext::getRuleIndex() const {
+  return zrParser::RuleExprList;
 }
 
-void zrParser::UnOpContext::enterRule(tree::ParseTreeListener *listener) {
+void zrParser::ExprListContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<zrListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterUnOp(this);
+    parserListener->enterExprList(this);
 }
 
-void zrParser::UnOpContext::exitRule(tree::ParseTreeListener *listener) {
+void zrParser::ExprListContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<zrListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitUnOp(this);
+    parserListener->exitExprList(this);
 }
 
 
-antlrcpp::Any zrParser::UnOpContext::accept(tree::ParseTreeVisitor *visitor) {
+antlrcpp::Any zrParser::ExprListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
-    return parserVisitor->visitUnOp(this);
+    return parserVisitor->visitExprList(this);
   else
     return visitor->visitChildren(this);
 }
 
-zrParser::UnOpContext* zrParser::unOp() {
-  UnOpContext *_localctx = _tracker.createInstance<UnOpContext>(_ctx, getState());
-  enterRule(_localctx, 40, zrParser::RuleUnOp);
+zrParser::ExprListContext* zrParser::exprList() {
+  ExprListContext *_localctx = _tracker.createInstance<ExprListContext>(_ctx, getState());
+  enterRule(_localctx, 40, zrParser::RuleExprList);
   size_t _la = 0;
 
   auto onExit = finally([=] {
@@ -2034,137 +2552,19 @@ zrParser::UnOpContext* zrParser::unOp() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(216);
+    setState(237);
+    expression(0);
+    setState(242);
+    _errHandler->sync(this);
     _la = _input->LA(1);
-    if (!(_la == zrParser::Excl
-
-    || _la == zrParser::Minus)) {
-    _errHandler->recoverInline(this);
-    }
-    else {
-      _errHandler->reportMatch(this);
-      consume();
-    }
-   
-  }
-  catch (RecognitionException &e) {
-    _errHandler->reportError(this, e);
-    _localctx->exception = std::current_exception();
-    _errHandler->recover(this, _localctx->exception);
-  }
-
-  return _localctx;
-}
-
-//----------------- BinOpContext ------------------------------------------------------------------
-
-zrParser::BinOpContext::BinOpContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
-}
-
-tree::TerminalNode* zrParser::BinOpContext::Or() {
-  return getToken(zrParser::Or, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::And() {
-  return getToken(zrParser::And, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::Equals() {
-  return getToken(zrParser::Equals, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::NEquals() {
-  return getToken(zrParser::NEquals, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::GTEquals() {
-  return getToken(zrParser::GTEquals, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::LTEquals() {
-  return getToken(zrParser::LTEquals, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::Gt() {
-  return getToken(zrParser::Gt, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::Lt() {
-  return getToken(zrParser::Lt, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::Add() {
-  return getToken(zrParser::Add, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::Minus() {
-  return getToken(zrParser::Minus, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::Multiply() {
-  return getToken(zrParser::Multiply, 0);
-}
-
-tree::TerminalNode* zrParser::BinOpContext::Divide() {
-  return getToken(zrParser::Divide, 0);
-}
-
-
-size_t zrParser::BinOpContext::getRuleIndex() const {
-  return zrParser::RuleBinOp;
-}
-
-void zrParser::BinOpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zrListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterBinOp(this);
-}
-
-void zrParser::BinOpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<zrListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitBinOp(this);
-}
-
-
-antlrcpp::Any zrParser::BinOpContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<zrVisitor*>(visitor))
-    return parserVisitor->visitBinOp(this);
-  else
-    return visitor->visitChildren(this);
-}
-
-zrParser::BinOpContext* zrParser::binOp() {
-  BinOpContext *_localctx = _tracker.createInstance<BinOpContext>(_ctx, getState());
-  enterRule(_localctx, 42, zrParser::RuleBinOp);
-  size_t _la = 0;
-
-  auto onExit = finally([=] {
-    exitRule();
-  });
-  try {
-    enterOuterAlt(_localctx, 1);
-    setState(218);
-    _la = _input->LA(1);
-    if (!((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & ((1ULL << zrParser::Or)
-      | (1ULL << zrParser::And)
-      | (1ULL << zrParser::Equals)
-      | (1ULL << zrParser::NEquals)
-      | (1ULL << zrParser::GTEquals)
-      | (1ULL << zrParser::LTEquals)
-      | (1ULL << zrParser::Gt)
-      | (1ULL << zrParser::Lt)
-      | (1ULL << zrParser::Add)
-      | (1ULL << zrParser::Minus)
-      | (1ULL << zrParser::Multiply)
-      | (1ULL << zrParser::Divide))) != 0))) {
-    _errHandler->recoverInline(this);
-    }
-    else {
-      _errHandler->reportMatch(this);
-      consume();
+    while (_la == zrParser::T__2) {
+      setState(238);
+      match(zrParser::T__2);
+      setState(239);
+      expression(0);
+      setState(244);
+      _errHandler->sync(this);
+      _la = _input->LA(1);
     }
    
   }
@@ -2218,7 +2618,7 @@ antlrcpp::Any zrParser::Bool_litContext::accept(tree::ParseTreeVisitor *visitor)
 
 zrParser::Bool_litContext* zrParser::bool_lit() {
   Bool_litContext *_localctx = _tracker.createInstance<Bool_litContext>(_ctx, getState());
-  enterRule(_localctx, 44, zrParser::RuleBool_lit);
+  enterRule(_localctx, 42, zrParser::RuleBool_lit);
   size_t _la = 0;
 
   auto onExit = finally([=] {
@@ -2226,7 +2626,7 @@ zrParser::Bool_litContext* zrParser::bool_lit() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(220);
+    setState(245);
     _la = _input->LA(1);
     if (!(_la == zrParser::True
 
@@ -2285,14 +2685,14 @@ antlrcpp::Any zrParser::NumberContext::accept(tree::ParseTreeVisitor *visitor) {
 
 zrParser::NumberContext* zrParser::number() {
   NumberContext *_localctx = _tracker.createInstance<NumberContext>(_ctx, getState());
-  enterRule(_localctx, 46, zrParser::RuleNumber);
+  enterRule(_localctx, 44, zrParser::RuleNumber);
 
   auto onExit = finally([=] {
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(222);
+    setState(247);
     match(zrParser::Integer);
    
   }
@@ -2317,7 +2717,18 @@ bool zrParser::sempred(RuleContext *context, size_t ruleIndex, size_t predicateI
 
 bool zrParser::expressionSempred(ExpressionContext *_localctx, size_t predicateIndex) {
   switch (predicateIndex) {
-    case 0: return precpred(_ctx, 6);
+    case 0: return precpred(_ctx, 15);
+    case 1: return precpred(_ctx, 14);
+    case 2: return precpred(_ctx, 13);
+    case 3: return precpred(_ctx, 12);
+    case 4: return precpred(_ctx, 11);
+    case 5: return precpred(_ctx, 10);
+    case 6: return precpred(_ctx, 9);
+    case 7: return precpred(_ctx, 8);
+    case 8: return precpred(_ctx, 7);
+    case 9: return precpred(_ctx, 6);
+    case 10: return precpred(_ctx, 5);
+    case 11: return precpred(_ctx, 4);
 
   default:
     break;
@@ -2338,22 +2749,22 @@ std::vector<std::string> zrParser::_ruleNames = {
   "return_statement", "assignment", "variable_def", "global_variable_def", 
   "function_call", "if_statement", "if_stat", "else_if_stat", "else_stat", 
   "while_statement", "function_decl", "func_decl_arg_list", "func_decl_arg", 
-  "expression", "unOp", "binOp", "bool_lit", "number"
+  "expression", "exprList", "bool_lit", "number"
 };
 
 std::vector<std::string> zrParser::_literalNames = {
-  "", "';'", "'='", "'('", "','", "')'", "", "'def'", "'if'", "'else'", 
-  "'return'", "'break'", "'while'", "'to'", "'do'", "'end'", "'print'", 
-  "'scan'", "'true'", "'false'", "'void'", "'||'", "'&&'", "'=='", "'!='", 
-  "'>='", "'<='", "'!'", "'>'", "'<'", "'+'", "'-'", "'*'", "'/'"
+  "", "';'", "'='", "','", "", "'def'", "'if'", "'else'", "'return'", "'break'", 
+  "'while'", "'to'", "'do'", "'end'", "'print'", "'scan'", "'true'", "'false'", 
+  "'void'", "'||'", "'&&'", "'=='", "'!='", "'>='", "'<='", "'!'", "'>'", 
+  "'<'", "'+'", "'-'", "'*'", "'/'", "'('", "')'"
 };
 
 std::vector<std::string> zrParser::_symbolicNames = {
-  "", "", "", "", "", "", "Integer", "Def", "If", "Else", "Return", "Break", 
-  "While", "To", "Do", "End", "Print", "Scan", "True", "False", "Void", 
-  "Or", "And", "Equals", "NEquals", "GTEquals", "LTEquals", "Excl", "Gt", 
-  "Lt", "Add", "Minus", "Multiply", "Divide", "Type_identifier", "Identifier", 
-  "String", "Comment", "Space"
+  "", "", "", "", "Integer", "Def", "If", "Else", "Return", "Break", "While", 
+  "To", "Do", "End", "Print", "Scan", "True", "False", "Void", "Or", "And", 
+  "Equals", "NEquals", "GTEquals", "LTEquals", "Excl", "Gt", "Lt", "Add", 
+  "Minus", "Multiply", "Divide", "Lparen", "Rparen", "Type_identifier", 
+  "Identifier", "String", "Comment", "Space"
 };
 
 dfa::Vocabulary zrParser::_vocabulary(_literalNames, _symbolicNames);
@@ -2376,152 +2787,172 @@ zrParser::Initializer::Initializer() {
 
   _serializedATN = {
     0x3, 0x608b, 0xa72a, 0x8133, 0xb9ed, 0x417c, 0x3be7, 0x7786, 0x5964, 
-    0x3, 0x28, 0xe3, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
+    0x3, 0x28, 0xfc, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
     0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x4, 0x7, 0x9, 0x7, 0x4, 
     0x8, 0x9, 0x8, 0x4, 0x9, 0x9, 0x9, 0x4, 0xa, 0x9, 0xa, 0x4, 0xb, 0x9, 
     0xb, 0x4, 0xc, 0x9, 0xc, 0x4, 0xd, 0x9, 0xd, 0x4, 0xe, 0x9, 0xe, 0x4, 
     0xf, 0x9, 0xf, 0x4, 0x10, 0x9, 0x10, 0x4, 0x11, 0x9, 0x11, 0x4, 0x12, 
     0x9, 0x12, 0x4, 0x13, 0x9, 0x13, 0x4, 0x14, 0x9, 0x14, 0x4, 0x15, 0x9, 
     0x15, 0x4, 0x16, 0x9, 0x16, 0x4, 0x17, 0x9, 0x17, 0x4, 0x18, 0x9, 0x18, 
-    0x4, 0x19, 0x9, 0x19, 0x3, 0x2, 0x3, 0x2, 0x3, 0x2, 0x3, 0x3, 0x3, 0x3, 
-    0x7, 0x3, 0x38, 0xa, 0x3, 0xc, 0x3, 0xe, 0x3, 0x3b, 0xb, 0x3, 0x3, 0x4, 
-    0x7, 0x4, 0x3e, 0xa, 0x4, 0xc, 0x4, 0xe, 0x4, 0x41, 0xb, 0x4, 0x3, 0x5, 
-    0x3, 0x5, 0x3, 0x5, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
+    0x3, 0x2, 0x3, 0x2, 0x3, 0x2, 0x3, 0x3, 0x3, 0x3, 0x7, 0x3, 0x36, 0xa, 
+    0x3, 0xc, 0x3, 0xe, 0x3, 0x39, 0xb, 0x3, 0x3, 0x4, 0x7, 0x4, 0x3c, 0xa, 
+    0x4, 0xc, 0x4, 0xe, 0x4, 0x3f, 0xb, 0x4, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 
     0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
-    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x5, 0x6, 0x57, 0xa, 
-    0x6, 0x3, 0x7, 0x3, 0x7, 0x3, 0x8, 0x3, 0x8, 0x5, 0x8, 0x5d, 0xa, 0x8, 
-    0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 
-    0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 
-    0x3, 0xc, 0x7, 0xc, 0x6e, 0xa, 0xc, 0xc, 0xc, 0xe, 0xc, 0x71, 0xb, 0xc, 
-    0x5, 0xc, 0x73, 0xa, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 
-    0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x5, 0xc, 0x7e, 0xa, 0xc, 
-    0x3, 0xd, 0x3, 0xd, 0x7, 0xd, 0x82, 0xa, 0xd, 0xc, 0xd, 0xe, 0xd, 0x85, 
-    0xb, 0xd, 0x3, 0xd, 0x5, 0xd, 0x88, 0xa, 0xd, 0x3, 0xd, 0x3, 0xd, 0x3, 
-    0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xf, 0x3, 0xf, 0x3, 
-    0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 
-    0x3, 0x10, 0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 0x3, 
-    0x11, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x5, 0x12, 
-    0xa6, 0xa, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x13, 
-    0x3, 0x13, 0x3, 0x13, 0x7, 0x13, 0xaf, 0xa, 0x13, 0xc, 0x13, 0xe, 0x13, 
-    0xb2, 0xb, 0x13, 0x3, 0x14, 0x3, 0x14, 0x3, 0x14, 0x3, 0x15, 0x3, 0x15, 
+    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
+    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x5, 0x6, 0x55, 0xa, 0x6, 0x3, 0x7, 0x3, 
+    0x7, 0x3, 0x8, 0x3, 0x8, 0x5, 0x8, 0x5b, 0xa, 0x8, 0x3, 0x9, 0x3, 0x9, 
+    0x3, 0x9, 0x3, 0x9, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xb, 0x3, 0xb, 
+    0x3, 0xb, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x5, 0xc, 0x6a, 0xa, 0xc, 0x3, 
+    0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 
+    0xc, 0x3, 0xc, 0x5, 0xc, 0x75, 0xa, 0xc, 0x3, 0xd, 0x3, 0xd, 0x7, 0xd, 
+    0x79, 0xa, 0xd, 0xc, 0xd, 0xe, 0xd, 0x7c, 0xb, 0xd, 0x3, 0xd, 0x5, 0xd, 
+    0x7f, 0xa, 0xd, 0x3, 0xd, 0x3, 0xd, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 
+    0xe, 0x3, 0xe, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 
+    0xf, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x11, 0x3, 0x11, 
+    0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 0x3, 0x12, 0x3, 0x12, 0x3, 
+    0x12, 0x3, 0x12, 0x3, 0x12, 0x5, 0x12, 0x9d, 0xa, 0x12, 0x3, 0x12, 0x3, 
+    0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x13, 0x3, 0x13, 0x3, 0x13, 0x7, 0x13, 
+    0xa6, 0xa, 0x13, 0xc, 0x13, 0xe, 0x13, 0xa9, 0xb, 0x13, 0x3, 0x14, 0x3, 
+    0x14, 0x3, 0x14, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x5, 0x15, 
+    0xb2, 0xa, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 
+    0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x5, 
+    0x15, 0xbf, 0xa, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x5, 
+    0x15, 0xc5, 0xa, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 
+    0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 
     0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 
-    0x15, 0x7, 0x15, 0xc0, 0xa, 0x15, 0xc, 0x15, 0xe, 0x15, 0xc3, 0xb, 0x15, 
-    0x5, 0x15, 0xc5, 0xa, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 
-    0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x5, 0x15, 0xce, 0xa, 0x15, 0x5, 0x15, 
-    0xd0, 0xa, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x7, 0x15, 
-    0xd6, 0xa, 0x15, 0xc, 0x15, 0xe, 0x15, 0xd9, 0xb, 0x15, 0x3, 0x16, 0x3, 
-    0x16, 0x3, 0x17, 0x3, 0x17, 0x3, 0x18, 0x3, 0x18, 0x3, 0x19, 0x3, 0x19, 
-    0x3, 0x19, 0x2, 0x3, 0x28, 0x1a, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe, 
-    0x10, 0x12, 0x14, 0x16, 0x18, 0x1a, 0x1c, 0x1e, 0x20, 0x22, 0x24, 0x26, 
-    0x28, 0x2a, 0x2c, 0x2e, 0x30, 0x2, 0x6, 0x4, 0x2, 0x16, 0x16, 0x24, 
-    0x24, 0x4, 0x2, 0x1d, 0x1d, 0x21, 0x21, 0x4, 0x2, 0x17, 0x1c, 0x1e, 
-    0x23, 0x3, 0x2, 0x14, 0x15, 0x2, 0xe4, 0x2, 0x32, 0x3, 0x2, 0x2, 0x2, 
-    0x4, 0x39, 0x3, 0x2, 0x2, 0x2, 0x6, 0x3f, 0x3, 0x2, 0x2, 0x2, 0x8, 0x42, 
-    0x3, 0x2, 0x2, 0x2, 0xa, 0x56, 0x3, 0x2, 0x2, 0x2, 0xc, 0x58, 0x3, 0x2, 
-    0x2, 0x2, 0xe, 0x5a, 0x3, 0x2, 0x2, 0x2, 0x10, 0x5e, 0x3, 0x2, 0x2, 
-    0x2, 0x12, 0x62, 0x3, 0x2, 0x2, 0x2, 0x14, 0x65, 0x3, 0x2, 0x2, 0x2, 
-    0x16, 0x7d, 0x3, 0x2, 0x2, 0x2, 0x18, 0x7f, 0x3, 0x2, 0x2, 0x2, 0x1a, 
-    0x8b, 0x3, 0x2, 0x2, 0x2, 0x1c, 0x90, 0x3, 0x2, 0x2, 0x2, 0x1e, 0x96, 
-    0x3, 0x2, 0x2, 0x2, 0x20, 0x9a, 0x3, 0x2, 0x2, 0x2, 0x22, 0xa0, 0x3, 
-    0x2, 0x2, 0x2, 0x24, 0xab, 0x3, 0x2, 0x2, 0x2, 0x26, 0xb3, 0x3, 0x2, 
-    0x2, 0x2, 0x28, 0xcf, 0x3, 0x2, 0x2, 0x2, 0x2a, 0xda, 0x3, 0x2, 0x2, 
-    0x2, 0x2c, 0xdc, 0x3, 0x2, 0x2, 0x2, 0x2e, 0xde, 0x3, 0x2, 0x2, 0x2, 
-    0x30, 0xe0, 0x3, 0x2, 0x2, 0x2, 0x32, 0x33, 0x5, 0x4, 0x3, 0x2, 0x33, 
-    0x34, 0x7, 0x2, 0x2, 0x3, 0x34, 0x3, 0x3, 0x2, 0x2, 0x2, 0x35, 0x38, 
-    0x5, 0x22, 0x12, 0x2, 0x36, 0x38, 0x5, 0x8, 0x5, 0x2, 0x37, 0x35, 0x3, 
-    0x2, 0x2, 0x2, 0x37, 0x36, 0x3, 0x2, 0x2, 0x2, 0x38, 0x3b, 0x3, 0x2, 
-    0x2, 0x2, 0x39, 0x37, 0x3, 0x2, 0x2, 0x2, 0x39, 0x3a, 0x3, 0x2, 0x2, 
-    0x2, 0x3a, 0x5, 0x3, 0x2, 0x2, 0x2, 0x3b, 0x39, 0x3, 0x2, 0x2, 0x2, 
-    0x3c, 0x3e, 0x5, 0xa, 0x6, 0x2, 0x3d, 0x3c, 0x3, 0x2, 0x2, 0x2, 0x3e, 
-    0x41, 0x3, 0x2, 0x2, 0x2, 0x3f, 0x3d, 0x3, 0x2, 0x2, 0x2, 0x3f, 0x40, 
-    0x3, 0x2, 0x2, 0x2, 0x40, 0x7, 0x3, 0x2, 0x2, 0x2, 0x41, 0x3f, 0x3, 
-    0x2, 0x2, 0x2, 0x42, 0x43, 0x5, 0x14, 0xb, 0x2, 0x43, 0x44, 0x7, 0x3, 
-    0x2, 0x2, 0x44, 0x9, 0x3, 0x2, 0x2, 0x2, 0x45, 0x46, 0x5, 0x12, 0xa, 
-    0x2, 0x46, 0x47, 0x7, 0x3, 0x2, 0x2, 0x47, 0x57, 0x3, 0x2, 0x2, 0x2, 
-    0x48, 0x49, 0x5, 0x10, 0x9, 0x2, 0x49, 0x4a, 0x7, 0x3, 0x2, 0x2, 0x4a, 
-    0x57, 0x3, 0x2, 0x2, 0x2, 0x4b, 0x4c, 0x5, 0x16, 0xc, 0x2, 0x4c, 0x4d, 
-    0x7, 0x3, 0x2, 0x2, 0x4d, 0x57, 0x3, 0x2, 0x2, 0x2, 0x4e, 0x57, 0x5, 
-    0x18, 0xd, 0x2, 0x4f, 0x57, 0x5, 0x20, 0x11, 0x2, 0x50, 0x51, 0x5, 0xe, 
-    0x8, 0x2, 0x51, 0x52, 0x7, 0x3, 0x2, 0x2, 0x52, 0x57, 0x3, 0x2, 0x2, 
-    0x2, 0x53, 0x54, 0x5, 0xc, 0x7, 0x2, 0x54, 0x55, 0x7, 0x3, 0x2, 0x2, 
-    0x55, 0x57, 0x3, 0x2, 0x2, 0x2, 0x56, 0x45, 0x3, 0x2, 0x2, 0x2, 0x56, 
-    0x48, 0x3, 0x2, 0x2, 0x2, 0x56, 0x4b, 0x3, 0x2, 0x2, 0x2, 0x56, 0x4e, 
-    0x3, 0x2, 0x2, 0x2, 0x56, 0x4f, 0x3, 0x2, 0x2, 0x2, 0x56, 0x50, 0x3, 
-    0x2, 0x2, 0x2, 0x56, 0x53, 0x3, 0x2, 0x2, 0x2, 0x57, 0xb, 0x3, 0x2, 
-    0x2, 0x2, 0x58, 0x59, 0x7, 0xd, 0x2, 0x2, 0x59, 0xd, 0x3, 0x2, 0x2, 
-    0x2, 0x5a, 0x5c, 0x7, 0xc, 0x2, 0x2, 0x5b, 0x5d, 0x5, 0x28, 0x15, 0x2, 
-    0x5c, 0x5b, 0x3, 0x2, 0x2, 0x2, 0x5c, 0x5d, 0x3, 0x2, 0x2, 0x2, 0x5d, 
-    0xf, 0x3, 0x2, 0x2, 0x2, 0x5e, 0x5f, 0x7, 0x25, 0x2, 0x2, 0x5f, 0x60, 
-    0x7, 0x4, 0x2, 0x2, 0x60, 0x61, 0x5, 0x28, 0x15, 0x2, 0x61, 0x11, 0x3, 
-    0x2, 0x2, 0x2, 0x62, 0x63, 0x7, 0x24, 0x2, 0x2, 0x63, 0x64, 0x7, 0x25, 
-    0x2, 0x2, 0x64, 0x13, 0x3, 0x2, 0x2, 0x2, 0x65, 0x66, 0x7, 0x24, 0x2, 
-    0x2, 0x66, 0x67, 0x7, 0x25, 0x2, 0x2, 0x67, 0x15, 0x3, 0x2, 0x2, 0x2, 
-    0x68, 0x69, 0x7, 0x25, 0x2, 0x2, 0x69, 0x72, 0x7, 0x5, 0x2, 0x2, 0x6a, 
-    0x6f, 0x5, 0x28, 0x15, 0x2, 0x6b, 0x6c, 0x7, 0x6, 0x2, 0x2, 0x6c, 0x6e, 
-    0x5, 0x28, 0x15, 0x2, 0x6d, 0x6b, 0x3, 0x2, 0x2, 0x2, 0x6e, 0x71, 0x3, 
-    0x2, 0x2, 0x2, 0x6f, 0x6d, 0x3, 0x2, 0x2, 0x2, 0x6f, 0x70, 0x3, 0x2, 
-    0x2, 0x2, 0x70, 0x73, 0x3, 0x2, 0x2, 0x2, 0x71, 0x6f, 0x3, 0x2, 0x2, 
-    0x2, 0x72, 0x6a, 0x3, 0x2, 0x2, 0x2, 0x72, 0x73, 0x3, 0x2, 0x2, 0x2, 
-    0x73, 0x74, 0x3, 0x2, 0x2, 0x2, 0x74, 0x7e, 0x7, 0x7, 0x2, 0x2, 0x75, 
-    0x76, 0x7, 0x12, 0x2, 0x2, 0x76, 0x77, 0x7, 0x5, 0x2, 0x2, 0x77, 0x78, 
-    0x5, 0x28, 0x15, 0x2, 0x78, 0x79, 0x7, 0x7, 0x2, 0x2, 0x79, 0x7e, 0x3, 
-    0x2, 0x2, 0x2, 0x7a, 0x7b, 0x7, 0x13, 0x2, 0x2, 0x7b, 0x7c, 0x7, 0x5, 
-    0x2, 0x2, 0x7c, 0x7e, 0x7, 0x7, 0x2, 0x2, 0x7d, 0x68, 0x3, 0x2, 0x2, 
-    0x2, 0x7d, 0x75, 0x3, 0x2, 0x2, 0x2, 0x7d, 0x7a, 0x3, 0x2, 0x2, 0x2, 
-    0x7e, 0x17, 0x3, 0x2, 0x2, 0x2, 0x7f, 0x83, 0x5, 0x1a, 0xe, 0x2, 0x80, 
-    0x82, 0x5, 0x1c, 0xf, 0x2, 0x81, 0x80, 0x3, 0x2, 0x2, 0x2, 0x82, 0x85, 
-    0x3, 0x2, 0x2, 0x2, 0x83, 0x81, 0x3, 0x2, 0x2, 0x2, 0x83, 0x84, 0x3, 
-    0x2, 0x2, 0x2, 0x84, 0x87, 0x3, 0x2, 0x2, 0x2, 0x85, 0x83, 0x3, 0x2, 
-    0x2, 0x2, 0x86, 0x88, 0x5, 0x1e, 0x10, 0x2, 0x87, 0x86, 0x3, 0x2, 0x2, 
-    0x2, 0x87, 0x88, 0x3, 0x2, 0x2, 0x2, 0x88, 0x89, 0x3, 0x2, 0x2, 0x2, 
-    0x89, 0x8a, 0x7, 0x11, 0x2, 0x2, 0x8a, 0x19, 0x3, 0x2, 0x2, 0x2, 0x8b, 
-    0x8c, 0x7, 0xa, 0x2, 0x2, 0x8c, 0x8d, 0x5, 0x28, 0x15, 0x2, 0x8d, 0x8e, 
-    0x7, 0x10, 0x2, 0x2, 0x8e, 0x8f, 0x5, 0x6, 0x4, 0x2, 0x8f, 0x1b, 0x3, 
-    0x2, 0x2, 0x2, 0x90, 0x91, 0x7, 0xb, 0x2, 0x2, 0x91, 0x92, 0x7, 0xa, 
-    0x2, 0x2, 0x92, 0x93, 0x5, 0x28, 0x15, 0x2, 0x93, 0x94, 0x7, 0x10, 0x2, 
-    0x2, 0x94, 0x95, 0x5, 0x6, 0x4, 0x2, 0x95, 0x1d, 0x3, 0x2, 0x2, 0x2, 
-    0x96, 0x97, 0x7, 0xb, 0x2, 0x2, 0x97, 0x98, 0x7, 0x10, 0x2, 0x2, 0x98, 
-    0x99, 0x5, 0x6, 0x4, 0x2, 0x99, 0x1f, 0x3, 0x2, 0x2, 0x2, 0x9a, 0x9b, 
-    0x7, 0xe, 0x2, 0x2, 0x9b, 0x9c, 0x5, 0x28, 0x15, 0x2, 0x9c, 0x9d, 0x7, 
-    0x10, 0x2, 0x2, 0x9d, 0x9e, 0x5, 0x6, 0x4, 0x2, 0x9e, 0x9f, 0x7, 0x11, 
-    0x2, 0x2, 0x9f, 0x21, 0x3, 0x2, 0x2, 0x2, 0xa0, 0xa1, 0x7, 0x9, 0x2, 
-    0x2, 0xa1, 0xa2, 0x9, 0x2, 0x2, 0x2, 0xa2, 0xa3, 0x7, 0x25, 0x2, 0x2, 
-    0xa3, 0xa5, 0x7, 0x5, 0x2, 0x2, 0xa4, 0xa6, 0x5, 0x24, 0x13, 0x2, 0xa5, 
-    0xa4, 0x3, 0x2, 0x2, 0x2, 0xa5, 0xa6, 0x3, 0x2, 0x2, 0x2, 0xa6, 0xa7, 
-    0x3, 0x2, 0x2, 0x2, 0xa7, 0xa8, 0x7, 0x7, 0x2, 0x2, 0xa8, 0xa9, 0x5, 
-    0x6, 0x4, 0x2, 0xa9, 0xaa, 0x7, 0x11, 0x2, 0x2, 0xaa, 0x23, 0x3, 0x2, 
-    0x2, 0x2, 0xab, 0xb0, 0x5, 0x26, 0x14, 0x2, 0xac, 0xad, 0x7, 0x6, 0x2, 
-    0x2, 0xad, 0xaf, 0x5, 0x26, 0x14, 0x2, 0xae, 0xac, 0x3, 0x2, 0x2, 0x2, 
-    0xaf, 0xb2, 0x3, 0x2, 0x2, 0x2, 0xb0, 0xae, 0x3, 0x2, 0x2, 0x2, 0xb0, 
-    0xb1, 0x3, 0x2, 0x2, 0x2, 0xb1, 0x25, 0x3, 0x2, 0x2, 0x2, 0xb2, 0xb0, 
-    0x3, 0x2, 0x2, 0x2, 0xb3, 0xb4, 0x7, 0x24, 0x2, 0x2, 0xb4, 0xb5, 0x7, 
-    0x25, 0x2, 0x2, 0xb5, 0x27, 0x3, 0x2, 0x2, 0x2, 0xb6, 0xb7, 0x8, 0x15, 
-    0x1, 0x2, 0xb7, 0xb8, 0x5, 0x2a, 0x16, 0x2, 0xb8, 0xb9, 0x5, 0x28, 0x15, 
-    0x7, 0xb9, 0xd0, 0x3, 0x2, 0x2, 0x2, 0xba, 0xbb, 0x7, 0x25, 0x2, 0x2, 
-    0xbb, 0xc4, 0x7, 0x5, 0x2, 0x2, 0xbc, 0xc1, 0x5, 0x28, 0x15, 0x2, 0xbd, 
-    0xbe, 0x7, 0x6, 0x2, 0x2, 0xbe, 0xc0, 0x5, 0x28, 0x15, 0x2, 0xbf, 0xbd, 
-    0x3, 0x2, 0x2, 0x2, 0xc0, 0xc3, 0x3, 0x2, 0x2, 0x2, 0xc1, 0xbf, 0x3, 
-    0x2, 0x2, 0x2, 0xc1, 0xc2, 0x3, 0x2, 0x2, 0x2, 0xc2, 0xc5, 0x3, 0x2, 
-    0x2, 0x2, 0xc3, 0xc1, 0x3, 0x2, 0x2, 0x2, 0xc4, 0xbc, 0x3, 0x2, 0x2, 
-    0x2, 0xc4, 0xc5, 0x3, 0x2, 0x2, 0x2, 0xc5, 0xc6, 0x3, 0x2, 0x2, 0x2, 
-    0xc6, 0xd0, 0x7, 0x7, 0x2, 0x2, 0xc7, 0xc8, 0x7, 0x13, 0x2, 0x2, 0xc8, 
-    0xc9, 0x7, 0x5, 0x2, 0x2, 0xc9, 0xd0, 0x7, 0x7, 0x2, 0x2, 0xca, 0xd0, 
-    0x7, 0x25, 0x2, 0x2, 0xcb, 0xce, 0x5, 0x2e, 0x18, 0x2, 0xcc, 0xce, 0x5, 
-    0x30, 0x19, 0x2, 0xcd, 0xcb, 0x3, 0x2, 0x2, 0x2, 0xcd, 0xcc, 0x3, 0x2, 
-    0x2, 0x2, 0xce, 0xd0, 0x3, 0x2, 0x2, 0x2, 0xcf, 0xb6, 0x3, 0x2, 0x2, 
-    0x2, 0xcf, 0xba, 0x3, 0x2, 0x2, 0x2, 0xcf, 0xc7, 0x3, 0x2, 0x2, 0x2, 
-    0xcf, 0xca, 0x3, 0x2, 0x2, 0x2, 0xcf, 0xcd, 0x3, 0x2, 0x2, 0x2, 0xd0, 
-    0xd7, 0x3, 0x2, 0x2, 0x2, 0xd1, 0xd2, 0xc, 0x8, 0x2, 0x2, 0xd2, 0xd3, 
-    0x5, 0x2c, 0x17, 0x2, 0xd3, 0xd4, 0x5, 0x28, 0x15, 0x9, 0xd4, 0xd6, 
-    0x3, 0x2, 0x2, 0x2, 0xd5, 0xd1, 0x3, 0x2, 0x2, 0x2, 0xd6, 0xd9, 0x3, 
-    0x2, 0x2, 0x2, 0xd7, 0xd5, 0x3, 0x2, 0x2, 0x2, 0xd7, 0xd8, 0x3, 0x2, 
-    0x2, 0x2, 0xd8, 0x29, 0x3, 0x2, 0x2, 0x2, 0xd9, 0xd7, 0x3, 0x2, 0x2, 
-    0x2, 0xda, 0xdb, 0x9, 0x3, 0x2, 0x2, 0xdb, 0x2b, 0x3, 0x2, 0x2, 0x2, 
-    0xdc, 0xdd, 0x9, 0x4, 0x2, 0x2, 0xdd, 0x2d, 0x3, 0x2, 0x2, 0x2, 0xde, 
-    0xdf, 0x9, 0x5, 0x2, 0x2, 0xdf, 0x2f, 0x3, 0x2, 0x2, 0x2, 0xe0, 0xe1, 
-    0x7, 0x8, 0x2, 0x2, 0xe1, 0x31, 0x3, 0x2, 0x2, 0x2, 0x13, 0x37, 0x39, 
-    0x3f, 0x56, 0x5c, 0x6f, 0x72, 0x7d, 0x83, 0x87, 0xa5, 0xb0, 0xc1, 0xc4, 
-    0xcd, 0xcf, 0xd7, 
+    0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 
+    0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 
+    0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x7, 0x15, 
+    0xeb, 0xa, 0x15, 0xc, 0x15, 0xe, 0x15, 0xee, 0xb, 0x15, 0x3, 0x16, 0x3, 
+    0x16, 0x3, 0x16, 0x7, 0x16, 0xf3, 0xa, 0x16, 0xc, 0x16, 0xe, 0x16, 0xf6, 
+    0xb, 0x16, 0x3, 0x17, 0x3, 0x17, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x2, 
+    0x3, 0x28, 0x19, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe, 0x10, 0x12, 0x14, 
+    0x16, 0x18, 0x1a, 0x1c, 0x1e, 0x20, 0x22, 0x24, 0x26, 0x28, 0x2a, 0x2c, 
+    0x2e, 0x2, 0x4, 0x4, 0x2, 0x14, 0x14, 0x24, 0x24, 0x3, 0x2, 0x12, 0x13, 
+    0x2, 0x10a, 0x2, 0x30, 0x3, 0x2, 0x2, 0x2, 0x4, 0x37, 0x3, 0x2, 0x2, 
+    0x2, 0x6, 0x3d, 0x3, 0x2, 0x2, 0x2, 0x8, 0x40, 0x3, 0x2, 0x2, 0x2, 0xa, 
+    0x54, 0x3, 0x2, 0x2, 0x2, 0xc, 0x56, 0x3, 0x2, 0x2, 0x2, 0xe, 0x58, 
+    0x3, 0x2, 0x2, 0x2, 0x10, 0x5c, 0x3, 0x2, 0x2, 0x2, 0x12, 0x60, 0x3, 
+    0x2, 0x2, 0x2, 0x14, 0x63, 0x3, 0x2, 0x2, 0x2, 0x16, 0x74, 0x3, 0x2, 
+    0x2, 0x2, 0x18, 0x76, 0x3, 0x2, 0x2, 0x2, 0x1a, 0x82, 0x3, 0x2, 0x2, 
+    0x2, 0x1c, 0x87, 0x3, 0x2, 0x2, 0x2, 0x1e, 0x8d, 0x3, 0x2, 0x2, 0x2, 
+    0x20, 0x91, 0x3, 0x2, 0x2, 0x2, 0x22, 0x97, 0x3, 0x2, 0x2, 0x2, 0x24, 
+    0xa2, 0x3, 0x2, 0x2, 0x2, 0x26, 0xaa, 0x3, 0x2, 0x2, 0x2, 0x28, 0xc4, 
+    0x3, 0x2, 0x2, 0x2, 0x2a, 0xef, 0x3, 0x2, 0x2, 0x2, 0x2c, 0xf7, 0x3, 
+    0x2, 0x2, 0x2, 0x2e, 0xf9, 0x3, 0x2, 0x2, 0x2, 0x30, 0x31, 0x5, 0x4, 
+    0x3, 0x2, 0x31, 0x32, 0x7, 0x2, 0x2, 0x3, 0x32, 0x3, 0x3, 0x2, 0x2, 
+    0x2, 0x33, 0x36, 0x5, 0x22, 0x12, 0x2, 0x34, 0x36, 0x5, 0x8, 0x5, 0x2, 
+    0x35, 0x33, 0x3, 0x2, 0x2, 0x2, 0x35, 0x34, 0x3, 0x2, 0x2, 0x2, 0x36, 
+    0x39, 0x3, 0x2, 0x2, 0x2, 0x37, 0x35, 0x3, 0x2, 0x2, 0x2, 0x37, 0x38, 
+    0x3, 0x2, 0x2, 0x2, 0x38, 0x5, 0x3, 0x2, 0x2, 0x2, 0x39, 0x37, 0x3, 
+    0x2, 0x2, 0x2, 0x3a, 0x3c, 0x5, 0xa, 0x6, 0x2, 0x3b, 0x3a, 0x3, 0x2, 
+    0x2, 0x2, 0x3c, 0x3f, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x3b, 0x3, 0x2, 0x2, 
+    0x2, 0x3d, 0x3e, 0x3, 0x2, 0x2, 0x2, 0x3e, 0x7, 0x3, 0x2, 0x2, 0x2, 
+    0x3f, 0x3d, 0x3, 0x2, 0x2, 0x2, 0x40, 0x41, 0x5, 0x14, 0xb, 0x2, 0x41, 
+    0x42, 0x7, 0x3, 0x2, 0x2, 0x42, 0x9, 0x3, 0x2, 0x2, 0x2, 0x43, 0x44, 
+    0x5, 0x12, 0xa, 0x2, 0x44, 0x45, 0x7, 0x3, 0x2, 0x2, 0x45, 0x55, 0x3, 
+    0x2, 0x2, 0x2, 0x46, 0x47, 0x5, 0x10, 0x9, 0x2, 0x47, 0x48, 0x7, 0x3, 
+    0x2, 0x2, 0x48, 0x55, 0x3, 0x2, 0x2, 0x2, 0x49, 0x4a, 0x5, 0x16, 0xc, 
+    0x2, 0x4a, 0x4b, 0x7, 0x3, 0x2, 0x2, 0x4b, 0x55, 0x3, 0x2, 0x2, 0x2, 
+    0x4c, 0x55, 0x5, 0x18, 0xd, 0x2, 0x4d, 0x55, 0x5, 0x20, 0x11, 0x2, 0x4e, 
+    0x4f, 0x5, 0xe, 0x8, 0x2, 0x4f, 0x50, 0x7, 0x3, 0x2, 0x2, 0x50, 0x55, 
+    0x3, 0x2, 0x2, 0x2, 0x51, 0x52, 0x5, 0xc, 0x7, 0x2, 0x52, 0x53, 0x7, 
+    0x3, 0x2, 0x2, 0x53, 0x55, 0x3, 0x2, 0x2, 0x2, 0x54, 0x43, 0x3, 0x2, 
+    0x2, 0x2, 0x54, 0x46, 0x3, 0x2, 0x2, 0x2, 0x54, 0x49, 0x3, 0x2, 0x2, 
+    0x2, 0x54, 0x4c, 0x3, 0x2, 0x2, 0x2, 0x54, 0x4d, 0x3, 0x2, 0x2, 0x2, 
+    0x54, 0x4e, 0x3, 0x2, 0x2, 0x2, 0x54, 0x51, 0x3, 0x2, 0x2, 0x2, 0x55, 
+    0xb, 0x3, 0x2, 0x2, 0x2, 0x56, 0x57, 0x7, 0xb, 0x2, 0x2, 0x57, 0xd, 
+    0x3, 0x2, 0x2, 0x2, 0x58, 0x5a, 0x7, 0xa, 0x2, 0x2, 0x59, 0x5b, 0x5, 
+    0x28, 0x15, 0x2, 0x5a, 0x59, 0x3, 0x2, 0x2, 0x2, 0x5a, 0x5b, 0x3, 0x2, 
+    0x2, 0x2, 0x5b, 0xf, 0x3, 0x2, 0x2, 0x2, 0x5c, 0x5d, 0x7, 0x25, 0x2, 
+    0x2, 0x5d, 0x5e, 0x7, 0x4, 0x2, 0x2, 0x5e, 0x5f, 0x5, 0x28, 0x15, 0x2, 
+    0x5f, 0x11, 0x3, 0x2, 0x2, 0x2, 0x60, 0x61, 0x7, 0x24, 0x2, 0x2, 0x61, 
+    0x62, 0x7, 0x25, 0x2, 0x2, 0x62, 0x13, 0x3, 0x2, 0x2, 0x2, 0x63, 0x64, 
+    0x7, 0x24, 0x2, 0x2, 0x64, 0x65, 0x7, 0x25, 0x2, 0x2, 0x65, 0x15, 0x3, 
+    0x2, 0x2, 0x2, 0x66, 0x67, 0x7, 0x25, 0x2, 0x2, 0x67, 0x69, 0x7, 0x22, 
+    0x2, 0x2, 0x68, 0x6a, 0x5, 0x2a, 0x16, 0x2, 0x69, 0x68, 0x3, 0x2, 0x2, 
+    0x2, 0x69, 0x6a, 0x3, 0x2, 0x2, 0x2, 0x6a, 0x6b, 0x3, 0x2, 0x2, 0x2, 
+    0x6b, 0x75, 0x7, 0x23, 0x2, 0x2, 0x6c, 0x6d, 0x7, 0x10, 0x2, 0x2, 0x6d, 
+    0x6e, 0x7, 0x22, 0x2, 0x2, 0x6e, 0x6f, 0x5, 0x28, 0x15, 0x2, 0x6f, 0x70, 
+    0x7, 0x23, 0x2, 0x2, 0x70, 0x75, 0x3, 0x2, 0x2, 0x2, 0x71, 0x72, 0x7, 
+    0x11, 0x2, 0x2, 0x72, 0x73, 0x7, 0x22, 0x2, 0x2, 0x73, 0x75, 0x7, 0x23, 
+    0x2, 0x2, 0x74, 0x66, 0x3, 0x2, 0x2, 0x2, 0x74, 0x6c, 0x3, 0x2, 0x2, 
+    0x2, 0x74, 0x71, 0x3, 0x2, 0x2, 0x2, 0x75, 0x17, 0x3, 0x2, 0x2, 0x2, 
+    0x76, 0x7a, 0x5, 0x1a, 0xe, 0x2, 0x77, 0x79, 0x5, 0x1c, 0xf, 0x2, 0x78, 
+    0x77, 0x3, 0x2, 0x2, 0x2, 0x79, 0x7c, 0x3, 0x2, 0x2, 0x2, 0x7a, 0x78, 
+    0x3, 0x2, 0x2, 0x2, 0x7a, 0x7b, 0x3, 0x2, 0x2, 0x2, 0x7b, 0x7e, 0x3, 
+    0x2, 0x2, 0x2, 0x7c, 0x7a, 0x3, 0x2, 0x2, 0x2, 0x7d, 0x7f, 0x5, 0x1e, 
+    0x10, 0x2, 0x7e, 0x7d, 0x3, 0x2, 0x2, 0x2, 0x7e, 0x7f, 0x3, 0x2, 0x2, 
+    0x2, 0x7f, 0x80, 0x3, 0x2, 0x2, 0x2, 0x80, 0x81, 0x7, 0xf, 0x2, 0x2, 
+    0x81, 0x19, 0x3, 0x2, 0x2, 0x2, 0x82, 0x83, 0x7, 0x8, 0x2, 0x2, 0x83, 
+    0x84, 0x5, 0x28, 0x15, 0x2, 0x84, 0x85, 0x7, 0xe, 0x2, 0x2, 0x85, 0x86, 
+    0x5, 0x6, 0x4, 0x2, 0x86, 0x1b, 0x3, 0x2, 0x2, 0x2, 0x87, 0x88, 0x7, 
+    0x9, 0x2, 0x2, 0x88, 0x89, 0x7, 0x8, 0x2, 0x2, 0x89, 0x8a, 0x5, 0x28, 
+    0x15, 0x2, 0x8a, 0x8b, 0x7, 0xe, 0x2, 0x2, 0x8b, 0x8c, 0x5, 0x6, 0x4, 
+    0x2, 0x8c, 0x1d, 0x3, 0x2, 0x2, 0x2, 0x8d, 0x8e, 0x7, 0x9, 0x2, 0x2, 
+    0x8e, 0x8f, 0x7, 0xe, 0x2, 0x2, 0x8f, 0x90, 0x5, 0x6, 0x4, 0x2, 0x90, 
+    0x1f, 0x3, 0x2, 0x2, 0x2, 0x91, 0x92, 0x7, 0xc, 0x2, 0x2, 0x92, 0x93, 
+    0x5, 0x28, 0x15, 0x2, 0x93, 0x94, 0x7, 0xe, 0x2, 0x2, 0x94, 0x95, 0x5, 
+    0x6, 0x4, 0x2, 0x95, 0x96, 0x7, 0xf, 0x2, 0x2, 0x96, 0x21, 0x3, 0x2, 
+    0x2, 0x2, 0x97, 0x98, 0x7, 0x7, 0x2, 0x2, 0x98, 0x99, 0x9, 0x2, 0x2, 
+    0x2, 0x99, 0x9a, 0x7, 0x25, 0x2, 0x2, 0x9a, 0x9c, 0x7, 0x22, 0x2, 0x2, 
+    0x9b, 0x9d, 0x5, 0x24, 0x13, 0x2, 0x9c, 0x9b, 0x3, 0x2, 0x2, 0x2, 0x9c, 
+    0x9d, 0x3, 0x2, 0x2, 0x2, 0x9d, 0x9e, 0x3, 0x2, 0x2, 0x2, 0x9e, 0x9f, 
+    0x7, 0x23, 0x2, 0x2, 0x9f, 0xa0, 0x5, 0x6, 0x4, 0x2, 0xa0, 0xa1, 0x7, 
+    0xf, 0x2, 0x2, 0xa1, 0x23, 0x3, 0x2, 0x2, 0x2, 0xa2, 0xa7, 0x5, 0x26, 
+    0x14, 0x2, 0xa3, 0xa4, 0x7, 0x5, 0x2, 0x2, 0xa4, 0xa6, 0x5, 0x26, 0x14, 
+    0x2, 0xa5, 0xa3, 0x3, 0x2, 0x2, 0x2, 0xa6, 0xa9, 0x3, 0x2, 0x2, 0x2, 
+    0xa7, 0xa5, 0x3, 0x2, 0x2, 0x2, 0xa7, 0xa8, 0x3, 0x2, 0x2, 0x2, 0xa8, 
+    0x25, 0x3, 0x2, 0x2, 0x2, 0xa9, 0xa7, 0x3, 0x2, 0x2, 0x2, 0xaa, 0xab, 
+    0x7, 0x24, 0x2, 0x2, 0xab, 0xac, 0x7, 0x25, 0x2, 0x2, 0xac, 0x27, 0x3, 
+    0x2, 0x2, 0x2, 0xad, 0xae, 0x8, 0x15, 0x1, 0x2, 0xae, 0xaf, 0x7, 0x25, 
+    0x2, 0x2, 0xaf, 0xb1, 0x7, 0x22, 0x2, 0x2, 0xb0, 0xb2, 0x5, 0x2a, 0x16, 
+    0x2, 0xb1, 0xb0, 0x3, 0x2, 0x2, 0x2, 0xb1, 0xb2, 0x3, 0x2, 0x2, 0x2, 
+    0xb2, 0xb3, 0x3, 0x2, 0x2, 0x2, 0xb3, 0xc5, 0x7, 0x23, 0x2, 0x2, 0xb4, 
+    0xb5, 0x7, 0x11, 0x2, 0x2, 0xb5, 0xb6, 0x7, 0x22, 0x2, 0x2, 0xb6, 0xc5, 
+    0x7, 0x23, 0x2, 0x2, 0xb7, 0xb8, 0x7, 0x1f, 0x2, 0x2, 0xb8, 0xc5, 0x5, 
+    0x28, 0x15, 0x13, 0xb9, 0xba, 0x7, 0x1b, 0x2, 0x2, 0xba, 0xc5, 0x5, 
+    0x28, 0x15, 0x12, 0xbb, 0xc5, 0x7, 0x25, 0x2, 0x2, 0xbc, 0xbf, 0x5, 
+    0x2c, 0x17, 0x2, 0xbd, 0xbf, 0x5, 0x2e, 0x18, 0x2, 0xbe, 0xbc, 0x3, 
+    0x2, 0x2, 0x2, 0xbe, 0xbd, 0x3, 0x2, 0x2, 0x2, 0xbf, 0xc5, 0x3, 0x2, 
+    0x2, 0x2, 0xc0, 0xc1, 0x7, 0x22, 0x2, 0x2, 0xc1, 0xc2, 0x5, 0x28, 0x15, 
+    0x2, 0xc2, 0xc3, 0x7, 0x23, 0x2, 0x2, 0xc3, 0xc5, 0x3, 0x2, 0x2, 0x2, 
+    0xc4, 0xad, 0x3, 0x2, 0x2, 0x2, 0xc4, 0xb4, 0x3, 0x2, 0x2, 0x2, 0xc4, 
+    0xb7, 0x3, 0x2, 0x2, 0x2, 0xc4, 0xb9, 0x3, 0x2, 0x2, 0x2, 0xc4, 0xbb, 
+    0x3, 0x2, 0x2, 0x2, 0xc4, 0xbe, 0x3, 0x2, 0x2, 0x2, 0xc4, 0xc0, 0x3, 
+    0x2, 0x2, 0x2, 0xc5, 0xec, 0x3, 0x2, 0x2, 0x2, 0xc6, 0xc7, 0xc, 0x11, 
+    0x2, 0x2, 0xc7, 0xc8, 0x7, 0x20, 0x2, 0x2, 0xc8, 0xeb, 0x5, 0x28, 0x15, 
+    0x12, 0xc9, 0xca, 0xc, 0x10, 0x2, 0x2, 0xca, 0xcb, 0x7, 0x21, 0x2, 0x2, 
+    0xcb, 0xeb, 0x5, 0x28, 0x15, 0x11, 0xcc, 0xcd, 0xc, 0xf, 0x2, 0x2, 0xcd, 
+    0xce, 0x7, 0x1e, 0x2, 0x2, 0xce, 0xeb, 0x5, 0x28, 0x15, 0x10, 0xcf, 
+    0xd0, 0xc, 0xe, 0x2, 0x2, 0xd0, 0xd1, 0x7, 0x1f, 0x2, 0x2, 0xd1, 0xeb, 
+    0x5, 0x28, 0x15, 0xf, 0xd2, 0xd3, 0xc, 0xd, 0x2, 0x2, 0xd3, 0xd4, 0x7, 
+    0x19, 0x2, 0x2, 0xd4, 0xeb, 0x5, 0x28, 0x15, 0xe, 0xd5, 0xd6, 0xc, 0xc, 
+    0x2, 0x2, 0xd6, 0xd7, 0x7, 0x1a, 0x2, 0x2, 0xd7, 0xeb, 0x5, 0x28, 0x15, 
+    0xd, 0xd8, 0xd9, 0xc, 0xb, 0x2, 0x2, 0xd9, 0xda, 0x7, 0x1c, 0x2, 0x2, 
+    0xda, 0xeb, 0x5, 0x28, 0x15, 0xc, 0xdb, 0xdc, 0xc, 0xa, 0x2, 0x2, 0xdc, 
+    0xdd, 0x7, 0x1d, 0x2, 0x2, 0xdd, 0xeb, 0x5, 0x28, 0x15, 0xb, 0xde, 0xdf, 
+    0xc, 0x9, 0x2, 0x2, 0xdf, 0xe0, 0x7, 0x17, 0x2, 0x2, 0xe0, 0xeb, 0x5, 
+    0x28, 0x15, 0xa, 0xe1, 0xe2, 0xc, 0x8, 0x2, 0x2, 0xe2, 0xe3, 0x7, 0x18, 
+    0x2, 0x2, 0xe3, 0xeb, 0x5, 0x28, 0x15, 0x9, 0xe4, 0xe5, 0xc, 0x7, 0x2, 
+    0x2, 0xe5, 0xe6, 0x7, 0x16, 0x2, 0x2, 0xe6, 0xeb, 0x5, 0x28, 0x15, 0x8, 
+    0xe7, 0xe8, 0xc, 0x6, 0x2, 0x2, 0xe8, 0xe9, 0x7, 0x15, 0x2, 0x2, 0xe9, 
+    0xeb, 0x5, 0x28, 0x15, 0x7, 0xea, 0xc6, 0x3, 0x2, 0x2, 0x2, 0xea, 0xc9, 
+    0x3, 0x2, 0x2, 0x2, 0xea, 0xcc, 0x3, 0x2, 0x2, 0x2, 0xea, 0xcf, 0x3, 
+    0x2, 0x2, 0x2, 0xea, 0xd2, 0x3, 0x2, 0x2, 0x2, 0xea, 0xd5, 0x3, 0x2, 
+    0x2, 0x2, 0xea, 0xd8, 0x3, 0x2, 0x2, 0x2, 0xea, 0xdb, 0x3, 0x2, 0x2, 
+    0x2, 0xea, 0xde, 0x3, 0x2, 0x2, 0x2, 0xea, 0xe1, 0x3, 0x2, 0x2, 0x2, 
+    0xea, 0xe4, 0x3, 0x2, 0x2, 0x2, 0xea, 0xe7, 0x3, 0x2, 0x2, 0x2, 0xeb, 
+    0xee, 0x3, 0x2, 0x2, 0x2, 0xec, 0xea, 0x3, 0x2, 0x2, 0x2, 0xec, 0xed, 
+    0x3, 0x2, 0x2, 0x2, 0xed, 0x29, 0x3, 0x2, 0x2, 0x2, 0xee, 0xec, 0x3, 
+    0x2, 0x2, 0x2, 0xef, 0xf4, 0x5, 0x28, 0x15, 0x2, 0xf0, 0xf1, 0x7, 0x5, 
+    0x2, 0x2, 0xf1, 0xf3, 0x5, 0x28, 0x15, 0x2, 0xf2, 0xf0, 0x3, 0x2, 0x2, 
+    0x2, 0xf3, 0xf6, 0x3, 0x2, 0x2, 0x2, 0xf4, 0xf2, 0x3, 0x2, 0x2, 0x2, 
+    0xf4, 0xf5, 0x3, 0x2, 0x2, 0x2, 0xf5, 0x2b, 0x3, 0x2, 0x2, 0x2, 0xf6, 
+    0xf4, 0x3, 0x2, 0x2, 0x2, 0xf7, 0xf8, 0x9, 0x3, 0x2, 0x2, 0xf8, 0x2d, 
+    0x3, 0x2, 0x2, 0x2, 0xf9, 0xfa, 0x7, 0x6, 0x2, 0x2, 0xfa, 0x2f, 0x3, 
+    0x2, 0x2, 0x2, 0x13, 0x35, 0x37, 0x3d, 0x54, 0x5a, 0x69, 0x74, 0x7a, 
+    0x7e, 0x9c, 0xa7, 0xb1, 0xbe, 0xc4, 0xea, 0xec, 0xf4, 
   };
 
   atn::ATNDeserializer deserializer;

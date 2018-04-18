@@ -55,9 +55,9 @@ int main(int argc, char const * argv[])
 		JIT::run(f)();
 		std::cout << "-----------" << std::endl;
 
-		/*std::error_code error;
+		std::error_code error;
 	    llvm::raw_fd_ostream o("text", error, llvm::sys::fs::OpenFlags::F_None);
-	    llvm::WriteBitcodeToFile(m, o);*/
+	    llvm::WriteBitcodeToFile(m, o);
 
 	    
 	}

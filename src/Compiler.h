@@ -46,7 +46,6 @@ public:
 
 class Compiler : public zrBaseVisitor
 {
-	static llvm::LLVMContext & llvm_context;
 	static llvm::FunctionType * t_print;
     static llvm::FunctionType * t_scan;
 
@@ -58,6 +57,7 @@ class Compiler : public zrBaseVisitor
 	bool inside_while;
 
 public:
+	static llvm::LLVMContext & llvm_context;
 
 	static llvm::Type * t_int;
 	static llvm::Type * t_void;
@@ -67,6 +67,7 @@ public:
 	{
 		inside_while = false;
 		m = new llvm::Module("zr", llvm_context);
+
 		create_new_scope();
 
 		llvm::Function::Create(t_scan, llvm::GlobalValue::ExternalLinkage, "scan_", m)->setCallingConv(llvm::CallingConv::C);
@@ -127,7 +128,6 @@ public:
     	std::string name = ctx->Identifier()->getText();
     	Type type = get_type_from_string(ctx->Type_identifier()->getText());
     	Variable * variable;
-
 
     	if(scope->has_variable(name))
     	{
@@ -234,7 +234,6 @@ public:
         	if(func_type == Type::IntType)
 	    	{
 	    		llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)), bb);
-
 	    	}   
 	    	else if(func_type == Type::BoolType)
 	    	{
@@ -268,7 +267,6 @@ public:
     antlrcpp::Any visitFunc_decl_arg(zrParser::Func_decl_argContext *ctx) override
     {
     	Debug(": func decl arg" << std::endl);
-
 
     	std::string arg_name = ctx->Identifier()->getText();
     	Type arg_type = get_type_from_string(ctx->Type_identifier()->getText());
@@ -323,8 +321,6 @@ public:
     	}
     	else if(ctx->return_statement() != NULL)
     	{
-    		//f->what up
-
     		visit(ctx->return_statement());
     		return true;
     	}
@@ -532,9 +528,9 @@ public:
     	std::string f_name = ctx->Identifier()->getText();
     	std::vector<llvm::Value * > args;
 
-    	for(int i=0;i<ctx->expression().size();i++)
+    	for(int i=0;i<ctx->exprList()->expression().size();i++)
     	{
-    		llvm::Value * val = visit(ctx->expression().at(i));
+    		llvm::Value * val = visit(ctx->exprList()->expression().at(i));
     		args.push_back(val);
     	}
 
@@ -573,11 +569,22 @@ public:
     {
     	Debug(": return" << std::endl);
 
-    	if(ctx->expression() == NULL ) llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, NULL, bb);
+    	if(ctx->expression() == NULL )
+    	{
+    		if(f->getFunctionType()->getReturnType() == t_void)
+    			llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, NULL, bb);
+    		else 
+    			throw CompileException("TODO");
+    	}	
     	else
     	{
     		llvm::Value * val = visit(ctx->expression());
-    		llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, val, bb);
+
+    		if(val->getType() != f->getFunctionType()->getReturnType())
+    			throw CompileException("TODO");
+
+    		if(val->getType() == t_void) throw CompileException("TODO");
+    		else llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, val, bb);
     	}
 
     	return NULL;
@@ -604,6 +611,7 @@ public:
         }
         if (func->arg_size() != args.size())
         {
+        	std::cout << func->arg_size() << " " << args.size();
         	throw CompileException(f_name + " called with wrong number of arguments");
         }
 
@@ -619,28 +627,70 @@ public:
         	}
         }
 
-        llvm::Value * value = llvm::CallInst::Create(func, args, f_name, bb);
+        llvm::Value * val = llvm::CallInst::Create(func, args, "", bb);
 
-        return value;
+        return val;
    	}
 
-    antlrcpp::Any visitFunctionCallExpression(zrParser::FunctionCallExpressionContext *ctx) override
-    {
-    	std::string f_name = ctx->Identifier()->getText();
-    	std::vector<llvm::Value * > args;
+  	antlrcpp::Any visitLtExpression(zrParser::LtExpressionContext *ctx) override 
+  	{
+  		Debug(": binary lt" << std::endl);
 
-    	for(int i=0;i<ctx->expression().size();i++)
-    	{
-    		llvm::Value * val = visit(ctx->expression().at(i));
-    		args.push_back(val);
-    	}
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
 
-    	return compile_call(f_name, args);
-    }
+    	llvm::Value * val;
 
-    antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *ctx) override 
-    {
-    	Debug(": identifier" << std::endl);
+    	if(exp_lv->getType() == exp_rv->getType())
+			val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLT, exp_lv, exp_rv, "slt");
+		else
+			throw CompileException("Operation not supported");
+	
+		return val;
+	}
+
+	antlrcpp::Any visitScanCallExpression(zrParser::ScanCallExpressionContext *ctx) override 
+	{
+
+	}
+
+	antlrcpp::Any visitGtExpression(zrParser::GtExpressionContext *ctx) override 
+	{
+		Debug(": binary" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == exp_rv->getType())
+			val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGT, exp_lv, exp_rv, "sgt");
+		else
+			throw CompileException("Operation not supported");
+
+		return val;
+	}
+
+	antlrcpp::Any visitNotEqExpression(zrParser::NotEqExpressionContext *ctx) override 
+	{
+		Debug(": binary" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == exp_rv->getType())
+			val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_NE, exp_lv, exp_rv, "ne");
+		else
+			throw CompileException("Operation not supported");
+
+		return val;
+	}
+
+	antlrcpp::Any visitIdentifierExpression(zrParser::IdentifierExpressionContext *ctx) override 
+	{
+		Debug(": identifier" << std::endl);
 
     	std::string name = ctx->Identifier()->getText();
 
@@ -648,9 +698,230 @@ public:
     	llvm::Value * value = new llvm::LoadInst(address, name, bb);
 
     	return value;
-  	}
+	}
 
-    antlrcpp::Any visitBinaryExpression(zrParser::BinaryExpressionContext *ctx) override 
+	antlrcpp::Any visitNotExpression(zrParser::NotExpressionContext *ctx) override 
+	{
+		llvm::Value * exp_val = visit(ctx->expression());
+    	llvm::Value * val;
+
+    	if(exp_val->getType() == t_bool)
+			val = llvm::BinaryOperator::Create(llvm::Instruction::Xor, llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 1)), exp_val, "", bb);
+		else
+			throw CompileException("Operation not supported");
+    	
+    	return val;
+	}
+
+	antlrcpp::Any visitMultiplyExpression(zrParser::MultiplyExpressionContext *ctx) override 
+	{
+		Debug(": binary" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
+			val = llvm::BinaryOperator::Create(llvm::Instruction::Mul, exp_lv , exp_rv, "mul", bb);
+		else
+			throw CompileException("Operation not supported");
+	
+		return val;
+	}
+
+	antlrcpp::Any visitParanthesisExpression(zrParser::ParanthesisExpressionContext *ctx) override 
+	{
+		return visit(ctx->expression());
+	}
+
+	antlrcpp::Any visitGtEqExpression(zrParser::GtEqExpressionContext *ctx) override 
+	{
+		Debug(": binary" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == exp_rv->getType())
+			val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SGE, exp_lv, exp_rv, "sge");
+		else
+			throw CompileException("Operation not supported");
+
+		return val;
+	}
+
+	antlrcpp::Any visitDivideExpression(zrParser::DivideExpressionContext *ctx) override 
+	{
+		Debug(": binary" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
+			val = llvm::BinaryOperator::Create(llvm::Instruction::SDiv, exp_lv , exp_rv, "sdiv", bb);
+		else
+			throw CompileException("Operation not supported");
+    	
+    	return val;
+	}
+
+	antlrcpp::Any visitOrExpression(zrParser::OrExpressionContext *ctx) override 
+	{
+	    Debug(": binary or" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+   		if(exp_lv->getType() == t_bool && exp_rv->getType() == t_bool)
+			val = llvm::BinaryOperator::Create(llvm::Instruction::Or, exp_lv , exp_rv, "or", bb);
+		else
+			throw CompileException("Operation not supported");
+
+		return val;
+	}
+
+	antlrcpp::Any visitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext *ctx) override 
+	{
+		llvm::Value * exp_val = visit(ctx->expression());
+    	llvm::Value * val;
+
+		if(exp_val->getType() == t_int)
+			val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)), exp_val, "", bb);
+		else
+			throw CompileException("Operation not supported");
+
+    	return val;
+	}
+
+	antlrcpp::Any visitEqExpression(zrParser::EqExpressionContext *ctx) override 
+	{
+		Debug(": binary" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == exp_rv->getType())
+			val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_EQ, exp_lv, exp_rv, "eq");
+		else
+			throw CompileException("Operation not supported");
+
+		return val;
+	}
+
+	antlrcpp::Any visitAndExpression(zrParser::AndExpressionContext *ctx) override 
+	{
+		Debug(": binary" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == t_bool && exp_rv->getType() == t_bool)
+			val = llvm::BinaryOperator::Create(llvm::Instruction::And, exp_lv , exp_rv, "and", bb);
+		else
+			throw CompileException("Operation not supported");
+
+		return val;
+	}
+
+	antlrcpp::Any visitAddExpression(zrParser::AddExpressionContext *ctx) override 
+	{
+		Debug(": binary" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
+			val = llvm::BinaryOperator::Create(llvm::Instruction::Add, exp_lv , exp_rv, "add", bb);
+		else
+			throw CompileException("Operation not supported");
+	
+		return val;
+	}
+
+	antlrcpp::Any visitSubtractExpression(zrParser::SubtractExpressionContext *ctx) override 
+	{
+		Debug(": binary" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == t_int && exp_rv->getType() == t_int)
+			val = llvm::BinaryOperator::Create(llvm::Instruction::Sub, exp_lv , exp_rv, "sub", bb);
+		else
+			throw CompileException("Operation not supported");
+	
+		return val;
+	}
+
+	antlrcpp::Any visitFunctionCallExpression(zrParser::FunctionCallExpressionContext *ctx) override 
+	{
+		std::string f_name = ctx->Identifier()->getText();
+    	std::vector<llvm::Value * > args;
+
+    	std::cout << "xxx" << ctx->exprList()->expression().size() << std::endl;
+
+    	for(int i=0;i<ctx->exprList()->expression().size();i++)
+    	{
+    		llvm::Value * val = visit(ctx->exprList()->expression().at(i));
+    		args.push_back(val);
+    	}
+
+    	return compile_call(f_name, args);
+	}
+
+	antlrcpp::Any visitLiteralExpression(zrParser::LiteralExpressionContext *ctx) override 
+	{
+		Debug(": literal" << std::endl);
+
+    	llvm::Value * val;
+
+    	if(ctx->number() != NULL)
+    	{
+    		val = llvm::ConstantInt::get(llvm_context, llvm::APInt(32, parse_int(ctx->number()->Integer()->getText())));
+    	}
+    	else if(ctx->bool_lit() != NULL)
+    	{
+    		if(ctx->bool_lit()->True() != NULL)
+    			val = llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 1));
+    		else if (ctx->bool_lit()->False() != NULL)
+    			val =  llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 0));
+    	}
+
+    	return val;
+	}
+
+	antlrcpp::Any visitLtEqExpression(zrParser::LtEqExpressionContext *ctx) override 
+	{
+		Debug(": binary lt eq" << std::endl);
+
+    	llvm::Value * exp_lv = visit(ctx->expression().at(0));
+    	llvm::Value * exp_rv = visit(ctx->expression().at(1));
+
+    	llvm::Value * val;
+
+    	if(exp_lv->getType() == exp_rv->getType())
+			val = new llvm::ICmpInst(*bb, llvm::ICmpInst::ICMP_SLE, exp_lv, exp_rv, "sle");
+		else
+			throw CompileException("Operation not supported");
+
+		return val;
+	}	
+
+    /*antlrcpp::Any visitBinaryExpression(zrParser::BinaryExpressionContext *ctx) override 
     {
     	Debug(": binary" << std::endl);
 
@@ -792,7 +1063,7 @@ public:
     			val =  llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 0));
     	}
     	return val;
-    }	
+    }	*/
 
     antlrcpp::Any visitBool_lit(zrParser::Bool_litContext *ctx) override
     {

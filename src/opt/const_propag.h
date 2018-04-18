@@ -618,8 +618,6 @@ public:
 
             		if(int_value_content->is_const()) 
             		{
-            			std::cout << i.getName().lower() << "crcrfcrfc" << std::endl;
-
             			i.replaceAllUsesWith(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, int_value_content->get_value())));
             			changed = true;
             		}

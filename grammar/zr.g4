@@ -47,10 +47,11 @@ assignment
  ;
 
 function_call
- : Identifier '(' (expression (',' expression)*)? ')'  #identifierFunctionCall
- | Print '(' expression ')'                            #printFunctionCall
- | Scan '(' ')'                             		   #scanFunctionCall
+ : Identifier '(' exprList? ')'  #identifierFunctionCall
+ | Print '(' expression ')'      #printFunctionCall
+ | Scan '(' ')'                  #scanFunctionCall
  ;
+
 
 if_statement
  : if_stat else_if_stat* else_stat? End
@@ -84,36 +85,32 @@ func_decl_arg_list
  : Type_identifier Identifier
  ;
 
-
- expression
- : expression binOp expression 				#binaryExpression
- | unOp expression 							#unaryExpression
- | Identifier '(' (expression (',' expression)*)? ')'                     #functionCallExpression
+expression
+ : Identifier '(' exprList? ')'             #functionCallExpression 
  | Scan '(' ')' 							#scanCallExpression
+ | '-' expression                           #unaryMinusExpression
+ | '!' expression                           #notExpression
+ | expression '*' expression                #multiplyExpression
+ | expression '/' expression                #divideExpression
+ | expression '+' expression                #addExpression
+ | expression '-' expression                #subtractExpression
+ | expression '>=' expression               #gtEqExpression
+ | expression '<=' expression               #ltEqExpression
+ | expression '>' expression                #gtExpression
+ | expression '<' expression                #ltExpression
+ | expression '==' expression               #eqExpression
+ | expression '!=' expression               #notEqExpression
+ | expression '&&' expression               #andExpression
+ | expression '||' expression               #orExpression
  | Identifier                               #identifierExpression
- | (bool_lit | number)                      #literalExpression	
- ;		
+ | (bool_lit | number)                      #literalExpression
+ | '(' expression ')'						#paranthesisExpression
+ ;
 
-unOp
-:	Excl
-|	Minus 
-;
-
-binOp
-:	Or
-|   And
-|	Equals
-|	NEquals
-|	GTEquals
-|	LTEquals
-|	Gt
-|	Lt 
-|	Add
-|	Minus
-|	Multiply
-|	Divide
-;
-
+ exprList 
+ : expression (',' expression)* 
+ ;
+		
 bool_lit
 : (True | False)
 ;
@@ -154,7 +151,8 @@ Add      : '+';
 Minus	 : '-';
 Multiply : '*';
 Divide   : '/';
-
+Lparen 	 : '(';
+Rparen   : ')';
 
 Type_identifier
  : 'int'

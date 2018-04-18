@@ -79,29 +79,65 @@ public:
   virtual void enterFunc_decl_arg(zrParser::Func_decl_argContext * /*ctx*/) override { }
   virtual void exitFunc_decl_arg(zrParser::Func_decl_argContext * /*ctx*/) override { }
 
-  virtual void enterBinaryExpression(zrParser::BinaryExpressionContext * /*ctx*/) override { }
-  virtual void exitBinaryExpression(zrParser::BinaryExpressionContext * /*ctx*/) override { }
+  virtual void enterLtExpression(zrParser::LtExpressionContext * /*ctx*/) override { }
+  virtual void exitLtExpression(zrParser::LtExpressionContext * /*ctx*/) override { }
 
   virtual void enterScanCallExpression(zrParser::ScanCallExpressionContext * /*ctx*/) override { }
   virtual void exitScanCallExpression(zrParser::ScanCallExpressionContext * /*ctx*/) override { }
 
+  virtual void enterGtExpression(zrParser::GtExpressionContext * /*ctx*/) override { }
+  virtual void exitGtExpression(zrParser::GtExpressionContext * /*ctx*/) override { }
+
+  virtual void enterNotEqExpression(zrParser::NotEqExpressionContext * /*ctx*/) override { }
+  virtual void exitNotEqExpression(zrParser::NotEqExpressionContext * /*ctx*/) override { }
+
   virtual void enterIdentifierExpression(zrParser::IdentifierExpressionContext * /*ctx*/) override { }
   virtual void exitIdentifierExpression(zrParser::IdentifierExpressionContext * /*ctx*/) override { }
+
+  virtual void enterNotExpression(zrParser::NotExpressionContext * /*ctx*/) override { }
+  virtual void exitNotExpression(zrParser::NotExpressionContext * /*ctx*/) override { }
+
+  virtual void enterMultiplyExpression(zrParser::MultiplyExpressionContext * /*ctx*/) override { }
+  virtual void exitMultiplyExpression(zrParser::MultiplyExpressionContext * /*ctx*/) override { }
+
+  virtual void enterParanthesisExpression(zrParser::ParanthesisExpressionContext * /*ctx*/) override { }
+  virtual void exitParanthesisExpression(zrParser::ParanthesisExpressionContext * /*ctx*/) override { }
+
+  virtual void enterGtEqExpression(zrParser::GtEqExpressionContext * /*ctx*/) override { }
+  virtual void exitGtEqExpression(zrParser::GtEqExpressionContext * /*ctx*/) override { }
+
+  virtual void enterDivideExpression(zrParser::DivideExpressionContext * /*ctx*/) override { }
+  virtual void exitDivideExpression(zrParser::DivideExpressionContext * /*ctx*/) override { }
+
+  virtual void enterOrExpression(zrParser::OrExpressionContext * /*ctx*/) override { }
+  virtual void exitOrExpression(zrParser::OrExpressionContext * /*ctx*/) override { }
+
+  virtual void enterUnaryMinusExpression(zrParser::UnaryMinusExpressionContext * /*ctx*/) override { }
+  virtual void exitUnaryMinusExpression(zrParser::UnaryMinusExpressionContext * /*ctx*/) override { }
+
+  virtual void enterEqExpression(zrParser::EqExpressionContext * /*ctx*/) override { }
+  virtual void exitEqExpression(zrParser::EqExpressionContext * /*ctx*/) override { }
+
+  virtual void enterAndExpression(zrParser::AndExpressionContext * /*ctx*/) override { }
+  virtual void exitAndExpression(zrParser::AndExpressionContext * /*ctx*/) override { }
+
+  virtual void enterAddExpression(zrParser::AddExpressionContext * /*ctx*/) override { }
+  virtual void exitAddExpression(zrParser::AddExpressionContext * /*ctx*/) override { }
+
+  virtual void enterSubtractExpression(zrParser::SubtractExpressionContext * /*ctx*/) override { }
+  virtual void exitSubtractExpression(zrParser::SubtractExpressionContext * /*ctx*/) override { }
 
   virtual void enterFunctionCallExpression(zrParser::FunctionCallExpressionContext * /*ctx*/) override { }
   virtual void exitFunctionCallExpression(zrParser::FunctionCallExpressionContext * /*ctx*/) override { }
 
-  virtual void enterUnaryExpression(zrParser::UnaryExpressionContext * /*ctx*/) override { }
-  virtual void exitUnaryExpression(zrParser::UnaryExpressionContext * /*ctx*/) override { }
-
   virtual void enterLiteralExpression(zrParser::LiteralExpressionContext * /*ctx*/) override { }
   virtual void exitLiteralExpression(zrParser::LiteralExpressionContext * /*ctx*/) override { }
 
-  virtual void enterUnOp(zrParser::UnOpContext * /*ctx*/) override { }
-  virtual void exitUnOp(zrParser::UnOpContext * /*ctx*/) override { }
+  virtual void enterLtEqExpression(zrParser::LtEqExpressionContext * /*ctx*/) override { }
+  virtual void exitLtEqExpression(zrParser::LtEqExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinOp(zrParser::BinOpContext * /*ctx*/) override { }
-  virtual void exitBinOp(zrParser::BinOpContext * /*ctx*/) override { }
+  virtual void enterExprList(zrParser::ExprListContext * /*ctx*/) override { }
+  virtual void exitExprList(zrParser::ExprListContext * /*ctx*/) override { }
 
   virtual void enterBool_lit(zrParser::Bool_litContext * /*ctx*/) override { }
   virtual void exitBool_lit(zrParser::Bool_litContext * /*ctx*/) override { }

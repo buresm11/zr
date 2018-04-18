@@ -1,23 +1,14 @@
-def void x()
+def int x(int a, int b)
 
-	if( 5 < 7) do
-		return;
-	end
+	return a + b;
 
-	print(5);
 
 end
 
-def int main(int c)
+def int main()
 
-	bool  a;
+	int a;
 
-	a = false;
-
-	a = !a;
-
-	bool b;
-
-	b = a;
+	x(10,5);
 
 end
