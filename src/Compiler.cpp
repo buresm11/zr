@@ -12,3 +12,5 @@ llvm::Type * Compiler::t_bool = llvm::IntegerType::get(llvm::getGlobalContext(),
 llvm::FunctionType * Compiler::t_scan = llvm::FunctionType::get(t_int, false);
 
 llvm::FunctionType * Compiler::t_print = llvm::FunctionType::get(t_void, { t_int }, false);
+
+llvm::FunctionType * Compiler::t_printb = llvm::FunctionType::get(t_void, { t_bool } , false);

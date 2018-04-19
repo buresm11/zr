@@ -1,12 +1,35 @@
-
 int a;
 int b;
 bool c;
 
-def int x()
+def int xx(int a, int b)
 	return a + b;
 end
 
+
 def bool main()
-	print(x());
+
+	int x;
+	int y;
+
+	x = 10;
+	
+
+	while x >= 0 do
+		print(x);
+		y = 5;
+
+		while y >= 0 do
+			break;
+			print(y);
+
+			y = y - 1;
+		end
+
+		x = x - 1;
+
+	end
+
+	print(13);
+
 end

@@ -11,13 +11,21 @@
 
 extern "C" int scan_() {
     int result;
-    std::cout << "Zadejte cislo: " ;
+    std::cout << "Enter integer: " ;
     std::cin >> result;
     return result;
 }
 
 extern "C" void print_(int what) {
-    std::cout << "Vypis: " << what << std::endl;
+    std::cout << what << std::endl;
+}
+
+extern "C" void printb_(int what) {
+
+    if(what) 
+        std::cout << "true" << std::endl;
+    else
+        std::cout << "false" << std::endl;
 }
 
 class MemoryManager : public llvm::SectionMemoryManager {
@@ -29,6 +37,7 @@ public:
         if (addr != 0) return addr;
         NAME_IS(scan_);
         NAME_IS(print_);
+        NAME_IS(printb_);
         llvm::report_fatal_error("Extern function '" + Name + "' couldn't be resolved!");
     }
 };
