@@ -2,34 +2,12 @@ int a;
 int b;
 bool c;
 
-def int xx(int a, int b)
-	return a + b;
+def int x(int a)
+	return a;
 end
-
 
 def bool main()
 
-	int x;
-	int y;
-
-	x = 10;
-	
-
-	while x >= 0 do
-		print(x);
-		y = 5;
-
-		while y >= 0 do
-			break;
-			print(y);
-
-			y = y - 1;
-		end
-
-		x = x - 1;
-
-	end
-
-	print(13);
+	x(10);
 
 end

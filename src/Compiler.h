@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <stack>
 
 #include "antlr4-runtime.h"
 #include "llvm.h"
@@ -54,7 +55,11 @@ class Compiler : public zrBaseVisitor
 	llvm::BasicBlock * bb;
 	llvm::BasicBlock * next;
 	Scope * scope;
-	bool inside_while;
+	int inside_while;
+	std::stack<llvm::BasicBlock *> while_stack;
+
+	std::map<std::string, llvm::FunctionType * > f_prototypes;
+	std::map<std::string, std::vector<std::string>> f_args_names; //DEBUGGING
 
 public:
 	static llvm::LLVMContext & llvm_context;
@@ -65,7 +70,7 @@ public:
 
 	llvm::Module * compile(antlr4::tree::ParseTree *tree)
 	{
-		inside_while = false;
+		inside_while = 0;
 		m = new llvm::Module("zr", llvm_context);
 
 		create_new_scope();
@@ -107,10 +112,71 @@ public:
 
     	for(int i=0;i<ctx->function_decl().size();i++)
     	{
+    		create_function_prototype(ctx->function_decl().at(i));
+    	}
+
+    	for(int i=0;i<ctx->function_decl().size();i++)
+    	{
     		visit(ctx->function_decl().at(i));
     	}
 
     	return NULL;
+    }
+
+    void create_function_prototype(zrParser::Function_declContext *ctx)
+    {
+    	std::string func_name = ctx->Identifier()->getText();
+    	Type func_type;
+
+    	if(ctx->Void() != NULL) func_type = Type::VoidType;
+    	else func_type = get_type_from_string(ctx->Type_identifier()->getText());
+
+    	if (f_prototypes.find(func_name) != f_prototypes.end())
+            throw CompileException("Function " + func_name + " already exists");
+
+        std::vector<std::string> arg_names;
+        std::vector<llvm::Type * > args_types;
+
+    	if(ctx->func_decl_arg_list() != NULL)
+    	{
+    		std::vector<FuncArg *> args = visit(ctx->func_decl_arg_list());
+    		
+    		for (int i = 0; i < args.size(); i++)
+    		{
+    			arg_names.push_back(args.at(i)->get_name());
+
+    			if(args.at(i)->get_type() == Type::IntType) args_types.push_back(t_int);
+    			else if(args.at(i)->get_type() == Type::BoolType) args_types.push_back(t_bool);
+            	
+            	delete args.at(i);
+    		}
+    	}  
+
+    	llvm::FunctionType * ft;
+    	if(func_type == Type::IntType)
+    	{
+    		 ft = llvm::FunctionType::get(t_int, args_types, false);
+    	}   
+    	else if(func_type == Type::BoolType)
+    	{
+    		 ft = llvm::FunctionType::get(t_bool, args_types, false);
+    	}  
+    	else if(func_type == Type::VoidType)
+    	{
+    		ft = llvm::FunctionType::get(t_void, args_types, false);
+    	}
+
+    	llvm::Function * function = llvm::Function::Create(ft, llvm::GlobalValue::ExternalLinkage, func_name, m);
+        function->setCallingConv(llvm::CallingConv::C);
+
+        llvm::Function::arg_iterator f_args = function->arg_begin();
+        for(int i=0;i < arg_names.size(); i++)
+        {
+        	std::string name = arg_names.at(i);
+
+		   	f_args->setName(name);
+		   	++f_args;
+        }
     }
 
     antlrcpp::Any visitGlobal_statement(zrParser::Global_statementContext *ctx) override
@@ -159,88 +225,45 @@ public:
     antlrcpp::Any visitFunction_decl(zrParser::Function_declContext *ctx) override
     {
     	std::string func_name = ctx->Identifier()->getText();
-    	Type func_type;
 
-    	if(ctx->Void() != NULL) func_type = Type::VoidType;
-    	else func_type = get_type_from_string(ctx->Type_identifier()->getText());
+    	std::vector<std::string> arg_names = f_args_names[func_name];
 
-    	if (m->getFunction(func_name) != NULL)
-            throw CompileException("Function " + func_name + " already exists");
-
-        std::vector<std::string> arg_names;
-        std::vector<llvm::Type * > args_types;
-
-    	if(ctx->func_decl_arg_list() != NULL)
-    	{
-    		std::vector<FuncArg *> args = visit(ctx->func_decl_arg_list());
-    		
-    		for (int i = 0; i < args.size(); i++)
-    		{
-    			arg_names.push_back(args.at(i)->get_name());
-
-    			if(args.at(i)->get_type() == Type::IntType) args_types.push_back(t_int);
-    			else if(args.at(i)->get_type() == Type::BoolType) args_types.push_back(t_bool);
-            	
-            	delete args.at(i);
-    		}
-    	}  
-
-    	llvm::FunctionType * ft;
-
-    	if(func_type == Type::IntType)
-    	{
-    		 ft = llvm::FunctionType::get(t_int, args_types, false);
-    	}   
-    	else if(func_type == Type::BoolType)
-    	{
-    		 ft = llvm::FunctionType::get(t_bool, args_types, false);
-    	}  
-    	else if(func_type == Type::VoidType)
-    	{
-    		ft = llvm::FunctionType::get(t_void, args_types, false);
-    	}
-
-        f = llvm::Function::Create(ft, llvm::GlobalValue::ExternalLinkage, func_name, m);
-        f->setCallingConv(llvm::CallingConv::C);
+        f = m->getFunction(func_name);
 
 		create_scope();
         bb = llvm::BasicBlock::Create(llvm_context, "entry_" + func_name, this->f);
 
         llvm::Function::arg_iterator f_args = f->arg_begin();
-
-        for(int i=0;i < args_types.size(); i++)
+        for(int i=0;i < arg_names.size(); i++)
         {
         	std::string name = arg_names.at(i);
         	llvm::Value* arg = f_args++;
 
         	if(scope->has_variable(name))
-        	{
         		throw CompileException("Redefinition of variable " + name);
-        	}
 
-        	llvm::AllocaInst * alloc = new llvm::AllocaInst(arg->getType(), name, bb);
+        	llvm::AllocaInst * alloc = new llvm::AllocaInst(t_int, "", bb);
 
         	Variable * variable = new Variable(alloc, false);
 			scope->add_variable(name, variable);
 
 		    llvm::StoreInst * si = new llvm::StoreInst(arg, alloc, false, bb);
 
-		    arg->setName(name);
 		   	alloc->setName(name);
         }
 
         bool block_returns = visit(ctx->block());
         if(!block_returns)
         {
-        	if(func_type == Type::IntType)
+        	if(f->getReturnType() == t_int)
 	    	{
 	    		llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, llvm::ConstantInt::get(llvm_context, llvm::APInt(32, 0)), bb);
 	    	}   
-	    	else if(func_type == Type::BoolType)
+	    	else if(f->getReturnType() == t_bool)
 	    	{
     			llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, llvm::ConstantInt::get(llvm_context, llvm::APInt(1, 0)), bb);
 	    	}  
-	    	else if(func_type == Type::VoidType)
+	    	else if(f->getReturnType() == t_void)
 	    	{
 	    		llvm::ReturnInst * ret = llvm::ReturnInst::Create(llvm_context, NULL, bb);
 	    	}    		
@@ -307,9 +330,9 @@ public:
     	}
     	else if(ctx->while_statement() != NULL)
     	{
-    		inside_while = true;
+    		inside_while++;
     		visit(ctx->while_statement());
-    		inside_while = false;
+    		inside_while--;
     	}
     	else if(ctx->function_call() != NULL)
     	{
@@ -488,7 +511,7 @@ public:
     	llvm::BasicBlock * preface = llvm::BasicBlock::Create(llvm_context, "preface", f);
     	llvm::BasicBlock * loop = llvm::BasicBlock::Create(llvm_context, "loop", f);
     	llvm::BasicBlock * next = llvm::BasicBlock::Create(llvm_context, "next", f);
-    	this->next = next; // break
+    	while_stack.push(next);
 
     	llvm::BranchInst::Create(preface, bb);
 
@@ -519,6 +542,8 @@ public:
     	bb = next;
 
     	remove_scope();
+
+    	while_stack.pop();
 
     	return NULL;
     }
@@ -606,8 +631,8 @@ public:
     {
     	Debug(": break" << std::endl);
 
-    	if(inside_while)
-    		llvm::BranchInst::Create(next, bb);
+    	if(inside_while > 0)
+    		llvm::BranchInst::Create(while_stack.top(), bb);
     	else
     		throw CompileException("Break outside of while");
 
@@ -620,18 +645,19 @@ public:
 
         if (func == NULL)
         	throw CompileException("Function " + f_name + "does not exist");
-   
+
         if (func->arg_size() != args.size())
-        	throw CompileException("Function " + f_name + " called with wrong number of arguments");
+        	throw CompileException(f_name + " called with wrong number of arguments");
 
         llvm::Function::arg_iterator f_args = func->arg_begin();
-
         for(int i=0;i < args.size(); i++)
         {
-        	llvm::Value* arg = f_args++;
+        	llvm::Value* arg = f_args;
 
         	if(arg->getType() != args.at(i)->getType())
-        		throw CompileException("Function " + f_name + " called with wrong arguments");
+        		throw CompileException(f_name + " called with wrong arguments");
+
+        	++f_args;
         }
 
         llvm::Value * val = llvm::CallInst::Create(func, args, "", bb);

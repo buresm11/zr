@@ -642,23 +642,4 @@ public:
 
 		return changed;
 	}
-
-	/*bool runOnFunction(llvm::Function & f) override {
-        // We'll do this on next lecture
-        bool changed = false;
-        Analysis & a = getAnalysis<Analysis>();
-
-        for (llvm::BasicBlock & b : f) {
-            a.setBasicBlock(&b);
-            for (llvm::Instruction & ins : b) {
-                a.advanceInstruction(&ins);
-                AValue val = a.currentState_[&ins];
-                if (val.isConst()) {
-                    ins.replaceAllUsesWith(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, val.value())));
-                    changed = true;
-                }
-            }
-        }
-        return changed;
-    }*/
 };
