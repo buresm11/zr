@@ -58,7 +58,7 @@ class Compiler : public zrBaseVisitor
 	int inside_while;
 	std::stack<llvm::BasicBlock *> while_stack;
 
-	std::map<std::string, llvm::FunctionType * > f_prototypes;
+	std::map<std::string, llvm::Function * > f_prototypes;
 	std::map<std::string, std::vector<std::string>> f_args_names; //DEBUGGING
 
 public:
@@ -177,6 +177,9 @@ public:
 		   	f_args->setName(name);
 		   	++f_args;
         }
+
+        f_prototypes[func_name] = function;
+        f_args_names[func_name] = arg_names;
     }
 
     antlrcpp::Any visitGlobal_statement(zrParser::Global_statementContext *ctx) override
@@ -234,6 +237,7 @@ public:
         bb = llvm::BasicBlock::Create(llvm_context, "entry_" + func_name, this->f);
 
         llvm::Function::arg_iterator f_args = f->arg_begin();
+        std::cout << "HOORAY" << arg_names.size() << std::endl;
         for(int i=0;i < arg_names.size(); i++)
         {
         	std::string name = arg_names.at(i);
@@ -243,6 +247,8 @@ public:
         		throw CompileException("Redefinition of variable " + name);
 
         	llvm::AllocaInst * alloc = new llvm::AllocaInst(t_int, "", bb);
+
+        	std::cout << "HOORAY" << std::endl;
 
         	Variable * variable = new Variable(alloc, false);
 			scope->add_variable(name, variable);
@@ -557,7 +563,6 @@ public:
 
     	if(ctx->exprList() != NULL)
     	{
-
 	    	for(int i=0;i<ctx->exprList()->expression().size();i++)
 	    	{
 	    		llvm::Value * val = visit(ctx->exprList()->expression().at(i));

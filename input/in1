@@ -2,12 +2,21 @@ int a;
 int b;
 bool c;
 
-def int x(int a)
-	return a;
+def int x(int a, int b)
+
+	return a + b;
 end
 
 def bool main()
 
-	x(10);
+	int a;
+	a = x(10, 20);
+
+	int b;
+	b = x(20,15);
+
+
+
+	print(a + b);
 
 end

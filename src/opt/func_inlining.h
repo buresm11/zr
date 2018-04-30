@@ -6,12 +6,13 @@
 #include "llvm.h"
 #include "Compiler.h"
 
+#define MAX_LOC_MUL 5
+#define MAX_LOC_TO_INLINE 50
+
 class Vertex
 {
 
 public:
-	std::string name; // debug only
-
     llvm::Function * function;
     bool main;
 	int loc;
@@ -24,19 +25,20 @@ public:
     std::map<Vertex *, int> calls;
 
 
-	Vertex(std::string name, llvm::Function * func) : name(name), function(func)
+	Vertex(llvm::Function * func) : function(func)
 	{
 		loc = 0;
 		call_inst = 0;
 		branches_inst = 0;
 		recursive_inst = 0;
+        main = false;
 	}
 
 	void print()
 	{
         std::cout << std::endl;
         std::cout << "***************" << std::endl;
-		std::cout << name <<  "  LOC:" << loc << "  Branched: " << branches_inst << " rec:  " << recursive_inst << "   call: " << call_inst << std::endl;
+		std::cout << get_name() <<  "  LOC:" << loc << "  Branched: " << branches_inst << " rec:  " << recursive_inst << "   call: " << call_inst << std::endl;
 
 		std::cout << std::endl;
 		std::cout << "incoming::" << std::endl;
@@ -44,7 +46,7 @@ public:
 		std::map<Vertex *, int>::iterator it;
 		for (it = incoming.begin(); it != incoming.end(); it++)
 		{
-			std::cout << it->first->name << "  " << it->second << std::endl;
+			std::cout << it->first->get_name() << "  " << it->second << std::endl;
 		}
 
 		std::cout << std::endl;
@@ -54,7 +56,7 @@ public:
 		std::map<Vertex *, int>::iterator itx;
 		for (itx = outgoing.begin(); itx != outgoing.end(); itx++)
 		{
-			std::cout << itx->first->name << "  " << itx->second << std::endl;
+			std::cout << itx->first->get_name() << "  " << itx->second << std::endl;
 		}
 		std::cout << "***************" << std::endl;
 	}
@@ -107,51 +109,44 @@ public:
 	{
 		return outgoing.size();
 	}
+
+    bool calls_func(Vertex * vertex)
+    {   
+        return calls.find(vertex) != calls.end(); 
+    }
+
+    std::string get_name() // DEBUG ONLY, not safe to use
+    {
+        return function->getName().lower();
+    }
 };
 
 class func_inliningT
 {
-	bool changed;
 	llvm::Module * module;
 
 	std::vector<Vertex *> graph;
     std::map<llvm::Function *, Vertex *> vertexes;  
     std::vector<llvm::Function *> inline_order;
 
-	int lines_of_code;
+	int origin_lines_of_code;
+    int actual_lines_of_code;
 
 public:
 	func_inliningT()
 	{
-		lines_of_code = 0;
+		origin_lines_of_code = 0;
+        actual_lines_of_code = 0;
 	}
 
-	bool inline_F(llvm::Module * m)
+	bool inline_F(llvm::Module * M)
 	{
-		module = m;
+		module = M;
 		
-		auto function_iter = module->begin();
-    	while(function_iter != module->end())
-    	{
-    		if(function_iter->getName().lower() == "print_" ||
-    		   function_iter->getName().lower() == "scan_" ||
-    		   function_iter->getName().lower() == "printb_" ||
-               function_iter->getName().lower() == "main") //TODO case sensitive
-    		{
-    			++function_iter;
-    			continue;
-    		}
-
-    		Vertex * v = new Vertex(function_iter->getName().lower(), function_iter);
-            graph.push_back(v);
-    		vertexes[function_iter] = v;
-
-    		++function_iter;
-    	}
-
+        create_vertexes();
     	analysis();
 
-    	std::map<llvm::Function *, Vertex *>::iterator itx;
+    	std::map<llvm::Function *, Vertex *>::iterator itx;        //DEBUG
 		for (itx = vertexes.begin(); itx != vertexes.end(); itx++)
 		{
 			itx->second->print();
@@ -159,14 +154,168 @@ public:
 
 		linear();
 
-		for(int i=0;i<inline_order.size();i++)
+		for(int i=0;i<inline_order.size();i++) // DEBUG
         {
             std::cout << "ORDER::" << inline_order.at(i)->getName().lower() << ", ";
         }
         std::cout << std::endl;
 
         inline_functions();
+    }
 
+    void create_vertexes()
+    {
+        auto function_iter = module->begin();
+        while(function_iter != module->end())
+        {
+            if(function_iter->getName() == "print_" || function_iter->getName() == "scan_" || function_iter->getName() == "printb_")
+            {
+                ++function_iter;
+                continue;
+            }
+
+            Vertex * v = new Vertex(function_iter);
+            graph.push_back(v);
+            vertexes[function_iter] = v;
+
+            ++function_iter;
+        }
+    }
+
+    void analysis()
+    {
+        auto function_iter = module->begin();
+        while(function_iter != module->end())
+        {
+            if(vertexes.find(function_iter) == vertexes.end()) // do not care about functions which we did not create vertex for
+            {
+                ++function_iter;
+                continue;
+            }
+
+            analysis_function(function_iter);
+            ++function_iter;
+        }
+    }
+
+    void analysis_function(llvm::Function * F)
+    {
+        int loc = 0;
+        int call_inst = 0;
+        int branches_inst = 0;
+        int recursive_inst = 0;
+
+        Vertex * vertex_F = vertexes[F];
+
+        if(F->getName() == "main") vertex_F->main = true;
+
+        auto basic_block_iter = F->begin();
+        while(basic_block_iter != F->end())
+        {
+            auto instruction_iter = basic_block_iter->begin();
+            while(instruction_iter != basic_block_iter->end())
+            {
+                if(llvm::CallInst * inst = llvm::dyn_cast<llvm::CallInst>(instruction_iter))
+                {
+                    llvm::Function * called_func = inst->getCalledFunction();
+
+                    if(vertexes.find(called_func) != vertexes.end()) // not a runtime functions
+                    {
+                        if(called_func == F)
+                            recursive_inst++;
+                        else
+                        {
+                            Vertex * vertex = vertexes[called_func];
+
+                            vertex_F->add_outgoing(vertex);
+                            vertex->add_incoming(vertex_F);
+ 
+                            call_inst++;
+                        }
+                    }
+                }
+                else if(llvm::BranchInst * inst = llvm::dyn_cast<llvm::BranchInst>(instruction_iter))
+                    branches_inst++;
+
+                loc++;
+                ++instruction_iter;
+            }
+            ++basic_block_iter;
+        }
+
+        vertex_F->loc = loc;
+        vertex_F->call_inst = call_inst;
+        vertex_F->branches_inst = branches_inst;
+        vertex_F->recursive_inst = recursive_inst;
+        origin_lines_of_code += loc;
+        actual_lines_of_code = origin_lines_of_code;
+    }
+
+    void linear()
+    {
+        std::vector<Vertex *>::iterator it = graph.begin();
+        while (it != graph.end()) // ignore recursive functions and main function
+        {
+            if((*it)->recursive_inst > 0 || (*it)->main)
+            {
+                (*it)->remove();
+                it = graph.erase(it);
+            }
+            else ++it;
+        }
+
+        while(!graph.empty())
+        {
+            if(!cut_off_vertex_no_edges())
+                cut_off_vertex_edges();
+        }
+    }
+
+    bool cut_off_vertex_edges()
+    {
+        Vertex * vertex_cut = graph.at(0);
+        int index = 0;
+
+        for(int i=1;i < graph.size(); i++)
+        {
+            Vertex * v = graph.at(i);
+            if(inline_vertex(v) && v->loc < vertex_cut->loc)
+            {
+                vertex_cut = v;
+                index = i;
+            }
+        }
+
+        inline_order.push_back(vertex_cut->function);
+        vertex_cut->remove();
+        graph.erase(graph.begin() + index);
+
+        return true; 
+    }
+
+    bool cut_off_vertex_no_edges()
+    {
+        std::vector<Vertex *>::iterator it = graph.begin();
+        while (it != graph.end())
+        {
+            if(inline_vertex(*it) && (*it)->outgoing_size() == 0)
+            {
+                inline_order.push_back((*it)->function);
+
+                (*it)->remove();
+                graph.erase(it);
+
+                return true;
+            }
+            ++it;
+        }
+
+        return false;
+    }
+
+    bool inline_vertex(Vertex * v)
+    {
+        return v->loc <= MAX_LOC_TO_INLINE;
     }
 
     void inline_functions()
@@ -174,13 +323,13 @@ public:
         std::vector<llvm::Function *>::iterator it = inline_order.begin();
         while (it != inline_order.end()) // ignore recursive function
         {
-            inline_function(*it);
+            while(inline_function(*it)) { }
 
             ++it;
         }
     }
 
-    void inline_function(llvm::Function * function)
+    bool inline_function(llvm::Function * F)
     {
         auto function_iter = module->begin();
         while(function_iter != module->end())
@@ -196,10 +345,21 @@ public:
                     {
                         llvm::Function * called_func = inst->getCalledFunction();
 
-                        if(called_func == function)
+                        if(called_func == F)
                         {
-                            replace_call(function_iter,inst,function);
-                            return;
+                            Vertex * called_vertex = vertexes[called_func];
+                            Vertex * current_vertex = vertexes[function_iter]; 
+
+                            // make sure that non recursive stay non recursive
+                            if(!called_vertex->calls_func(current_vertex) 
+                                && actual_lines_of_code + called_vertex->loc < MAX_LOC_MUL * origin_lines_of_code)
+                            {
+                                actual_lines_of_code += called_vertex->loc;
+                                current_vertex->loc += called_vertex->loc;
+
+                                replace_call(function_iter,inst,F);
+                                return true;
+                            }
                         }
                     }
                     ++instruction_iter;
@@ -208,63 +368,76 @@ public:
             }
             ++function_iter;
         }
+
+        return false;
     }
 
     bool replace_call(llvm::Function * caller_func, llvm::CallInst * call_inst, llvm::Function * callee_func)
     {
-        std::cout << "TTT:::" << std::endl;
-
         std::map<llvm::Value *, llvm::Value *> val_to_val;
         std::vector<llvm::BasicBlock *> new_bb;
+
+        llvm::Value * result;
             
         int bb_first = true;
+
+        llvm::BasicBlock * first_inline_bb;
+        llvm::BasicBlock * after_call_bb = call_inst->getParent()->splitBasicBlock(call_inst->getNextNode());
+        after_call_bb->setName("tt");
 
         auto basic_block_iter = callee_func->begin(); 
         while(basic_block_iter != callee_func->end())
         {
             llvm::BasicBlock * bb = llvm::BasicBlock::Create(Compiler::llvm_context, "copied", caller_func);
+
             new_bb.push_back(bb);
             val_to_val[basic_block_iter] = bb; 
 
             auto instruction_iter = basic_block_iter->begin();
             if(bb_first) //func header
             {
+                first_inline_bb = bb;
+
                 int args_size = callee_func->arg_size();
                 
                 for(int i=0;i < args_size * 2; i++)
                 {
+                    llvm::Instruction * copy;
                     if(i % 2 == 0)
                     {
-                        llvm::Instruction * copy = instruction_iter->clone();
+                        copy = instruction_iter->clone();
                         bb->getInstList().push_back(copy);
                         val_to_val[instruction_iter] = copy;
                     }
                     else
                     {
-                        llvm::StoreInst * si = new llvm::StoreInst(call_inst->getArgOperand(i/2), args.at(i), false, prev);
+                        llvm::StoreInst * si = new llvm::StoreInst(call_inst->getArgOperand(i/2), copy, false, bb);
                     } 
 
                     ++instruction_iter;
                 }
+
+                if(callee_func->getReturnType() != Compiler::t_void)
+                {
+                    result = new llvm::AllocaInst(callee_func->getReturnType(), "result", bb);
+                }
             }
 
-            /*while(instruction_iter != basic_block_iter->end())
+            while(instruction_iter != basic_block_iter->end())
             {
                 llvm::Instruction * copy = instruction_iter->clone();
                 bb->getInstList().push_back(copy);
                 val_to_val[instruction_iter] = copy;
 
                 ++instruction_iter;
-            }*/
+            }
 
             ++basic_block_iter;
             bb_first = false;
         }
         
-       /* for(int i=0; i < new_bb.size() ; i++)
+        for(int i=0; i < new_bb.size() ; i++)
         {
-            std::cout << "coolSS:" << new_bb.size() << std::endl;
-
             auto instruction_iter = new_bb.at(i)->begin();
             while(instruction_iter != new_bb.at(i)->end())
             {
@@ -284,298 +457,45 @@ public:
                 }
                 ++instruction_iter;
             }
-        }*/
-
-        return false;
-    }
-
-    void linear()
-    {
-    	std::vector<Vertex *>::iterator it = graph.begin();
-		while (it != graph.end()) // ignore recursive function
-		{
-            Vertex * vertex = (*it);
-
-			if((*it)->recursive_inst > 0)
-			{
-				(*it)->remove();
-				it = graph.erase(it);
-			}
-			else ++it;
-		}
-
-		while(!graph.empty())
-		{
-			if(!cut_off_vertex_no_edges())
-				cut_off_vertex_edges();
-
-            //DEBUG
-            for (it = graph.begin(); it != graph.end(); it++)
-            {
-                (*it)->print();
-            }
-		}
-    }
-
-    bool cut_off_vertex_edges()
-    {
-        std::cout << "edges" << std::endl;
-
-        std::vector<Vertex *>::iterator it = graph.begin();
-
-        Vertex * vertex_to_cut = (*it);
-        int lines_of_code = vertex_to_cut->loc;
-
-        ++it;
-
-        while (it != graph.end()) // ignore recursive function
-        {
-            if(inline_vertex(*it) && (*it)->loc < vertex_to_cut->loc)
-            {
-                vertex_to_cut = (*it);
-            }
-            ++it;
         }
 
-        inline_order.push_back(vertex_to_cut->function);
-
-        vertex_to_cut->remove();
-
-        graph.erase( std::remove( graph.begin(), graph.end(), vertex_to_cut ), graph.end());
-
-        return true; 
-    }
-
-    bool cut_off_vertex_no_edges()
-    {
-        std::cout << "no edges" << std::endl;
-
-    	std::vector<Vertex *>::iterator it = graph.begin();
-        while (it != graph.end()) // ignore recursive function
+        std::vector<llvm::Instruction *> to_delete;
+        for(int i=0; i < new_bb.size() ; i++)
         {
-			if(inline_vertex(*it) && (*it)->outgoing_size() == 0)
-			{
-				inline_order.push_back((*it)->function);
-
-				(*it)->remove();
-				graph.erase(it);
-
-				return true;
-			}
-            ++it;
-		}
-
-		return false;
-    }
-
-    bool inline_vertex(Vertex * v)
-    {
-    	return true;
-    }
-
-	void analysis()
-	{
-    	auto function_iter = module->begin();
-    	while(function_iter != module->end())
-    	{
-    		llvm::Function * func = &(*function_iter);;
-
-    		if(vertexes.find(func) == vertexes.end()) // runtime functions
-    		{
-    			++function_iter;
-    			continue;
-    		}
-
-    		analysis_function(func);
-    		++function_iter;
-    	}
-	}
-
-	void analysis_function(llvm::Function * F)
-	{
-		int loc = 0;
-		int call_inst = 0;
-		int branches_inst = 0;
-		int recursive_inst = 0;
-
-		Vertex * vertex_F = vertexes[F];
-
-		auto basic_block_iter = F->begin();
-    	while(basic_block_iter != F->end())
-    	{
-    		auto instruction_iter = basic_block_iter->begin();
-    		while(instruction_iter != basic_block_iter->end())
-    		{
-    			if(llvm::CallInst * inst = llvm::dyn_cast<llvm::CallInst>(instruction_iter))
-        		{
-    				llvm::Function * called_func = inst->getCalledFunction();
-
-    				if(vertexes.find(called_func) != vertexes.end()) // not a runtime functions
-    				{
-    					if(called_func == F)
-    					{
-    						recursive_inst++;
-    					}
-    					else
-    					{
-    						Vertex * vertex = vertexes[called_func];
-
-    						vertex_F->add_outgoing(vertex);
-    						vertex->add_incoming(vertex_F);
-
-    						call_inst++;
-    					}
-    				}
-        		}
-        		else if(llvm::BranchInst * inst = llvm::dyn_cast<llvm::BranchInst>(instruction_iter))
-        		{
-        			branches_inst++;
-        		}
-
-        		loc++;
-    			++instruction_iter;
-    		}
-    		++basic_block_iter;
-    	}
-
-		vertex_F->loc = loc;
-		vertex_F->call_inst = call_inst;
-		vertex_F->branches_inst = branches_inst;
-		vertex_F->recursive_inst = recursive_inst;
-    	lines_of_code += loc;
-	}
-};
-
-
-/*
-class func_inlining_analysis : public llvm::FunctionPass
-{
-	std::map<llvm::Function *, bool> cool_to_inline;
-	std::map<llvm::Function *, int> function_called;
-	int instruction_count;
-	int branch_instruction_count;
-
-public:
-	static char ID;
-
-	func_inlining_analysis() : FunctionPass(ID) { }
-
-	char const * getPassName() const override 
-	{
-        return "FunctionCallInlineAnalysis";
-    }
-
-    void getAnalysisUsage(llvm::AnalysisUsage &Info) const
-    {
-    	//Info.addRequired<tail_call_analysis>();
-    }
-
-    bool is_function_cool_to_inline(llvm::Function * function)
-    {
-    	return cool_to_inline.find(function) != cool_to_inline.end();
-    }
-
-	bool runOnFunction(llvm::Function & F)
-    {
-    	std::cout << F.getName().lower() << "analysis" << std::endl;
-    	return false;
-
-    	for (llvm::BasicBlock & b : F) 
-        {
-            auto i = b.begin();
-            while (i != b.end()) 
+            auto instruction_iter = new_bb.at(i)->begin();
+            while(instruction_iter != new_bb.at(i)->end())
             {
-            	instruction_count++;
-
-            	if(llvm::BranchInst * inst = llvm::dyn_cast<llvm::BranchInst>(i))
-        		{
-        			branch_instruction_count++;
-        		}
-
-        		++i;
+                if(llvm::ReturnInst * inst = llvm::dyn_cast<llvm::ReturnInst>(instruction_iter))
+                {
+                    if(inst->getReturnValue() == NULL)
+                    {
+                        llvm::BranchInst::Create(after_call_bb, inst);
+                        to_delete.push_back(inst);
+                    }
+                    else
+                    {
+                        new llvm::StoreInst(inst->getReturnValue(), result, false, inst);
+                        llvm::BranchInst::Create(after_call_bb, inst);
+                        to_delete.push_back(inst);
+                    }
+                }
+                ++instruction_iter;
             }
         }
 
-        cool_to_inline[&F] = true;
+        for(int i=0;i < to_delete.size(); i++)
+        {
+            to_delete.at(i)->eraseFromParent();
+        }
+
+        llvm::Value * v = new llvm::LoadInst(result, "ttxx", &after_call_bb->front());
+
+        call_inst->getParent()->getTerminator()->setSuccessor(0, first_inline_bb);
+
+        call_inst->replaceAllUsesWith (v);
+
+        call_inst->eraseFromParent();
 
         return false;
-    }
+    }	
 };
-
-class func_inlining : public llvm::FunctionPass
-{
-
-public:
-	static char ID;
-
-	func_inlining() : FunctionPass(ID) { }
-
-	char const * getPassName() const override 
-	{
-        return "FunctionCallInline";
-    }
-
-    void getAnalysisUsage(llvm::AnalysisUsage &Info) const override
-    {
-    	Info.addRequired<func_inlining_analysis>();
-    }
-
-	bool runOnFunction(llvm::Function & F) override
-    {
-    	std::cout << F.getName().lower() << "run" << std::endl;
-    	return false;
-
-    	bool changed = false;
-
-    	func_inlining_analysis & a = getAnalysis<func_inlining_analysis>();
-
-    	if(!a.is_function_cool_to_inline(&F)) return false;
-
-    	llvm::Module * module = F.getParent();
-
-    	auto function_iter = module->begin();
-    	while(function_iter != module->end())
-    	{
-    		llvm::Function * f = function_iter;
-    		if(f == &F)
-    		{
-    			++function_iter;
-    			continue;
-    		}
-
-    		auto basic_block_iter = function_iter->begin();
-
-    		while(basic_block_iter != function_iter->end())
-    		{
-    			auto instruction_iter = basic_block_iter->begin();
-    			while(instruction_iter != basic_block_iter->end())
-    			{
-    				std::cout << "i" << std::endl;
-    				if(llvm::CallInst * inst = llvm::dyn_cast<llvm::CallInst>(instruction_iter))
-        			{
-        				std::cout << "ckonej" << std::endl;
-
-        				 llvm::Function * called_func = inst->getCalledFunction();
-
-        				 if(called_func != &F)
-        				 {
-        				 	++instruction_iter; continue;
-        				 }
-
-        				 std::cout << "konej" << std::endl;
-
-        				 changed =  replace_call(function_iter, inst, called_func);
-        			}
-    				++instruction_iter;
-    			}
-    			++basic_block_iter;
-    		}
-    		++function_iter;
-    	}
-
-    	return changed;
-    }
-
-    
-};
-*/
