@@ -48,33 +48,40 @@ public:
 
     typedef int (*MainPtr)();
 
-    static MainPtr run(llvm::Function * main) {
+    static MainPtr run(llvm::Function * main, bool optimaze, bool verbose) {
         
         llvm::Module * m = main->getParent();
 
-        func_inliningT * func_inlining = new func_inliningT();
-        func_inlining->inline_F(m);
+        if(optimaze)
+        {
+            func_inliningT * func_inlining = new func_inliningT();
+            func_inlining->inline_F(m);
 
-        //auto pm = llvm::legacy::FunctionPassManager(m);
-        //pm.add(new useless_bb());
+            //auto pm = llvm::legacy::FunctionPassManager(m);
+            //pm.add(new useless_bb());
 
 
-        //pm.add(new const_propag());
-        //pm.add(new dead_inst());
-       // pm.add(new tail_call_analysis());
+            //pm.add(new const_propag());
+            //pm.add(new dead_inst());
+           // pm.add(new tail_call_analysis());
 
-       // pm.add(new func_inlining_analysis());
-       // pm.add(new func_inlining());
+           // pm.add(new func_inlining_analysis());
+           // pm.add(new func_inlining());
 
-        //for (llvm::Function & f : *m) 
-       // {
-       //     while (pm.run(f)) {}
-       // }
+            //for (llvm::Function & f : *m) 
+           // {
+           //     while (pm.run(f)) {}
+           // }
 
-        m->dump();
+            if(verbose)
+            {
+                m->dump();
+                std::cout << std::endl;
+                std::cout << std::endl;
+            }
+        }
 
         std::string err;
-
         llvm::TargetOptions opts;
         llvm::ExecutionEngine* engine =
             llvm::EngineBuilder(std::unique_ptr<llvm::Module>(m))
@@ -84,8 +91,7 @@ public:
                 .setTargetOptions(opts)
                 .create();
         if (engine == nullptr)
-            int i;
-            //throw CompilerError(STR("Could not create ExecutionEngine: " << err));
+            throw CompileException("Cannot run");
 
         engine->finalizeObject();
 

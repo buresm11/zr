@@ -1,0 +1,46 @@
+// scopes
+
+int a;
+int b;
+
+def int main()
+
+	a = 5;
+	b = 8;
+
+	print(a);
+	print(b);
+
+	if(true) do
+
+		print(a);
+		print(b);
+
+		int i;
+		i = 0;
+		while(i < 10) do
+
+			int a;
+			a = 13;
+
+			print(a);
+
+			i = i + 1;
+		end
+
+		print(a);
+		print(b);
+
+		int a;
+		a = 10;
+		int b;
+		b = 12;
+
+		print(a);
+		print(b);
+	end
+
+	print(a);
+	print(b);
+
+end

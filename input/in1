@@ -1,22 +1,42 @@
-int a;
-int b;
-bool c;
+// basic binary, unary operations
 
-def int x(int a, int b)
 
-	return a + b;
-end
-
-def bool main()
+def int main()
 
 	int a;
-	a = x(10, 20);
+	a = 121;
+	print(a);
+	a = 5 + 6;
+	print(a);
+	a = 5 - 6;
+	print(a);
+	a = 5 / 6;
+	print(a);
+	a = 5 * 6;
+	print(a);
+	a = -5;
+	print(a);
+	a = (5 + 6) * 7;
+	print(a);
 
-	int b;
-	b = x(20,15);
+	int x;
+	x = 3;
+	a = x + 8;
+	print(a);
 
+	bool b;
 
-
-	print(a + b);
+	b = false;
+	print(b);
+	b = !false;
+	print(b);
+	b = true && false;
+	print(b);
+	b = true && true;
+	print(b);
+	b = true || false;
+	print(b);
+	b = false || false;
+	print(b);
 
 end

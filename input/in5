@@ -1,0 +1,25 @@
+// function
+
+def int plus()
+	return 5 + 6;
+end
+
+def void plus2(int a, int b)
+	print(a + b);
+end
+
+def int die()
+	bool b;
+
+	b = false;
+	print(b);
+
+	b = true;
+	print(true);
+end
+
+def int main()
+	print(plus());
+	plus2(5,6);
+	die();
+end

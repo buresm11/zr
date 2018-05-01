@@ -1,0 +1,16 @@
+//recursive
+
+def void two(int i, int x)
+	
+	if(i == 0) do 
+		return;
+	else do
+		print(x);
+		two(i-1, x*2);
+	end
+	
+end
+
+def int main()
+	two(10,1);
+end

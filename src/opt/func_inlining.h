@@ -149,17 +149,10 @@ public:
     	std::map<llvm::Function *, Vertex *>::iterator itx;        //DEBUG
 		for (itx = vertexes.begin(); itx != vertexes.end(); itx++)
 		{
-			itx->second->print();
+			//itx->second->print();
 		}
 
 		linear();
-
-		for(int i=0;i<inline_order.size();i++) // DEBUG
-        {
-            std::cout << "ORDER::" << inline_order.at(i)->getName().lower() << ", ";
-        }
-        std::cout << std::endl;
-
         inline_functions();
     }
 
@@ -350,7 +343,7 @@ public:
                             Vertex * called_vertex = vertexes[called_func];
                             Vertex * current_vertex = vertexes[function_iter]; 
 
-                            // make sure that non recursive stay non recursive
+                            // make sure that non recursive stay non recursive and not exceed maximum lines of code
                             if(!called_vertex->calls_func(current_vertex) 
                                 && actual_lines_of_code + called_vertex->loc < MAX_LOC_MUL * origin_lines_of_code)
                             {
@@ -372,54 +365,52 @@ public:
         return false;
     }
 
-    bool replace_call(llvm::Function * caller_func, llvm::CallInst * call_inst, llvm::Function * callee_func)
+    void replace_call(llvm::Function * caller_func, llvm::CallInst * call_inst, llvm::Function * callee_func)
     {
         std::map<llvm::Value *, llvm::Value *> val_to_val;
         std::vector<llvm::BasicBlock *> new_bb;
 
         llvm::Value * result;
             
-        int bb_first = true;
-
-        llvm::BasicBlock * first_inline_bb;
+        llvm::BasicBlock * first_bb;
         llvm::BasicBlock * after_call_bb = call_inst->getParent()->splitBasicBlock(call_inst->getNextNode());
-        after_call_bb->setName("tt");
+        after_call_bb->setName("after_call_" + callee_func->getName().lower()); // DEBUG
 
         auto basic_block_iter = callee_func->begin(); 
-        while(basic_block_iter != callee_func->end())
+        while(basic_block_iter != callee_func->end()) // copy all instruction 
         {
-            llvm::BasicBlock * bb = llvm::BasicBlock::Create(Compiler::llvm_context, "copied", caller_func);
+            std::string bb_name = basic_block_iter->getName().lower() + "_inlined"; // DEBUG
+            llvm::BasicBlock * bb = llvm::BasicBlock::Create(Compiler::llvm_context, bb_name, caller_func);
 
             new_bb.push_back(bb);
             val_to_val[basic_block_iter] = bb; 
 
             auto instruction_iter = basic_block_iter->begin();
-            if(bb_first) //func header
+            if(basic_block_iter == callee_func->begin()) // copy func header
             {
-                first_inline_bb = bb;
-
-                int args_size = callee_func->arg_size();
-                
-                for(int i=0;i < args_size * 2; i++)
-                {
-                    llvm::Instruction * copy;
-                    if(i % 2 == 0)
-                    {
-                        copy = instruction_iter->clone();
-                        bb->getInstList().push_back(copy);
-                        val_to_val[instruction_iter] = copy;
-                    }
-                    else
-                    {
-                        llvm::StoreInst * si = new llvm::StoreInst(call_inst->getArgOperand(i/2), copy, false, bb);
-                    } 
-
-                    ++instruction_iter;
-                }
-
                 if(callee_func->getReturnType() != Compiler::t_void)
                 {
                     result = new llvm::AllocaInst(callee_func->getReturnType(), "result", bb);
+                }
+
+                first_bb = bb;
+
+                int args_size = callee_func->arg_size();
+                for(int i=0;i < args_size * 2; i++)
+                {
+                    llvm::Instruction * copy_alloca;
+                    if(i % 2 == 0)
+                    {
+                        copy_alloca = instruction_iter->clone();
+                        bb->getInstList().push_back(copy_alloca);
+                        val_to_val[instruction_iter] = copy_alloca;
+                    }
+                    else
+                    {
+                        llvm::StoreInst * si = new llvm::StoreInst(call_inst->getArgOperand(i/2), copy_alloca, false, bb);
+                    } 
+
+                    ++instruction_iter;
                 }
             }
 
@@ -433,33 +424,36 @@ public:
             }
 
             ++basic_block_iter;
-            bb_first = false;
         }
         
-        for(int i=0; i < new_bb.size() ; i++)
+        for(int i=0; i < new_bb.size() ; i++) // fix all operands
         {
             auto instruction_iter = new_bb.at(i)->begin();
             while(instruction_iter != new_bb.at(i)->end())
             {
+                int operand_num = 0;
                 auto operand_iter = instruction_iter->op_begin();
                 while (operand_iter != instruction_iter->op_end())
                 {
                     llvm::Value * val = operand_iter->get();
-                    
+
                     if(val_to_val.find(val) == val_to_val.end())
                     {
                         ++operand_iter;
+                        operand_num++;
                         continue;
                     } 
-                    *operand_iter = val_to_val[val];
+
+                    instruction_iter->setOperand(operand_num,val_to_val[val]);
 
                     ++operand_iter;
+                    operand_num++;
                 }
                 ++instruction_iter;
             }
         }
 
-        std::vector<llvm::Instruction *> to_delete;
+        std::vector<llvm::Instruction *> to_delete;  // replace return with store and jump
         for(int i=0; i < new_bb.size() ; i++)
         {
             auto instruction_iter = new_bb.at(i)->begin();
@@ -488,14 +482,13 @@ public:
             to_delete.at(i)->eraseFromParent();
         }
 
-        llvm::Value * v = new llvm::LoadInst(result, "ttxx", &after_call_bb->front());
+        if(callee_func->getReturnType() != Compiler::t_void)
+        {
+            llvm::Value * v = new llvm::LoadInst(result, "", &after_call_bb->front());
+            call_inst->replaceAllUsesWith (v);
+        }
 
-        call_inst->getParent()->getTerminator()->setSuccessor(0, first_inline_bb);
-
-        call_inst->replaceAllUsesWith (v);
-
+        call_inst->getParent()->getTerminator()->setSuccessor(0, first_bb);
         call_inst->eraseFromParent();
-
-        return false;
     }	
 };

@@ -1,0 +1,26 @@
+// if
+
+
+def int main()
+	int a;
+	int b;
+
+	a = 5;
+	b = 6;
+
+	if(a == 5) do
+
+		print(true);
+
+		if(b == 6) do
+			print(true);
+		end
+
+		a = a + 3;
+		print(a);
+	else do
+		print(false);
+	end
+end
+
+

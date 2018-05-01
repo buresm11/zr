@@ -10,7 +10,7 @@
 #include "Scope.h"
 #include "CompileException.h"
 
-#define DEBUG_ENABLED
+//#define DEBUG_ENABLED
 
 #ifdef DEBUG_ENABLED
 #define Debug(x) std::cout << x;
@@ -237,7 +237,6 @@ public:
         bb = llvm::BasicBlock::Create(llvm_context, "entry_" + func_name, this->f);
 
         llvm::Function::arg_iterator f_args = f->arg_begin();
-        std::cout << "HOORAY" << arg_names.size() << std::endl;
         for(int i=0;i < arg_names.size(); i++)
         {
         	std::string name = arg_names.at(i);
@@ -247,8 +246,6 @@ public:
         		throw CompileException("Redefinition of variable " + name);
 
         	llvm::AllocaInst * alloc = new llvm::AllocaInst(t_int, "", bb);
-
-        	std::cout << "HOORAY" << std::endl;
 
         	Variable * variable = new Variable(alloc, false);
 			scope->add_variable(name, variable);

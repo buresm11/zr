@@ -17,7 +17,25 @@ int main(int argc, char const * argv[])
 	llvm::InitializeNativeTargetAsmPrinter();
 	llvm::InitializeNativeTargetAsmParser();
 
-	std::ifstream inputFile (argv[1]);
+	bool optimalize = false;
+	bool verbose = false;
+	std::ifstream inputFile;
+
+	if(argc == 4)
+	{
+		if (strncmp(argv[1], "-o", 2) == 0)
+			optimalize = true;
+
+		if (strncmp(argv[2], "-v", 2) == 0)
+			verbose = true;
+
+		inputFile=std::ifstream(argv[3]);
+	}
+	else
+	{
+		std::cout << "USAGE: [-o|-n] [-v|-s] filename" << std::endl;
+		return -1;
+	} 
 
 	if (!inputFile.is_open())
 	{
@@ -51,19 +69,14 @@ int main(int argc, char const * argv[])
 		if(f == NULL) 
 			throw CompileException("Missing main function");
 
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << "------NONOPTIMALIZED-----" << std::endl;
-		m->dump();
-		std::cout << "------NONOPTIMALIZED-----" << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
+		if(verbose)
+		{
+			m->dump();
+			std::cout << std::endl;
+			std::cout << std::endl;
+		}
 
-		std::cout << "------RUN-----" << std::endl;
-		JIT::run(f)();
-		std::cout << "------RUN-----" << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
+		JIT::run(f, optimalize, verbose)();
 	    
 	}
 	catch (std::exception & e)
@@ -74,3 +87,5 @@ int main(int argc, char const * argv[])
 
 	return 0;
 }
+
+//XII, XVII
