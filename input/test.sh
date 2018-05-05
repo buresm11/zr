@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TEST_COUNT=6
+TEST_COUNT=7
 BIN="../build/zr"
 
 I=1

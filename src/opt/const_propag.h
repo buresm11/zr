@@ -15,13 +15,14 @@ enum class TypeContent
 
 class ValueContent
 {
+
 protected:
-	Type type;
+	llvm::Type * type;
 	TypeContent type_content;
 
 public:
 
-	ValueContent(Type t, TypeContent tc) : type(t), type_content(tc) {  }
+	ValueContent(llvm::Type * t, TypeContent tc) : type(t), type_content(tc) {  }
 
 	bool is_bottom() const
 	{
@@ -38,38 +39,31 @@ public:
 		return type_content == TypeContent::Const;
 	}
 
-	TypeContent get_content_type() const
+	TypeContent get_content_type()
 	{
 		return type_content;
 	}
 
-	Type get_type()
+	llvm::Type * get_type()
 	{
 		return type;
 	}
 
 	virtual void print()
 	{
-		if(is_bottom()) std::cout << "bottom";
-		else if(is_top())std::cout << "Top";
-		else if(is_const())std::cout << "const::";
+		if(is_bottom()) std::cout << "Bottom::";
+		else if(is_top())std::cout << "Top::";
+		else if(is_const())std::cout << "Const::";
 	} 
 };
 
 class IntValueContent : public ValueContent
 {
 	int value;
-
 public:
 
-	IntValueContent(TypeContent tc) : ValueContent(Type::IntType, tc) { }
-
-	IntValueContent(TypeContent tc, int v) : ValueContent(Type::IntType, tc), value(v) { }
-
-	int get_value() const
-	{
-		return value;
-	}
+	IntValueContent(TypeContent tc) : ValueContent(Compiler::t_int, tc) { }
+	IntValueContent(TypeContent tc, int v) : ValueContent(Compiler::t_int, tc), value(v) { }
 
 	bool merge(IntValueContent * other)
 	{
@@ -81,6 +75,8 @@ public:
 
 			type_content = other->get_content_type();
 			value = other->get_value();
+
+			return true;
 		}
 
 		if(is_const())
@@ -93,28 +89,26 @@ public:
 		return false;
 	}
 
+	int get_value()
+	{
+		return value;
+	}
+
 	void print()
 	{
-		if(is_bottom()) std::cout << "bottom";
-		else if(is_top())std::cout << "Top";
-		else if(is_const())std::cout << "const::" << value;
+		if(is_bottom()) std::cout << "Bottom::";
+		else if(is_top())std::cout << "Top::";
+		else if(is_const())std::cout << "Const::" << value;
 	} 
 };
 
 class BoolValueContent : public ValueContent
 {
 	bool value;
-
 public:
 	
-	BoolValueContent(TypeContent tc) : ValueContent(Type::BoolType, tc) { }
-
-	BoolValueContent(TypeContent tc, bool v) : ValueContent(Type::BoolType, tc), value(v) { }
-
-	bool get_value() const
-	{
-		return value;
-	}
+	BoolValueContent(TypeContent tc) : ValueContent(Compiler::t_bool, tc) { }
+	BoolValueContent(TypeContent tc, bool v) : ValueContent(Compiler::t_bool, tc), value(v) { }
 
 	bool merge(BoolValueContent * other)
 	{
@@ -126,6 +120,8 @@ public:
 
 			type_content = other->get_content_type();
 			value = other->get_value();
+
+			return true;
 		}
 
 		if(is_const())
@@ -138,11 +134,16 @@ public:
 		return false;
 	}
 
+	bool get_value() const
+	{
+		return value;
+	}
+
 	void print()
 	{
-		if(is_bottom()) std::cout << "bottom";
-		else if(is_top())std::cout << "Top";
-		else if(is_const())std::cout << "const::" << value;
+		if(is_bottom()) std::cout << "Bottom::";
+		else if(is_top())std::cout << "Top::";
+		else if(is_const())std::cout << "Const::" << value;
 	} 
 };
 
@@ -176,21 +177,29 @@ public:
 	bool merge(State * other)
 	{
 		bool changed = false;
-        for (auto i : other->state) 
-        {
-            auto j = state.find(i.first);
-            if (j == state.end()) 
-            {
-                changed = true;
-                state.insert(i);
-            } 
-            else 
-            {
-            	if(j->second->get_type() == Type::IntType) ((IntValueContent*)j->second)->merge((IntValueContent*)(i.second));
-            	else if(j->second->get_type() == Type::BoolType) ((BoolValueContent*)j->second)->merge((BoolValueContent*)(i.second));
-            }
-        }
-        return changed;
+
+		std::map<llvm::Value *, ValueContent *>::iterator other_it = other->state.begin();
+		while(other_it != other->state.end())
+		{
+			std::map<llvm::Value *, ValueContent *>::iterator my_it = state.find(other_it->first);
+
+			if(my_it == state.end())
+			{
+				changed = true;
+				state.insert(other_it, other_it);
+			}
+			else
+			{
+				if(my_it->second->get_type() == Compiler::t_int) 
+					changed = ((IntValueContent*)my_it->second)->merge((IntValueContent*)(other_it->second));
+            	else if(my_it->second->get_type() == Compiler::t_bool) 
+            		changed = ((BoolValueContent*)my_it->second)->merge((BoolValueContent*)(other_it->second));
+			}
+
+			++other_it;
+		}
+
+		return changed;
 	}
 
 	void print()
@@ -220,7 +229,7 @@ public:
 
 	char const * getPassName() const override 
 	{
-        return "Analysis";
+        return "AnalysisConstantPropagation";
     }
 
     State * get_state(llvm::BasicBlock * basic_block)
@@ -244,15 +253,17 @@ public:
 			bb_queue.pop_front();
 			State * state = bb_value[bb];
 
-            for (auto i = bb->begin(), e = bb->end(); i != e; ++i)
-                process_instruction(i, state);
-
+			auto instruction_iter = bb->begin();
+			while(instruction_iter != bb->end())
+			{
+				process_instruction(instruction_iter, state);
+				++instruction_iter;
+			}
+            
             state->print();
 
-            llvm::Instruction * last_instr = &bb->back();
             std::vector<llvm::BasicBlock *> sucessors;
-
-            if(llvm::BranchInst * br_inst = llvm::dyn_cast<llvm::BranchInst>(last_instr))
+            if(llvm::BranchInst * br_inst = llvm::dyn_cast<llvm::BranchInst>(&bb->back()))
             {
             	if(!br_inst->isConditional())
             	{
@@ -260,14 +271,10 @@ public:
             	}
             	else if(llvm::ConstantInt * ci = llvm::dyn_cast<llvm::ConstantInt>(br_inst->getOperand(0)))
             	{
-            		if(ci->getSExtValue() == 0) 
-            		{
+            		if(ci->getSExtValue() == 0)
             			sucessors.push_back(br_inst->getSuccessor(1));
-            		}
             		else
-            		{
             			sucessors.push_back(br_inst->getSuccessor(0));
-            		}
             	}
             	else if(state->has(br_inst->getOperand(0)))
             	{
@@ -281,13 +288,9 @@ public:
             		else
             		{
 	            		if(bool_value_content->get_value() == false)
-	            		{
 	            			sucessors.push_back(br_inst->getSuccessor(1));
-	            		}
 	            		else
-	            		{
 	            			sucessors.push_back(br_inst->getSuccessor(0));
-	            		}
 	            	}
             	}
             	else
@@ -299,7 +302,6 @@ public:
             	for(int i=0; i < sucessors.size(); i++)
             	{
             		llvm::BasicBlock * succ = sucessors.at(i);
-            		std::cout << "continue to" << succ->getName().lower() << std::endl;
 
             		if(bb_value.find(succ) == bb_value.end()) bb_value[succ] = new State();
 	                if (bb_value[succ]->merge(state))
@@ -308,50 +310,85 @@ public:
 	                }
             	}
             }
-            else if (llvm::ReturnInst * ret_inst = llvm::dyn_cast<llvm::ReturnInst>(last_instr)) { }
 		}
-
 		return false;
 	}
 
-	void process_bool_binary(llvm::BinaryOperator * inst, State * state)
+	void process_instruction(llvm::Instruction * ins, State * state)
 	{
-		BoolValueContent * lv;
-        BoolValueContent * rv;
+		if (llvm::LoadInst * inst = llvm::dyn_cast<llvm::LoadInst>(ins))
+		{
+			std::cout << "load" << std::endl;
 
-        if(state->has(inst->getOperand(0))) lv = (BoolValueContent *) (state->get(inst->getOperand(0)));
-        else if(llvm::ConstantInt * ci = llvm::dyn_cast<llvm::ConstantInt>(inst->getOperand(0)))
-        {
-        	BoolValueContent * v = new BoolValueContent(TypeContent::Const, ci->getSExtValue());
-        	lv = v;
+			if(inst->getOperand(0)->getType() == Compiler::t_int)
+			{
+				IntValueContent * value_content =  ((IntValueContent*)state->get(inst->getOperand(0)));
+				IntValueContent * new_value_content = new IntValueContent(value_content->get_content_type(), value_content->get_value());
+
+				state->add(inst->getOperand(1), new_value_content);
+			}
+			else if(inst->getOperand(0)->getType() == Compiler::t_bool)
+			{
+				BoolValueContent * value_content =  ((BoolValueContent*)state->get(inst->getOperand(0)));
+				BoolValueContent * new_value_content = new BoolValueContent(value_content->get_content_type(), value_content->get_value());
+
+				state->add(inst->getOperand(1), new_value_content);
+			}
+		} 
+		else if (llvm::StoreInst * inst = llvm::dyn_cast<llvm::StoreInst>(ins)) 
+		{
+			std::cout << "store" << std::endl;
+
+			if (llvm::ConstantInt * ci = llvm::dyn_cast<llvm::ConstantInt>(inst->getOperand(0))) 
+			{
+				if(inst->getOperand(0)->getType() == Compiler::t_int)
+					state->add(inst->getOperand(1), new IntValueContent(TypeContent::Const, ci->getSExtValue()));
+				else if(inst->getOperand(0)->getType() == Compiler::t_bool)
+					state->add(inst->getOperand(1), new BoolValueContent(TypeContent::Const, ci->getSExtValue()));
+			}
+			else
+			{
+				if(inst->getOperand(0)->getType() == Compiler::t_int)
+				{
+					IntValueContent * value_content =  ((IntValueContent*)state->get(inst->getOperand(0)));
+					IntValueContent * new_value_content = new IntValueContent(value_content->get_content_type(), value_content->get_value());
+
+					state->add(inst->getOperand(1), new_value_content);
+				}
+				else if(inst->getOperand(0)->getType() == Compiler::t_bool)
+				{
+					BoolValueContent * value_content =  ((BoolValueContent*)state->get(inst->getOperand(0)));
+					BoolValueContent * new_value_content = new BoolValueContent(value_content->get_content_type(), value_content->get_value());
+
+					state->add(inst->getOperand(1), new_value_content);
+				}
+			}
         }
-
-        if(state->has(inst->getOperand(1))) rv = (BoolValueContent *) (state->get(inst->getOperand(1)));
-        else if(llvm::ConstantInt * ci = llvm::dyn_cast<llvm::ConstantInt>(inst->getOperand(1)))
+        else if(llvm::CallInst * inst = llvm::dyn_cast<llvm::CallInst>(ins))
         {
-        	BoolValueContent * v = new BoolValueContent(TypeContent::Const, ci->getSExtValue());
-           	rv = v;
+        	if(inst->getType() == Compiler::t_int)
+				state->add(inst, new IntValueContent(TypeContent::Top));
+			else if(inst->getType() == Compiler::t_bool)
+				state->add(inst, new BoolValueContent(TypeContent::Top));
         }
-
-        if (lv->is_const() && rv->is_const()) 
+        else if (llvm::BinaryOperator * inst = llvm::dyn_cast<llvm::BinaryOperator>(ins)) 
         {
-            switch (inst->getOpcode()) 
-            {
-	            case llvm::Instruction::And:
-	                state->add(inst, new BoolValueContent(TypeContent::Const, lv->get_value() && rv->get_value()));
-	                break;
-	            case llvm::Instruction::Or:
-	                state->add(inst, new BoolValueContent(TypeContent::Const, lv->get_value() || rv->get_value()));
-	                break;
-	            case llvm::Instruction::Xor:
-	                state->add(inst, new BoolValueContent(TypeContent::Const, !rv->get_value()));
-	                break;
+        	std::cout << "bin" << std::endl;
 
-	            default:
-                 	break;
-	        }
+        	if(inst->getOperand(0)->getType() == Compiler::t_int && inst->getOperand(1)->getType() == Compiler::t_int)
+        		process_int_binary(inst, state);
+        	else if(inst->getOperand(0)->getType() == Compiler::t_bool && inst->getOperand(1)->getType() == Compiler::t_bool)
+        		process_bool_binary(inst, state);
         }
-        else state->add(inst, new BoolValueContent(TypeContent::Top));
+        else if (llvm::ICmpInst * inst = llvm::dyn_cast<llvm::ICmpInst>(ins)) 
+        {
+        	std::cout << "cmp" << std::endl;
+
+        	if(inst->getOperand(0)->getType() == Compiler::t_int && inst->getOperand(1)->getType() == Compiler::t_int)
+        		process_int_cmp(inst, state);
+        	else if(inst->getOperand(0)->getType() == Compiler::t_bool && inst->getOperand(1)->getType() == Compiler::t_bool)
+        		process_bool_cmp(inst, state);
+        }
 	}
 
 	void process_int_binary(llvm::BinaryOperator * inst, State * state)
@@ -396,70 +433,44 @@ public:
         else state->add(inst, new IntValueContent(TypeContent::Top));
 	}
 
-	void process_instruction(llvm::Instruction * ins, State * state)
+	void process_bool_binary(llvm::BinaryOperator * inst, State * state)
 	{
-		if (llvm::LoadInst * inst = llvm::dyn_cast<llvm::LoadInst>(ins))
-		{
-			std::cout << "load" << std::endl;
+		BoolValueContent * lv;
+        BoolValueContent * rv;
 
-			if(state->has(inst->getOperand(0)))
-			{
-				std::cout << "load" << std::endl;
-				state->add(inst, state->get(inst->getOperand(0)));
-			}
-			else
-			{
-				if(inst->getType() == Compiler::t_int)
-					state->add(inst, new IntValueContent(TypeContent::Top));
-				else if(inst->getType() == Compiler::t_bool)
-					state->add(inst, new BoolValueContent(TypeContent::Top));
-			}
-		} 
-		else if (llvm::StoreInst * inst = llvm::dyn_cast<llvm::StoreInst>(ins)) 
-		{
-			std::cout << "store" << std::endl;
-
-			if (llvm::ConstantInt * ci = llvm::dyn_cast<llvm::ConstantInt>(inst->getOperand(0))) 
-			{
-				if(inst->getOperand(0)->getType() == Compiler::t_int){
-					state->add(inst->getOperand(1), new IntValueContent(TypeContent::Const, ci->getSExtValue()));}
-				else if(inst->getOperand(0)->getType() == Compiler::t_bool)
-					state->add(inst->getOperand(1), new BoolValueContent(TypeContent::Const, ci->getSExtValue()));
-			}
-			else
-			{
-				if(state->has(inst->getOperand(0))) state->add(inst->getOperand(1), state->get(inst->getOperand(0)));
-				else
-				{
-					std::cout << "Should never happen 12" << inst->getName().lower() << std::endl;
-				}
-			}
-        }
-        else if(llvm::CallInst * inst = llvm::dyn_cast<llvm::CallInst>(ins))
+        if(state->has(inst->getOperand(0))) lv = (BoolValueContent *) (state->get(inst->getOperand(0)));
+        else if(llvm::ConstantInt * ci = llvm::dyn_cast<llvm::ConstantInt>(inst->getOperand(0)))
         {
-        	if(inst->getType() == Compiler::t_int)
-				state->add(inst, new IntValueContent(TypeContent::Top));
-			else if(inst->getType() == Compiler::t_bool)
-				state->add(inst, new BoolValueContent(TypeContent::Top));
+        	BoolValueContent * v = new BoolValueContent(TypeContent::Const, ci->getSExtValue());
+        	lv = v;
         }
-        else if (llvm::BinaryOperator * inst = llvm::dyn_cast<llvm::BinaryOperator>(ins)) 
-        {
-        	std::cout << "bin" << std::endl;
 
-        	if(inst->getOperand(0)->getType() == Compiler::t_int && inst->getOperand(1)->getType() == Compiler::t_int)
-        		process_int_binary(inst, state);
-        	else if(inst->getOperand(0)->getType() == Compiler::t_bool && inst->getOperand(1)->getType() == Compiler::t_bool)
-        		process_bool_binary(inst, state);
-        }
-        else if (llvm::ICmpInst * inst = llvm::dyn_cast<llvm::ICmpInst>(ins)) 
+        if(state->has(inst->getOperand(1))) rv = (BoolValueContent *) (state->get(inst->getOperand(1)));
+        else if(llvm::ConstantInt * ci = llvm::dyn_cast<llvm::ConstantInt>(inst->getOperand(1)))
         {
-        	std::cout << "cmp" << std::endl;
-
-        	if(inst->getOperand(0)->getType() == Compiler::t_int && inst->getOperand(1)->getType() == Compiler::t_int)
-        		process_int_cmp(inst, state);
-        	else if(inst->getOperand(0)->getType() == Compiler::t_bool && inst->getOperand(1)->getType() == Compiler::t_bool)
-        		process_bool_cmp(inst, state);
+        	BoolValueContent * v = new BoolValueContent(TypeContent::Const, ci->getSExtValue());
+           	rv = v;
         }
+
+        if (lv->is_const() && rv->is_const()) 
+        {
+            switch (inst->getOpcode()) 
+            {
+	            case llvm::Instruction::And:
+	                state->add(inst, new BoolValueContent(TypeContent::Const, lv->get_value() && rv->get_value()));
+	                break;
+	            case llvm::Instruction::Or:
+	                state->add(inst, new BoolValueContent(TypeContent::Const, lv->get_value() || rv->get_value()));
+	                break;
+	            case llvm::Instruction::Xor:
+	                state->add(inst, new BoolValueContent(TypeContent::Const, !rv->get_value()));
+	                break;
+
+	            default:
+                 	break;
+	        }
+        }
+        else state->add(inst, new BoolValueContent(TypeContent::Top));
 	}
 
 	void process_int_cmp(llvm::ICmpInst * inst, State * state)
@@ -558,7 +569,6 @@ public:
         else state->add(inst, new BoolValueContent(TypeContent::Top));
 	}
 
-
 	State * init_function(llvm::Function & F)
 	{
         State * state = new State();
@@ -600,46 +610,54 @@ public:
 		bool changed = false;
 		analysis & a = getAnalysis<analysis>();
 
-        for (llvm::BasicBlock & b : F) 
+
+		auto basic_block_iter = F.begin(); 
+        while(basic_block_iter != F.end()) 
         {
-        	State * state = a.get_state(&b);
-        	if(state == NULL) continue;
+        	State * state = a.get_state(basic_block_iter);
+        	if(state == NULL)
+        	{
+        		++basic_block_iter;
+        		continue;
+        	}
 
-            for (llvm::Instruction & i : b) 
+            auto instruction_iter = basic_block_iter->begin();
+            if(instruction_iter == basic_block_iter->end())
             {
-            	if(i.getType()->isPointerTy()) continue;
-            	if(!state->has(&i)) continue;
+            	if(instruction_iter->getType()->isPointerTy()) continue;
+            	if(!state->has(instruction_iter)) continue;
 
-            	ValueContent * value_content = state->get(&i);
+            	ValueContent * value_content = state->get(instruction_iter);
 
-            	if(value_content->get_type() == Type::IntType)
+            	if(value_content->get_type() == Compiler::t_int)
             	{
             		IntValueContent * int_value_content = (IntValueContent*) value_content; 
 
             		if(int_value_content->is_const()) 
             		{
-            			i.replaceAllUsesWith(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, int_value_content->get_value())));
+            			instruction_iter->replaceAllUsesWith(llvm::ConstantInt::get(llvm::getGlobalContext(), 
+            					llvm::APInt(32, int_value_content->get_value())));
             			changed = true;
             		}
             	}	
-            	else if(value_content->get_type() == Type::BoolType)
+            	else if(value_content->get_type() == Compiler::t_bool)
             	{
             		BoolValueContent * bool_value_content = (BoolValueContent*) value_content;
 
             		if(bool_value_content->is_const()) 
             		{
             			if(bool_value_content->get_value())
-            				i.replaceAllUsesWith(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(1, 1))); 
+            				instruction_iter->replaceAllUsesWith(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(1, 1))); 
             			else
-            				i.replaceAllUsesWith(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(1, 0))); 
+            				instruction_iter->replaceAllUsesWith(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(1, 0))); 
 
             			changed = true;
             		}
             	}
-
+            	++instruction_iter;
             }
+            ++basic_block_iter;
         }
-
 		return changed;
 	}
 };

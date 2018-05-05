@@ -54,14 +54,14 @@ public:
 
         if(optimaze)
         {
-            func_inliningT * func_inlining = new func_inliningT();
-            func_inlining->inline_F(m);
+            //func_inliningT * func_inlining = new func_inliningT();
+            //func_inlining->inline_F(m);
 
-            //auto pm = llvm::legacy::FunctionPassManager(m);
+            auto pm = llvm::legacy::FunctionPassManager(m);
             //pm.add(new useless_bb());
 
-
-            //pm.add(new const_propag());
+            pm.add(new analysis());
+            pm.add(new const_propag());
             //pm.add(new dead_inst());
            // pm.add(new tail_call_analysis());
 

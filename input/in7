@@ -1,0 +1,22 @@
+// function inlining
+
+def int plus(int a, int b)
+	return a+b;
+
+end
+
+def int mul(int a, int b)
+	return plus(a,b)*plus(a,b);
+end
+
+def int main()
+	int a;
+	int b;
+
+	a = 5;
+	b = 8;
+
+	print(mul(a,b));
+
+
+end
