@@ -1,34 +1,22 @@
+// scopes
 
-def int x()
+int a;
+int b;
 
-	int x;
-	x=5;
-	x=5;
-	x=5;
-	x=5;
-	x=5;
-	x=5;
-	x=5;
-	x=5;
-	x=5;
+def void x(int a)
 
-	return 0;
-end	
+	print(a);
+
+	if a == 0 do
+		return;
+	else do
+		x(a-1);
+	end
+
+end
 
 def int main()
-	x();
-	x();
-	x();
-	x();
-	x();
-	x();
-	x();
-	x();
-	x();
-	x();
-	x();
-	x();
-	x();
-	
+
+		x(10);
 
 end

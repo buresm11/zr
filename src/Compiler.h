@@ -646,7 +646,7 @@ public:
     	llvm::Function * func = m->getFunction(f_name);
 
         if (func == NULL)
-        	throw CompileException("Function " + f_name + "does not exist");
+        	throw CompileException("Function " + f_name + " does not exist");
 
         if (func->arg_size() != args.size())
         	throw CompileException(f_name + " called with wrong number of arguments");

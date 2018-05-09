@@ -9,7 +9,6 @@
 class dead_inst : public llvm::FunctionPass
 {
 	static char ID;
-	bool changed;
 
 public:
 	dead_inst() : FunctionPass(ID) { }
@@ -19,27 +18,27 @@ public:
         return "DeadInstructionRemovalOptimization";
     }
 
-    void getAnalysisUsage(llvm::AnalysisUsage &Info) const
-    {
-        Info.addRequired<const_propag>();
-    }
-
 	bool runOnFunction(llvm::Function & F)
     {
         bool changed = false;
-        for (llvm::BasicBlock & b : F) 
+
+
+        auto basic_block_iter = F.begin(); 
+        while(basic_block_iter != F.end())
         {
-            auto i = b.begin();
-            while (i != b.end()) 
+            auto instruction_iter = basic_block_iter->begin();
+            while(instruction_iter != basic_block_iter->end())
             {
-                if(i->getNumUses() == 0 and not i->isTerminator() and not llvm::dyn_cast<llvm::StoreInst>(i) and not 
-                    llvm::dyn_cast<llvm::CallInst>(i))
+                if(instruction_iter->getNumUses() == 0 and not instruction_iter->isTerminator() and 
+                    not llvm::dyn_cast<llvm::StoreInst>(instruction_iter) and not llvm::dyn_cast<llvm::CallInst>(instruction_iter))
                 {
-                    i = i->eraseFromParent();
+                    instruction_iter = instruction_iter->eraseFromParent();
                     changed = true;
+                    continue;
                 }
-                else ++i;
+                ++instruction_iter;
             }
+            ++basic_block_iter;
         }
         return changed;
     }

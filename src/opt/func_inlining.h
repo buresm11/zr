@@ -417,6 +417,7 @@ public:
             while(instruction_iter != basic_block_iter->end())
             {
                 llvm::Instruction * copy = instruction_iter->clone();
+                copy->setName("ccc");
                 bb->getInstList().push_back(copy);
                 val_to_val[instruction_iter] = copy;
 

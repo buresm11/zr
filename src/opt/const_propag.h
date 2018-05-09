@@ -49,12 +49,9 @@ public:
 		return type;
 	}
 
-	virtual void print()
-	{
-		if(is_bottom()) std::cout << "Bottom::";
-		else if(is_top())std::cout << "Top::";
-		else if(is_const())std::cout << "Const::";
-	} 
+	virtual void print() =  0;
+
+	virtual ValueContent * copy() = 0;
 };
 
 class IntValueContent : public ValueContent
@@ -94,12 +91,17 @@ public:
 		return value;
 	}
 
-	void print()
+	void print() override
 	{
 		if(is_bottom()) std::cout << "Bottom::";
 		else if(is_top())std::cout << "Top::";
 		else if(is_const())std::cout << "Const::" << value;
 	} 
+
+	ValueContent * copy() override
+	{
+		return new IntValueContent(get_content_type(), get_value());
+	}
 };
 
 class BoolValueContent : public ValueContent
@@ -144,15 +146,21 @@ public:
 		if(is_bottom()) std::cout << "Bottom::";
 		else if(is_top())std::cout << "Top::";
 		else if(is_const())std::cout << "Const::" << value;
+	}
+
+	ValueContent * copy() override
+	{
+		return new BoolValueContent(get_content_type(), get_value());
 	} 
 };
 
 class State
 {
 	std::map<llvm::Value *, ValueContent *> state;
+	std::string name;
 
 public:
-	State() { }
+	State(std::string name) { this->name = name; }
 
 	void add(llvm::Value * val, ValueContent * content)
 	{
@@ -185,26 +193,27 @@ public:
 
 			if(my_it == state.end())
 			{
+				state[other_it->first] = other_it->second->copy();
 				changed = true;
-				state.insert(other_it, other_it);
 			}
 			else
 			{
+				bool c;
 				if(my_it->second->get_type() == Compiler::t_int) 
-					changed = ((IntValueContent*)my_it->second)->merge((IntValueContent*)(other_it->second));
+					c = ((IntValueContent*)my_it->second)->merge((IntValueContent*)(other_it->second));
             	else if(my_it->second->get_type() == Compiler::t_bool) 
-            		changed = ((BoolValueContent*)my_it->second)->merge((BoolValueContent*)(other_it->second));
-			}
+            		c = ((BoolValueContent*)my_it->second)->merge((BoolValueContent*)(other_it->second));
 
+            	if(c) changed = true;
+			}
 			++other_it;
 		}
-
 		return changed;
 	}
 
-	void print()
+	void print() // DEBUG
 	{
-		std::cout << "/------------------/" << size() << std::endl;
+		std::cout << "/------------------/ " << name << size() << std::endl;
 		for ( auto it = state.begin(); it != state.end(); ++it  )
 		{
 		   //std::cout << print_inst_type(it->first) << "   ";
@@ -259,8 +268,6 @@ public:
 				process_instruction(instruction_iter, state);
 				++instruction_iter;
 			}
-            
-            state->print();
 
             std::vector<llvm::BasicBlock *> sucessors;
             if(llvm::BranchInst * br_inst = llvm::dyn_cast<llvm::BranchInst>(&bb->back()))
@@ -303,11 +310,19 @@ public:
             	{
             		llvm::BasicBlock * succ = sucessors.at(i);
 
-            		if(bb_value.find(succ) == bb_value.end()) bb_value[succ] = new State();
-	                if (bb_value[succ]->merge(state))
-	                {
-	                    bb_queue.push_back(succ);
-	                }
+            		if(bb_value.find(succ) == bb_value.end())
+            		{
+            			bb_value[succ] = new State(succ->getName().lower());
+            			bb_value[succ]->merge(state);
+            			bb_queue.push_back(succ);
+            		}
+            		else
+            		{
+            			if (bb_value[succ]->merge(state))
+	                	{
+	                    	bb_queue.push_back(succ);
+	                	}
+            		}
             	}
             }
 		}
@@ -318,26 +333,27 @@ public:
 	{
 		if (llvm::LoadInst * inst = llvm::dyn_cast<llvm::LoadInst>(ins))
 		{
-			std::cout << "load" << std::endl;
-
-			if(inst->getOperand(0)->getType() == Compiler::t_int)
+			if(state->has(inst->getOperand(0)))
 			{
-				IntValueContent * value_content =  ((IntValueContent*)state->get(inst->getOperand(0)));
-				IntValueContent * new_value_content = new IntValueContent(value_content->get_content_type(), value_content->get_value());
+				ValueContent * value_content = state->get(inst->getOperand(0));
 
-				state->add(inst->getOperand(1), new_value_content);
+				state->add(inst, value_content->copy());
 			}
-			else if(inst->getOperand(0)->getType() == Compiler::t_bool)
+			else 
 			{
-				BoolValueContent * value_content =  ((BoolValueContent*)state->get(inst->getOperand(0)));
-				BoolValueContent * new_value_content = new BoolValueContent(value_content->get_content_type(), value_content->get_value());
-
-				state->add(inst->getOperand(1), new_value_content);
-			}
+				if(inst->getType() == Compiler::t_int)
+					state->add(inst, new IntValueContent(TypeContent::Top));
+				else if(inst->getType() == Compiler::t_bool)
+					state->add(inst, new BoolValueContent(TypeContent::Top));
+			} 
+			
 		} 
 		else if (llvm::StoreInst * inst = llvm::dyn_cast<llvm::StoreInst>(ins)) 
 		{
-			std::cout << "store" << std::endl;
+			if(state->has(inst->getOperand(1)))
+			{
+				if(state->get(inst->getOperand(1))->is_top()) return;
+			}
 
 			if (llvm::ConstantInt * ci = llvm::dyn_cast<llvm::ConstantInt>(inst->getOperand(0))) 
 			{
@@ -348,20 +364,9 @@ public:
 			}
 			else
 			{
-				if(inst->getOperand(0)->getType() == Compiler::t_int)
-				{
-					IntValueContent * value_content =  ((IntValueContent*)state->get(inst->getOperand(0)));
-					IntValueContent * new_value_content = new IntValueContent(value_content->get_content_type(), value_content->get_value());
+				ValueContent * value_content = state->get(inst->getOperand(0));
 
-					state->add(inst->getOperand(1), new_value_content);
-				}
-				else if(inst->getOperand(0)->getType() == Compiler::t_bool)
-				{
-					BoolValueContent * value_content =  ((BoolValueContent*)state->get(inst->getOperand(0)));
-					BoolValueContent * new_value_content = new BoolValueContent(value_content->get_content_type(), value_content->get_value());
-
-					state->add(inst->getOperand(1), new_value_content);
-				}
+				state->add(inst->getOperand(1), value_content->copy());
 			}
         }
         else if(llvm::CallInst * inst = llvm::dyn_cast<llvm::CallInst>(ins))
@@ -373,8 +378,6 @@ public:
         }
         else if (llvm::BinaryOperator * inst = llvm::dyn_cast<llvm::BinaryOperator>(ins)) 
         {
-        	std::cout << "bin" << std::endl;
-
         	if(inst->getOperand(0)->getType() == Compiler::t_int && inst->getOperand(1)->getType() == Compiler::t_int)
         		process_int_binary(inst, state);
         	else if(inst->getOperand(0)->getType() == Compiler::t_bool && inst->getOperand(1)->getType() == Compiler::t_bool)
@@ -382,8 +385,6 @@ public:
         }
         else if (llvm::ICmpInst * inst = llvm::dyn_cast<llvm::ICmpInst>(ins)) 
         {
-        	std::cout << "cmp" << std::endl;
-
         	if(inst->getOperand(0)->getType() == Compiler::t_int && inst->getOperand(1)->getType() == Compiler::t_int)
         		process_int_cmp(inst, state);
         	else if(inst->getOperand(0)->getType() == Compiler::t_bool && inst->getOperand(1)->getType() == Compiler::t_bool)
@@ -571,7 +572,7 @@ public:
 
 	State * init_function(llvm::Function & F)
 	{
-        State * state = new State();
+        State * state = new State("");
         for (auto i = F.arg_begin(), e = F.arg_end(); i != e; ++i)
         {
         	if(i->getType() == Compiler::t_int)
@@ -610,7 +611,6 @@ public:
 		bool changed = false;
 		analysis & a = getAnalysis<analysis>();
 
-
 		auto basic_block_iter = F.begin(); 
         while(basic_block_iter != F.end()) 
         {
@@ -622,10 +622,16 @@ public:
         	}
 
             auto instruction_iter = basic_block_iter->begin();
-            if(instruction_iter == basic_block_iter->end())
+            while(instruction_iter != basic_block_iter->end())
             {
-            	if(instruction_iter->getType()->isPointerTy()) continue;
-            	if(!state->has(instruction_iter)) continue;
+            	if(instruction_iter->getType()->isPointerTy())
+            	{
+            		++instruction_iter; continue;	
+            	} 
+            	if(!state->has(instruction_iter)) 
+            	{
+            		++instruction_iter; continue;
+            	}
 
             	ValueContent * value_content = state->get(instruction_iter);
 
