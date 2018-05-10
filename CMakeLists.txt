@@ -14,26 +14,13 @@ set(antlr4cpp_include_dirs_${antlr4cpp_project_namespace} ${ANTLR4CPP_GENERATED_
 message(STATUS "Antlr4Cpp ${antlr4cpp_project_namespace} include: ${ANTLR4CPP_GENERATED_SRC_DIR}/${antlr4cpp_project_namespace}")
 
 message(STATUS "Local configuration:")
-# for some reason LLVM cmake script do not include this on mint 17.2
 include_directories("/opt/llvm/llvm-src-370/include")
 include_directories("${CMAKE_SOURCE_DIR}/src")
 
-# enable this for release LLVM
-message(STATUS "LLVM will be in RELEASE mode")
 set(LLVM_DIR "/opt/llvm/llvm-release-370/cmake/modules/CMakeFiles")
-# enable this for debug LLVM
-# message(STATUS "LLVM will be in DEBUG mode")
-# set(LLVM_DIR "/home/peta/llvm-debug-370/cmake/modules/CMakeFiles")
 
-# enable this to set compiler to CLANG
-#message(STATUS "CLANG compiler will be used")
-#set(CMAKE_C_COMPILER "clang-3.7")
-#set(CMAKE_CXX_COMPILER "clang++-3.7")
-
-# set C++11 definitions, error on everything, enable debugging
 add_definitions(--std=c++11 -g)
 
-# find llvm package and set it up
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
