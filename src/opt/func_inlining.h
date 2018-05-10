@@ -34,7 +34,7 @@ public:
         main = false;
 	}
 
-	void print()
+	void print()  //DEBUG
 	{
         std::cout << std::endl;
         std::cout << "***************" << std::endl;
@@ -145,15 +145,9 @@ public:
 		
         create_vertexes();
     	analysis();
-
-    	std::map<llvm::Function *, Vertex *>::iterator itx;        //DEBUG
-		for (itx = vertexes.begin(); itx != vertexes.end(); itx++)
-		{
-			//itx->second->print();
-		}
-
 		linear();
         inline_functions();
+        delete_vertexes();
     }
 
     void create_vertexes()
@@ -172,6 +166,17 @@ public:
             vertexes[function_iter] = v;
 
             ++function_iter;
+        }
+    }
+
+    void delete_vertexes()
+    {
+        auto it = vertexes.begin();
+
+        while(it != vertexes.end())
+        {
+            delete it->second;
+            ++it;
         }
     }
 
@@ -417,7 +422,6 @@ public:
             while(instruction_iter != basic_block_iter->end())
             {
                 llvm::Instruction * copy = instruction_iter->clone();
-                copy->setName("ccc");
                 bb->getInstList().push_back(copy);
                 val_to_val[instruction_iter] = copy;
 

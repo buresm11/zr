@@ -8,8 +8,8 @@
 
 class tail_call_analysis : public llvm::FunctionPass
 {
-	std::map<llvm::Function *, bool> is_tail;
-	std::map<llvm::Function *, std::vector<llvm::Instruction *>> recursive_calls;
+    bool is_tail;
+    std::vector<llvm::Instruction *> recursive_calls;
 
 public:
 	static char ID;
@@ -21,26 +21,22 @@ public:
         return "TailCallRemovalAnalysis";
     }
 
-    bool is_function_tail(llvm::Function * function)
+    bool is_function_tail()
     {
-    	bool f =  is_tail.find(function) != is_tail.end();
-
-        if(!f) return false;
-        else return is_tail[function];
+        return is_tail;
     }
 
-    std::vector<llvm::Instruction *> get_recursive_calls(llvm::Function * function)
+    std::vector<llvm::Instruction *> get_recursive_calls()
     {
-    	return recursive_calls[function];
+    	return recursive_calls;
     }
 
 	bool runOnFunction(llvm::Function & F)
     {
-        std::cout << "TTTTT::1" <<F.getName().lower() << std::endl;
+        is_tail = false;
 
     	bool tail = true;
     	bool recursive = false;
-    	std::vector<llvm::Instruction *> calls;
 
         auto basic_block_iter = F.begin(); 
         while(basic_block_iter != F.end()) 
@@ -54,7 +50,7 @@ public:
                     {
                         recursive = true;
 
-                        calls.push_back(instruction_iter);
+                        recursive_calls.push_back(instruction_iter);
 
                         auto prev_inst = &(*instruction_iter);
                         ++instruction_iter;
@@ -93,14 +89,10 @@ public:
             ++basic_block_iter;
         }
 
-        recursive_calls[&F] = calls;
         if(tail && recursive)
         {
-            std::cout << "TTTTT::1" <<F.getName().lower() << std::endl;
-        	is_tail[&F] = true;
+        	is_tail = true;
         }
-        else 
-            {std::cout << "TTTTT::3" <<F.getName().lower() << std::endl;is_tail[&F] = false;}
 
         return false;
     }
@@ -126,13 +118,9 @@ public:
 
 	bool runOnFunction(llvm::Function & F)
     {
-        std::cout << "SDDDDDFFF::1" <<F.getName().lower() << std::endl;
-
     	tail_call_analysis & a = getAnalysis<tail_call_analysis>();
 
-    	if(!a.is_function_tail(&F)) return false;
-
-        std::cout << "SDDDDDFFF::2" << F.getName().lower() << std::endl;
+    	if(!a.is_function_tail()) return false;
 
     	llvm::BasicBlock & b =  F.getEntryBlock();
     	int args_size = F.arg_size();
@@ -149,7 +137,7 @@ public:
     	llvm::BasicBlock * x = b.splitBasicBlock(iter);
     	x->setName(b.getName() + "_tail"); // DEBUG
 
-    	std::vector<llvm::Instruction *> recursive_calls = a.get_recursive_calls(&F);
+    	std::vector<llvm::Instruction *> recursive_calls = a.get_recursive_calls();
 
     	for(int i=0; i<recursive_calls.size(); i++)
     	{

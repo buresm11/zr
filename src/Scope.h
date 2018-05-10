@@ -35,6 +35,17 @@ public:
 	Scope() : parent(NULL) { }
 	Scope(Scope * scope) : parent(scope) { }
 
+	~Scope()
+	{
+		auto it = variables.begin();
+
+		while(it != variables.end())
+		{
+		    delete it->second;
+		    ++it;
+		}
+	}
+
 	bool has_variable(std::string name)
 	{
 		return variables.find(name) != variables.end();

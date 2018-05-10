@@ -1,0 +1,39 @@
+def void x(int a)
+
+	print(a);
+
+	if a == 0 do
+		return;
+	else do
+		x(a-1);
+	end
+end
+
+def int xx(int a)
+
+	print(a);
+
+	if a == 0 do
+		return 0;
+	else do
+		return xx(a-1);
+	end
+end
+
+def void xxx(int a, int b)
+
+	print(b * 2);
+
+	if a == 0 do
+		return;
+	else do
+		xxx(a-1, b * 2);
+	end
+end
+
+def int main()
+
+		x(10);
+		print(xx(5));
+		xxx(10, 1);
+end

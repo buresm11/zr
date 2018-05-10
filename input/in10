@@ -1,0 +1,46 @@
+// dead code
+
+def int x()
+	int a;
+
+	a = 4;
+
+	if (4 < 4) do
+		a = 5;
+	end
+
+	print(a);
+end
+
+def int xx()
+	int a;
+
+	a = 4;
+
+	while (4 > 4) do
+		a = 5;
+	end
+
+	print(a);
+end
+
+def int xxx()
+	int a;
+	a = 4;
+
+	if (4 == 4) do
+		a = 5;
+
+		if 6 > 8 do
+			a = 7;
+		end
+	end
+
+	print(a);
+end
+
+def int main()
+	x();
+	xx();
+	xxx();
+end

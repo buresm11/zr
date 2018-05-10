@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TEST_COUNT=8
+TEST_COUNT=10
 BIN="../build/zr"
 
 I=1
@@ -20,6 +20,9 @@ while [  $I -le $TEST_COUNT ]; do
 	else
 	  echo "Optimalized is diff $I"
 	fi
+
+	rm "n$I"
+	rm "o$I"
 
     I=$((I+1)) 
 done

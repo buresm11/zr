@@ -8,7 +8,7 @@
 #include "opt/const_propag.h"
 #include "opt/tail_call.h"
 #include "opt/func_inlining.h"
-#include "opt/useless_bb.h"
+#include "opt/dead_code.h"
 
 extern "C" int scan_() {
     int result;
@@ -55,7 +55,7 @@ public:
         if(optimaze)
         {
             func_inliningT * func_inlining = new func_inliningT();
-            //func_inlining->inline_F(m);
+            func_inlining->inline_F(m);
 
             if(verbose)
             {
@@ -64,18 +64,14 @@ public:
                 std::cout << std::endl;
             }
 
-
             auto pm = llvm::legacy::FunctionPassManager(m);
-            //pm.add(new useless_bb());
 
-            //pm.add(new analysis());
-            //pm.add(new const_propag());
-            //pm.add(new dead_inst());
+            pm.add(new analysis());
+            pm.add(new const_propag());
+            pm.add(new dead_inst());
             pm.add(new tail_call_analysis());
             pm.add(new tail_call());
-
-           // pm.add(new func_inlining_analysis());
-           // pm.add(new func_inlining());
+            pm.add(new dead_code());
 
             for (llvm::Function & f : *m) 
             {

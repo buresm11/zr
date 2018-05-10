@@ -216,7 +216,6 @@ public:
 		std::cout << "/------------------/ " << name << size() << std::endl;
 		for ( auto it = state.begin(); it != state.end(); ++it  )
 		{
-		   //std::cout << print_inst_type(it->first) << "   ";
 		   std::cout << it->first->getName().lower() << " ";
 		   it->second->print();
 		   std::cout << std::endl;
@@ -245,6 +244,17 @@ public:
     {
     	if(bb_value.find(basic_block) == bb_value.end()) return NULL;
     	else return bb_value[basic_block];
+    }
+
+	bool doFinalization(llvm::Module &M) override
+    {
+    	auto it = bb_value.begin();
+
+		while(it != bb_value.end())
+		{
+		    delete it->second;
+		    ++it;
+		}
     }
 
 	bool runOnFunction(llvm::Function &F)

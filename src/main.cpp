@@ -16,7 +16,7 @@ int main(int argc, char const * argv[])
 	llvm::InitializeNativeTarget();
 	llvm::InitializeNativeTargetAsmPrinter();
 	llvm::InitializeNativeTargetAsmParser();
-
+	
 	bool optimalize = false;
 	bool verbose = false;
 	std::ifstream inputFile;
@@ -87,5 +87,3 @@ int main(int argc, char const * argv[])
 
 	return 0;
 }
-
-//XII, XVII
