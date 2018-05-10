@@ -96,29 +96,29 @@ Example
 
 .. code-block:: c
 
-def int f(int x)
-	if x == 0 do
-		return 1;
-	else do
-		return x * f(x-1);
+	def int f(int x)
+		if x == 0 do
+			return 1;
+		else do
+			return x * f(x-1);
+		end
 	end
-end
 
-def void fact(int ix)
-	int i;
-	i = 0;
-	while i < ix do
-		print(f(i));
-		i = i+1;
+	def void fact(int ix)
+		int i;
+		i = 0;
+		while i < ix do
+			print(f(i));
+			i = i+1;
+		end
 	end
-end
 
 
-def int main()
-	int x;
-	x = scan();
-	fact(x);
-end
+	def int main()
+		int x;
+		x = scan();
+		fact(x);
+	end
 
 Optimalizations
 ----------
